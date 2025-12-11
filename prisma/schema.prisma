@@ -1,15 +1,413 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Mombasa Shisha Bongs - Database Schema
+// E-commerce platform for shisha, vapes, and accessories
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+// ============================================
+// CATEGORY MODEL
+// ============================================
+model Category {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  slug        String     @unique
+  description String?    @db.Text
+  image       String?
+  parentId    String?
+  parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryToCategory")
+  products    Product[]
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([slug])
+  @@index([parentId])
+  @@map("categories")
+}
+
+// ============================================
+// PRODUCT MODEL
+// ============================================
+model Product {
+  id               String  @id @default(cuid())
+  name             String
+  slug             String  @unique
+  description      String  @db.Text
+  shortDescription String? @db.VarChar(500)
+  sku              String? @unique
+
+  // Pricing
+  price          Decimal  @db.Decimal(10, 2)
+  compareAtPrice Decimal? @db.Decimal(10, 2) // Original price for discounts
+  costPrice      Decimal? @db.Decimal(10, 2) // Cost for profit calculation
+
+  // Inventory
+  stock             Int     @default(0)
+  lowStockThreshold Int     @default(10)
+  trackInventory    Boolean @default(true)
+  allowBackorder    Boolean @default(false)
+
+  // Organization
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  brand      String?
+  tags       String?  @db.VarChar(1000) // Comma-separated tags
+
+  // Media
+  images        ProductImage[]
+  featuredImage String?
+
+  // Shipping
+  weight Decimal? @db.Decimal(10, 2) // in kg
+  length Decimal? @db.Decimal(10, 2) // in cm
+  width  Decimal? @db.Decimal(10, 2) // in cm
+  height Decimal? @db.Decimal(10, 2) // in cm
+
+  // SEO
+  metaTitle       String? @db.VarChar(255)
+  metaDescription String? @db.VarChar(500)
+
+  // Status
+  isActive     Boolean @default(true)
+  isFeatured   Boolean @default(false)
+  isNewArrival Boolean @default(false)
+
+  // Relations
+  orderItems OrderItem[]
+  reviews    Review[]
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+
+  @@index([categoryId])
+  @@index([slug])
+  @@index([sku])
+  @@index([isActive, isFeatured])
+  @@index([createdAt])
+  @@map("products")
+}
+
+// ============================================
+// PRODUCT IMAGE MODEL
+// ============================================
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  altText   String?
+  position  Int      @default(0) // Order of images
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([isPrimary])
+  @@map("product_images")
+}
+
+// ============================================
+// ORDER MODEL
+// ============================================
+model Order {
+  id          String @id @default(cuid())
+  orderNumber String @unique
+
+  // Customer Information (from Clerk)
+  userId    String
+  userEmail String
+  userName  String
+  userPhone String
+
+  // Delivery Address
+  deliveryAddress String  @db.Text
+  deliveryCity    String
+  deliveryNotes   String? @db.Text
+
+  // Order Details
+  items OrderItem[]
+
+  // Pricing
+  subtotal    Decimal @db.Decimal(10, 2)
+  deliveryFee Decimal @default(0) @db.Decimal(10, 2)
+  tax         Decimal @default(0) @db.Decimal(10, 2)
+  discount    Decimal @default(0) @db.Decimal(10, 2)
+  total       Decimal @db.Decimal(10, 2)
+
+  // Status
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+
+  // Payment
+  payment Payment?
+
+  // Tracking
+  trackingNumber    String?
+  estimatedDelivery DateTime?
+  deliveredAt       DateTime?
+
+  // Notes
+  adminNotes         String? @db.Text
+  cancellationReason String? @db.Text
+
+  // Notifications
+  notifications Notification[]
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  cancelledAt DateTime?
+
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+// ============================================
+// ORDER ITEM MODEL
+// ============================================
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Product Info (snapshot at time of order)
+  productId    String
+  product      Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  productName  String
+  productSku   String?
+  productImage String?
+
+  // Pricing
+  price    Decimal @db.Decimal(10, 2)
+  quantity Int
+  subtotal Decimal @db.Decimal(10, 2)
+
+  createdAt DateTime @default(now())
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+// ============================================
+// PAYMENT MODEL
+// ============================================
+model Payment {
+  id      String @id @default(cuid())
+  orderId String @unique
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Payment Method
+  method PaymentMethod
+
+  // Mpesa Specific Fields
+  mpesaPhone             String?
+  mpesaReceiptNumber     String? @unique
+  mpesaTransactionId     String? @unique
+  mpesaCheckoutRequestId String? @unique
+
+  // Card/Bank Specific Fields
+  cardLast4     String?
+  cardBrand     String?
+  bankReference String?
+
+  // Payment Details
+  amount   Decimal       @db.Decimal(10, 2)
+  currency String        @default("KES")
+  status   PaymentStatus @default(PENDING)
+
+  // Response Data
+  providerResponse String? @db.Text // JSON response from payment provider
+  errorMessage     String? @db.Text
+
+  // Timestamps
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([orderId])
+  @@index([status])
+  @@index([mpesaReceiptNumber])
+  @@index([mpesaTransactionId])
+  @@map("payments")
+}
+
+// ============================================
+// REVIEW MODEL
+// ============================================
+model Review {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // Reviewer Info
+  userId    String
+  userName  String
+  userEmail String
+
+  // Review Content
+  rating  Int // 1-5 stars
+  title   String?
+  comment String  @db.Text
+
+  // Moderation
+  isVerified Boolean @default(false) // Verified purchase
+  isApproved Boolean @default(false) // Admin approval
+
+  // Engagement
+  helpfulCount Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+  @@index([userId])
+  @@index([rating])
+  @@index([isApproved])
+  @@map("reviews")
+}
+
+// ============================================
+// NOTIFICATION MODEL
+// ============================================
+model Notification {
+  id      String  @id @default(cuid())
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  // Recipient
+  recipientEmail String
+  recipientPhone String?
+
+  // Notification Content
+  type    NotificationType
+  channel NotificationChannel
+  subject String?
+  message String              @db.Text
+
+  // Status
+  status       NotificationStatus @default(PENDING)
+  sentAt       DateTime?
+  errorMessage String?            @db.Text
+
+  // Metadata
+  metadata String? @db.Text // JSON for additional data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ============================================
+// SETTINGS MODEL
+// ============================================
+model Settings {
+  id          String  @id @default(cuid())
+  key         String  @unique
+  value       String  @db.Text
+  description String? @db.Text
+  category    String  @default("general") // general, email, sms, payment, etc.
+  isPublic    Boolean @default(false) // Can be exposed to client
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([category])
+  @@map("settings")
+}
+
+// ============================================
+// ADMIN LOG MODEL
+// ============================================
+model AdminLog {
+  id          String  @id @default(cuid())
+  adminId     String
+  adminEmail  String
+  action      String // e.g., "UPDATE_PRODUCT", "DELETE_ORDER"
+  entity      String // e.g., "Product", "Order"
+  entityId    String?
+  description String  @db.Text
+  metadata    String? @db.Text // JSON for additional data
+  ipAddress   String?
+  userAgent   String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  @@index([adminId])
+  @@index([action])
+  @@index([entity])
+  @@index([createdAt])
+  @@map("admin_logs")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum OrderStatus {
+  PENDING // Order created, awaiting payment
+  PROCESSING // Payment received, preparing order
+  SHIPPED // Order shipped
+  DELIVERED // Order delivered
+  CANCELLED // Order cancelled
+  REFUNDED // Order refunded
+}
+
+enum PaymentStatus {
+  PENDING // Awaiting payment
+  PROCESSING // Payment in progress
+  PAID // Payment successful
+  FAILED // Payment failed
+  REFUNDED // Payment refunded
+}
+
+enum PaymentMethod {
+  MPESA // Mpesa STK Push
+  CARD // Credit/Debit Card
+  BANK_TRANSFER // Bank Transfer
+  CASH // Cash on Delivery
+}
+
+enum NotificationType {
+  ORDER_CONFIRMATION
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  ORDER_CANCELLED
+  PAYMENT_RECEIVED
+  PAYMENT_FAILED
+  LOW_STOCK_ALERT
+  ADMIN_ALERT
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+  PUSH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
 }
