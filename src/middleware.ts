@@ -1,60 +1,61 @@
-import { authMiddleware } from '@clerk/nextjs'
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
-export default authMiddleware({
-  // Public routes that don't require authentication
-  publicRoutes: [
-    '/',
-    '/products(.*)',
-    '/categories(.*)',
-    '/sign-in(.*)',
-    '/sign-up(.*)',
-    '/api/products(.*)',
-    '/api/categories(.*)',
-    '/api/mpesa/callback',
-  ],
+// Define protected routes
+const isProtectedRoute = createRouteMatcher([
+  '/orders(.*)',
+  '/checkout(.*)',
+  '/api/orders(.*)',
+  '/api/reviews(.*)',
+  '/api/mpesa/initiate(.*)',
+])
 
-  // Ignore these routes completely
-  ignoredRoutes: [
-    '/api/webhook(.*)',
-    '/_next(.*)',
-    '/favicon.ico',
-    '/images(.*)',
-    '/((?!api|trpc))(_next|.+\\..+)(.*)',
-  ],
+// Define admin routes
+const isAdminRoute = createRouteMatcher([
+  '/admin(.*)',
+  '/api/admin(.*)',
+])
 
-  // After authentication callback
-  afterAuth(auth, req) {
-    // Handle unauthenticated users trying to access protected routes
-    if (!auth.userId && !auth.isPublicRoute) {
+export default clerkMiddleware((auth, req) => {
+  const { userId, sessionClaims } = auth()
+
+  // Check if route is admin route
+  if (isAdminRoute(req)) {
+    // Redirect to sign-in if not authenticated
+    if (!userId) {
       const signInUrl = new URL('/sign-in', req.url)
       signInUrl.searchParams.set('redirect_url', req.url)
-      return Response.redirect(signInUrl)
+      return NextResponse.redirect(signInUrl)
     }
 
-    // Handle authenticated users accessing admin routes
-    if (auth.userId) {
-      const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
-      const isAdminApiRoute = req.nextUrl.pathname.startsWith('/api/admin')
+    // Check if user has admin role
+    const metadata = sessionClaims?.publicMetadata as { role?: string } | undefined
+    const role = metadata?.role
 
-      if (isAdminRoute || isAdminApiRoute) {
-        const { sessionClaims } = auth
-        const metadata = sessionClaims?.publicMetadata as { role?: string } | undefined
-        const role = metadata?.role
-
-        // If not admin, redirect to homepage
-        if (role !== 'admin') {
-          const homeUrl = new URL('/', req.url)
-          return Response.redirect(homeUrl)
-        }
-      }
+    if (role !== 'admin') {
+      return NextResponse.redirect(new URL('/', req.url))
     }
+  }
 
-    // Allow the request to proceed
-    return
-  },
+  // Check if route requires authentication
+  if (isProtectedRoute(req)) {
+    // Redirect to sign-in if not authenticated
+    if (!userId) {
+      const signInUrl = new URL('/sign-in', req.url)
+      signInUrl.searchParams.set('redirect_url', req.url)
+      return NextResponse.redirect(signInUrl)
+    }
+  }
+
+  return NextResponse.next()
 })
 
 export const config = {
-  matcher: ['/((?!.+\\.[\\w]+$|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
 }
 

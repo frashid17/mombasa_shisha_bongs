@@ -1,4 +1,4 @@
-import { auth, currentUser } from '@clerk/nextjs'
+import { auth, currentUser } from '@clerk/nextjs/server'
 import { unauthorizedError, forbiddenError } from './api-response'
 
 /**
