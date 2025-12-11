@@ -9,9 +9,20 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.36.2",
+    "@prisma/client": "^6.19.1",
+    "@tanstack/react-query": "^5.90.12",
+    "axios": "^1.13.2",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.560.0",
     "next": "16.0.8",
+    "prisma": "^6.19.1",
     "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react-dom": "19.2.1",
+    "react-hot-toast": "^2.6.0",
+    "recharts": "^3.5.1",
+    "zod": "^4.1.13",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
