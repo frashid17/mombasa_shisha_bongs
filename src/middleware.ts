@@ -16,8 +16,8 @@ const isAdminRoute = createRouteMatcher([
   '/api/admin(.*)',
 ])
 
-export default clerkMiddleware((auth, req) => {
-  const { userId, sessionClaims } = auth()
+export default clerkMiddleware(async (auth, req) => {
+  const { userId, sessionClaims } = await auth()
 
   // Check if route is admin route
   if (isAdminRoute(req)) {
