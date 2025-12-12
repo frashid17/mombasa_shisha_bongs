@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { MapPin, Navigation } from 'lucide-react'
+import { MapPin, Navigation, Loader2 } from 'lucide-react'
 
 interface LocationData {
   lat: number
@@ -38,12 +38,19 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
   // Get user's current location
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setError('Geolocation is not supported by your browser')
+      setError('Geolocation is not supported by your browser. Please select a location on the map.')
       return
     }
 
     setLoading(true)
     setError(null)
+
+    // Request location with better options for mobile
+    const options = {
+      enableHighAccuracy: true, // Use GPS if available
+      timeout: 15000, // 15 second timeout
+      maximumAge: 0, // Don't use cached position
+    }
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -51,13 +58,38 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         const lng = position.coords.longitude
 
         setLocation({ lat, lng })
+        if (markerRef.current) {
+          markerRef.current.setPosition({ lat, lng })
+          if (mapInstanceRef.current) {
+            mapInstanceRef.current.setCenter({ lat, lng })
+          }
+        }
         await checkLocationAndGetAddress(lat, lng)
         setLoading(false)
       },
       (err) => {
-        setError('Unable to get your location. Please select on the map.')
+        let errorMessage = 'Unable to get your location. '
+        
+        // Provide more specific error messages
+        switch (err.code) {
+          case err.PERMISSION_DENIED:
+            errorMessage += 'Location permission was denied. Please enable location access in your browser settings or select a location on the map.'
+            break
+          case err.POSITION_UNAVAILABLE:
+            errorMessage += 'Location information is unavailable. Please select a location on the map.'
+            break
+          case err.TIMEOUT:
+            errorMessage += 'Location request timed out. Please try again or select a location on the map.'
+            break
+          default:
+            errorMessage += 'Please select a location on the map.'
+            break
+        }
+        
+        setError(errorMessage)
         setLoading(false)
-      }
+      },
+      options
     )
   }
 
