@@ -81,9 +81,14 @@ export default async function AdminNotificationsPage() {
                 const StatusIcon = statusIcons[notification.status] || Clock
 
                 return (
-                  <tr key={notification.id} className="hover:bg-gray-50">
+                  <tr key={notification.id} className="hover:bg-gray-50 cursor-pointer">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">{notification.type.replace(/_/g, ' ')}</span>
+                      <Link
+                        href={`/admin/notifications/${notification.id}`}
+                        className="text-sm text-gray-900 hover:text-blue-600 transition-colors"
+                      >
+                        {notification.type.replace(/_/g, ' ')}
+                      </Link>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
