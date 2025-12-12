@@ -222,32 +222,65 @@ export default function CheckoutPage() {
               <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
                 <h2 className="text-xl font-bold text-white mb-4">Payment Method</h2>
                 <div className="space-y-3">
-                  {isWithinMombasa && (
-                    <label className="flex items-start gap-3 p-4 border-2 border-blue-500 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors">
+                  {/* Pay on Delivery - Show if within Mombasa or if checking */}
+                  {(isWithinMombasa === true || isWithinMombasa === null) && (
+                    <label
+                      className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                        isWithinMombasa === true
+                          ? 'border-green-500 hover:bg-gray-700/50'
+                          : 'border-gray-600 opacity-50 cursor-not-allowed'
+                      }`}
+                    >
                       <input
                         type="radio"
                         name="paymentMethod"
                         value="CASH_ON_DELIVERY"
                         checked={paymentMethod === 'CASH_ON_DELIVERY'}
-                        onChange={() => setPaymentMethod('CASH_ON_DELIVERY')}
+                        onChange={() => {
+                          if (isWithinMombasa === true) {
+                            setPaymentMethod('CASH_ON_DELIVERY')
+                          }
+                        }}
+                        disabled={isWithinMombasa !== true}
                         className="mt-1"
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <Wallet className="w-5 h-5 text-green-400" />
                           <span className="font-semibold text-white">Pay on Delivery</span>
-                          <span className="text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded-full">
-                            Available
-                          </span>
+                          {isWithinMombasa === true && (
+                            <span className="text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded-full">
+                              Available
+                            </span>
+                          )}
+                          {isWithinMombasa === false && (
+                            <span className="text-xs bg-red-900 text-red-400 px-2 py-0.5 rounded-full">
+                              Not Available
+                            </span>
+                          )}
+                          {isWithinMombasa === null && (
+                            <span className="text-xs bg-yellow-900 text-yellow-400 px-2 py-0.5 rounded-full">
+                              Checking...
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-gray-400">
-                          Pay with cash when your order is delivered. Only available within Mombasa.
+                          {isWithinMombasa === true
+                            ? 'Pay with cash when your order is delivered. Only available within Mombasa.'
+                            : isWithinMombasa === false
+                              ? 'Pay on Delivery is only available for locations within Mombasa. Please use Mpesa payment.'
+                              : 'Checking if location is within Mombasa...'}
                         </p>
                       </div>
                     </label>
                   )}
 
-                  <label className="flex items-start gap-3 p-4 border-2 border-gray-600 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors">
+                  {/* Mpesa Payment - Always available */}
+                  <label
+                    className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors ${
+                      paymentMethod === 'MPESA' ? 'border-blue-500' : 'border-gray-600'
+                    }`}
+                  >
                     <input
                       type="radio"
                       name="paymentMethod"
@@ -260,6 +293,9 @@ export default function CheckoutPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <Smartphone className="w-5 h-5 text-blue-400" />
                         <span className="font-semibold text-white">Mpesa Payment</span>
+                        <span className="text-xs bg-blue-900 text-blue-400 px-2 py-0.5 rounded-full">
+                          Always Available
+                        </span>
                       </div>
                       <p className="text-sm text-gray-400">
                         Pay instantly via Mpesa STK Push. You'll receive a payment prompt on your phone.
