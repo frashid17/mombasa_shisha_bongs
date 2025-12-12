@@ -26,10 +26,15 @@ export async function getMpesaAccessToken(): Promise<string> {
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`Mpesa auth failed: ${errorText}`)
+      console.error('Mpesa auth error response:', errorText)
+      console.error('Status:', response.status, response.statusText)
+      throw new Error(`Mpesa auth failed: ${errorText || response.statusText}`)
     }
 
     const data = await response.json()
+    if (!data.access_token) {
+      throw new Error('No access token in response')
+    }
     return data.access_token
   } catch (error: any) {
     console.error('Error getting Mpesa access token:', error)

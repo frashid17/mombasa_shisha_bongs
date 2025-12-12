@@ -7,8 +7,24 @@
  * Usage: npx tsx scripts/test-mpesa-connection.ts
  */
 
-import { getMpesaAccessToken, initiateSTKPush } from '../src/lib/mpesa'
-import { MPESA_CONFIG } from '../src/utils/constants'
+import { config } from 'dotenv'
+import { resolve } from 'path'
+
+// Load environment variables from .env.local BEFORE importing anything else
+config({ path: resolve(__dirname, '../.env.local') })
+
+// Now import after env vars are loaded
+import { getMpesaAccessToken } from '../src/lib/mpesa'
+
+// Import constants after env is loaded
+const MPESA_CONFIG = {
+  CONSUMER_KEY: process.env.MPESA_CONSUMER_KEY || '',
+  CONSUMER_SECRET: process.env.MPESA_CONSUMER_SECRET || '',
+  PASSKEY: process.env.MPESA_PASSKEY || '',
+  SHORTCODE: process.env.MPESA_SHORTCODE || '',
+  CALLBACK_URL: process.env.MPESA_CALLBACK_URL || '',
+  ENVIRONMENT: (process.env.MPESA_ENVIRONMENT || 'sandbox') as 'sandbox' | 'production',
+}
 
 async function testMpesaConnection() {
   console.log('🔍 Testing Mpesa Connection...\n')
