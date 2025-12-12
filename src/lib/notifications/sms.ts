@@ -87,7 +87,18 @@ export async function sendSMS({
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message || `Twilio error: ${data.code || 'Unknown error'}`)
+      // Provide helpful error messages for common Twilio errors
+      let errorMessage = data.message || `Twilio error: ${data.code || 'Unknown error'}`
+      
+      if (data.code === 21612) {
+        errorMessage = `Twilio Error 21612: Cannot send to unverified number. Trial accounts can only send to verified numbers. Go to Twilio Console → Phone Numbers → Verified Caller IDs to verify your number.`
+      } else if (data.code === 21211) {
+        errorMessage = `Twilio Error 21211: Invalid 'To' phone number. Make sure it's in E.164 format (e.g., +254712345678)`
+      } else if (data.code === 21212) {
+        errorMessage = `Twilio Error 21212: Invalid 'From' phone number. Check your TWILIO_PHONE_NUMBER in .env.local`
+      }
+      
+      throw new Error(errorMessage)
     }
 
     // Update notification as sent
