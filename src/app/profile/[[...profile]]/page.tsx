@@ -5,6 +5,202 @@ import { UserProfile } from '@clerk/nextjs'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
+// Custom styles for Clerk UserProfile to match nightlife aesthetic
+const clerkStyles = `
+  /* Override Clerk's default styles */
+  .cl-rootBox,
+  .cl-card,
+  .cl-page {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+  }
+  
+  /* Navigation */
+  .cl-navbar {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+  
+  .cl-navbarButton {
+    color: #d1d5db !important;
+  }
+  
+  .cl-navbarButton[aria-selected="true"] {
+    color: #60a5fa !important;
+    background-color: #374151 !important;
+  }
+  
+  /* Form inputs */
+  .cl-formFieldInput,
+  .cl-input,
+  .cl-selectButton {
+    background-color: #111827 !important;
+    border-color: #4b5563 !important;
+    color: #ffffff !important;
+  }
+  
+  .cl-formFieldInput:focus,
+  .cl-input:focus {
+    border-color: #3b82f6 !important;
+    outline-color: #3b82f6 !important;
+  }
+  
+  /* Buttons */
+  .cl-buttonPrimary {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+  }
+  
+  .cl-buttonPrimary:hover {
+    background-color: #1d4ed8 !important;
+  }
+  
+  .cl-buttonSecondary {
+    background-color: #374151 !important;
+    color: #ffffff !important;
+  }
+  
+  /* Text */
+  .cl-headerTitle,
+  .cl-headerSubtitle,
+  .cl-formFieldLabel,
+  .cl-identityPreviewText {
+    color: #ffffff !important;
+  }
+  
+  .cl-headerSubtitle,
+  .cl-formFieldLabel {
+    color: #9ca3af !important;
+  }
+  
+  /* Sections */
+  .cl-section,
+  .cl-sectionHeader {
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+  }
+  
+  /* Lists */
+  .cl-list,
+  .cl-listItem {
+    background-color: #111827 !important;
+    border-color: #374151 !important;
+    color: #ffffff !important;
+  }
+  
+  /* Danger zone */
+  .cl-danger {
+    background-color: rgba(127, 29, 29, 0.2) !important;
+    border-color: #991b1b !important;
+  }
+  
+  .cl-buttonDanger {
+    background-color: #dc2626 !important;
+    color: #ffffff !important;
+  }
+  
+  .cl-buttonDanger:hover {
+    background-color: #b91c1c !important;
+  }
+  
+  /* Links */
+  .cl-link,
+  .cl-formResendCodeLink {
+    color: #60a5fa !important;
+  }
+  
+  .cl-link:hover {
+    color: #93c5fd !important;
+  }
+  
+  /* Dividers */
+  .cl-dividerLine {
+    background-color: #374151 !important;
+  }
+  
+  .cl-dividerText {
+    color: #9ca3af !important;
+  }
+  
+  /* Alerts */
+  .cl-alert {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+  
+  .cl-alertText {
+    color: #d1d5db !important;
+  }
+  
+  /* Badges */
+  .cl-badge {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+  }
+  
+  /* Tables */
+  .cl-table {
+    background-color: #1f2937 !important;
+  }
+  
+  .cl-tableHead {
+    background-color: #111827 !important;
+  }
+  
+  .cl-tableHeadCell {
+    color: #d1d5db !important;
+  }
+  
+  .cl-tableBodyCell {
+    color: #ffffff !important;
+  }
+  
+  .cl-tableRow {
+    border-color: #374151 !important;
+  }
+  
+  .cl-tableRow:hover {
+    background-color: rgba(55, 65, 81, 0.5) !important;
+  }
+  
+  /* Modals */
+  .cl-modalContent {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+  
+  .cl-modalHeader {
+    color: #ffffff !important;
+  }
+  
+  /* Select dropdowns */
+  .cl-selectButton {
+    background-color: #111827 !important;
+    border-color: #4b5563 !important;
+    color: #ffffff !important;
+  }
+  
+  /* Phone input */
+  .cl-phoneInputBox {
+    background-color: #111827 !important;
+    border-color: #4b5563 !important;
+  }
+  
+  /* Code input */
+  .cl-otpCodeFieldInput {
+    background-color: #111827 !important;
+    border-color: #4b5563 !important;
+    color: #ffffff !important;
+  }
+  
+  /* File upload */
+  .cl-fileDropAreaBox {
+    background-color: #111827 !important;
+    border-color: #4b5563 !important;
+    border-style: dashed !important;
+  }
+`
+
 export default function ProfilePage() {
   const { user, isLoaded } = useUser()
 
@@ -34,6 +230,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
+      <style jsx global>{clerkStyles}</style>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
