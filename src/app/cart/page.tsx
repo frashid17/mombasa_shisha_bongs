@@ -97,6 +97,12 @@ export default function CartPage() {
               </div>
             </div>
             <Link
+              href="/products"
+              className="block w-full bg-gray-700 text-white text-center py-3 rounded-lg font-semibold hover:bg-gray-600 mb-2"
+            >
+              Continue Shopping
+            </Link>
+            <Link
               href="/checkout"
               className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-700 mb-2"
             >
