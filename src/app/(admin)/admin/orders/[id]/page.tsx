@@ -81,7 +81,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Order Status Update */}
-          <OrderStatusUpdate order={order} />
+          <OrderStatusUpdate order={serializeOrder(order)} />
 
           {/* Order Items */}
           <div className="bg-white rounded-lg shadow p-6">
