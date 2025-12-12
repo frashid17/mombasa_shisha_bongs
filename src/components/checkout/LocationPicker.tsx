@@ -57,7 +57,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
   // Check if location is within Mombasa and get address
   const checkLocationAndGetAddress = async (lat: number, lng: number) => {
     try {
-      // Check if within Mombasa bounds
+      // Check if within Mombasa bounds (client-side check first)
       const withinBounds =
         lat >= MOMBASA_BOUNDS.south &&
         lat <= MOMBASA_BOUNDS.north &&
@@ -70,17 +70,30 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       const response = await fetch(`/api/location/geocode?lat=${lat}&lng=${lng}`)
       const data = await response.json()
 
+      // Use server-side check result if available, otherwise use client-side
+      const finalIsWithinMombasa = data.isWithinMombasa !== undefined ? data.isWithinMombasa : withinBounds
+      setIsWithinMombasa(finalIsWithinMombasa)
+
       if (data.address) {
         setAddress(data.address)
-        onLocationSelect({ lat, lng, address: data.address })
+        onLocationSelect({ lat, lng, address: data.address, isWithinMombasa: finalIsWithinMombasa })
       } else {
-        setAddress(`Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`)
-        onLocationSelect({ lat, lng, address: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}` })
+        const coordAddress = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
+        setAddress(coordAddress)
+        onLocationSelect({ lat, lng, address: coordAddress, isWithinMombasa: finalIsWithinMombasa })
       }
     } catch (err) {
       console.error('Error checking location:', err)
-      setAddress(`Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`)
-      onLocationSelect({ lat, lng, address: `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}` })
+      // Fallback: use client-side bounds check
+      const withinBounds =
+        lat >= MOMBASA_BOUNDS.south &&
+        lat <= MOMBASA_BOUNDS.north &&
+        lng >= MOMBASA_BOUNDS.west &&
+        lng <= MOMBASA_BOUNDS.east
+      setIsWithinMombasa(withinBounds)
+      const coordAddress = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`
+      setAddress(coordAddress)
+      onLocationSelect({ lat, lng, address: coordAddress, isWithinMombasa: withinBounds })
     }
   }
 

@@ -37,28 +37,42 @@ export default function CheckoutPage() {
     return null
   }
 
-  const handleLocationSelect = async (location: { lat: number; lng: number; address: string }) => {
+  const handleLocationSelect = async (location: { lat: number; lng: number; address: string; isWithinMombasa?: boolean }) => {
     setSelectedLocation(location)
     setFormData({ ...formData, deliveryAddress: location.address })
 
-    // Check if location is within Mombasa
-    try {
-      const response = await fetch('/api/location/check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lat: location.lat, lng: location.lng }),
-      })
-      const data = await response.json()
-      setIsWithinMombasa(data.isWithinMombasa)
-
+    // Use isWithinMombasa from location if provided, otherwise check via API
+    if (location.isWithinMombasa !== undefined) {
+      setIsWithinMombasa(location.isWithinMombasa)
       // Auto-select payment method based on location
-      if (data.isWithinMombasa) {
+      if (location.isWithinMombasa) {
         setPaymentMethod('CASH_ON_DELIVERY')
       } else {
         setPaymentMethod('MPESA')
       }
-    } catch (error) {
-      console.error('Error checking location:', error)
+    } else {
+      // Fallback: Check if location is within Mombasa via API
+      try {
+        const response = await fetch('/api/location/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lat: location.lat, lng: location.lng }),
+        })
+        const data = await response.json()
+        setIsWithinMombasa(data.isWithinMombasa)
+
+        // Auto-select payment method based on location
+        if (data.isWithinMombasa) {
+          setPaymentMethod('CASH_ON_DELIVERY')
+        } else {
+          setPaymentMethod('MPESA')
+        }
+      } catch (error) {
+        console.error('Error checking location:', error)
+        // Default to Mpesa if check fails
+        setIsWithinMombasa(false)
+        setPaymentMethod('MPESA')
+      }
     }
   }
 
