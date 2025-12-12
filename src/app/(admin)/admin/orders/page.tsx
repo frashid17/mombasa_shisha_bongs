@@ -4,7 +4,7 @@ import OrdersTable from '@/components/admin/orders/OrdersTable'
 async function getOrders() {
   return prisma.order.findMany({
     include: {
-      items: { include: { product: true } },
+      items: true,
       payment: true,
     },
     orderBy: { createdAt: 'desc' },
