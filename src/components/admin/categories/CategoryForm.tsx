@@ -24,11 +24,14 @@ export default function CategoryForm({ category }: CategoryFormProps) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '')
 
+    const description = formData.get('description') as string
+    const image = formData.get('image') as string
+
     const data = {
       name,
       slug,
-      description: formData.get('description') || null,
-      image: formData.get('image') || null,
+      ...(description && { description }),
+      ...(image && { image }),
       isActive: formData.get('isActive') === 'on',
     }
 
