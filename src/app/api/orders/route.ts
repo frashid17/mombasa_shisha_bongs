@@ -7,6 +7,7 @@ import { withRateLimit } from '@/utils/rate-limit'
 import { RATE_LIMITS } from '@/utils/constants'
 import { sanitizeText, sanitizeEmail, sanitizePhone } from '@/utils/sanitize'
 import { createSecureResponse } from '@/utils/security-headers'
+import { Decimal } from '@/generated/prisma'
 
 async function handlePOST(req: Request) {
   try {
@@ -54,13 +55,13 @@ async function handlePOST(req: Request) {
         deliveryAddress: validated.deliveryAddress,
         deliveryCity: validated.city,
         deliveryNotes: validated.notes || null,
-        deliveryLatitude: validated.deliveryLatitude ? Number(validated.deliveryLatitude.toFixed(7)) : null,
-        deliveryLongitude: validated.deliveryLongitude ? Number(validated.deliveryLongitude.toFixed(7)) : null,
-        subtotal,
-        deliveryFee,
-        tax,
-        discount,
-        total,
+        deliveryLatitude: validated.deliveryLatitude != null ? parseFloat(validated.deliveryLatitude.toFixed(7)) : null,
+        deliveryLongitude: validated.deliveryLongitude != null ? parseFloat(validated.deliveryLongitude.toFixed(7)) : null,
+        subtotal: new Decimal(subtotal),
+        deliveryFee: new Decimal(deliveryFee),
+        tax: new Decimal(tax),
+        discount: new Decimal(discount),
+        total: new Decimal(total),
         status: orderStatus,
         paymentStatus,
         items: {
@@ -71,9 +72,9 @@ async function handlePOST(req: Request) {
               productName: product?.name || '',
               productSku: product?.sku || null,
               productImage: product?.images[0]?.url || null,
-              price: product ? Number(product.price) : item.price,
+              price: product ? product.price : new Decimal(item.price),
               quantity: item.quantity,
-              subtotal: (product ? Number(product.price) : item.price) * item.quantity,
+              subtotal: new Decimal((product ? Number(product.price) : item.price) * item.quantity),
             }
           }),
         },
@@ -81,7 +82,7 @@ async function handlePOST(req: Request) {
         payment: validated.paymentMethod === 'CASH_ON_DELIVERY' ? {
           create: {
             method: 'CASH_ON_DELIVERY',
-            amount: total,
+            amount: new Decimal(total),
             currency: 'KES',
             status: 'PENDING',
           },
