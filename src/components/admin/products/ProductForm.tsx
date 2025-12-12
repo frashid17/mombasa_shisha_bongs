@@ -153,7 +153,8 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             name="name"
             required
             defaultValue={product?.name}
-            className="w-full border rounded-lg px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+            style={{ color: '#111827' }}
           />
         </div>
         <div>
@@ -163,7 +164,8 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             name="sku"
             required
             defaultValue={product?.sku}
-            className="w-full border rounded-lg px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+            style={{ color: '#111827' }}
           />
         </div>
         <div>
@@ -191,7 +193,8 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             required
             step="0.01"
             defaultValue={product?.price}
-            className="w-full border rounded-lg px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+            style={{ color: '#111827' }}
           />
         </div>
         <div>
@@ -201,7 +204,8 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             name="stock"
             required
             defaultValue={product?.stock}
-            className="w-full border rounded-lg px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+            style={{ color: '#111827' }}
           />
         </div>
         <div className="flex items-center gap-2 pt-6">
@@ -220,7 +224,8 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           name="description"
           rows={4}
           defaultValue={product?.description}
-          className="w-full border rounded-lg px-4 py-2"
+          className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+          style={{ color: '#111827' }}
         />
       </div>
 

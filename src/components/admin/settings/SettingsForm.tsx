@@ -47,7 +47,8 @@ export default function SettingsForm({ settings }: { settings: any }) {
             type="text"
             name="siteName"
             defaultValue={settings.siteName}
-            className="w-full border rounded-lg px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+            style={{ color: '#111827' }}
           />
         </div>
         <div>
@@ -56,7 +57,8 @@ export default function SettingsForm({ settings }: { settings: any }) {
             type="email"
             name="contactEmail"
             defaultValue={settings.contactEmail}
-            className="w-full border rounded-lg px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+            style={{ color: '#111827' }}
           />
         </div>
         <div>
@@ -65,7 +67,8 @@ export default function SettingsForm({ settings }: { settings: any }) {
             type="tel"
             name="contactPhone"
             defaultValue={settings.contactPhone}
-            className="w-full border rounded-lg px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+            style={{ color: '#111827' }}
           />
         </div>
         <div>
@@ -74,7 +77,8 @@ export default function SettingsForm({ settings }: { settings: any }) {
             type="text"
             name="address"
             defaultValue={settings.address}
-            className="w-full border rounded-lg px-4 py-2"
+            className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+            style={{ color: '#111827' }}
           />
         </div>
       </div>
@@ -84,7 +88,8 @@ export default function SettingsForm({ settings }: { settings: any }) {
           name="siteDescription"
           rows={3}
           defaultValue={settings.siteDescription}
-          className="w-full border rounded-lg px-4 py-2"
+          className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
+          style={{ color: '#111827' }}
         />
       </div>
       <button
