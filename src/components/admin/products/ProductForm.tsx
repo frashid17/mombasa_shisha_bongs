@@ -53,7 +53,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-2">Product Name *</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Product Name *</label>
           <input
             type="text"
             name="name"
@@ -63,7 +63,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">SKU *</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">SKU *</label>
           <input
             type="text"
             name="sku"
@@ -73,7 +73,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Category *</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Category *</label>
           <select
             name="categoryId"
             required
@@ -89,7 +89,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Price (KES) *</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Price (KES) *</label>
           <input
             type="number"
             name="price"
@@ -100,7 +100,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Stock *</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Stock *</label>
           <input
             type="number"
             name="stock"
@@ -116,11 +116,11 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             defaultChecked={product?.isActive ?? true}
             className="w-4 h-4"
           />
-          <label className="text-sm font-medium">Active</label>
+          <label className="text-sm font-semibold text-gray-900">Active</label>
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium mb-2">Description</label>
+        <label className="block text-sm font-semibold text-gray-900 mb-2">Description</label>
         <textarea
           name="description"
           rows={4}

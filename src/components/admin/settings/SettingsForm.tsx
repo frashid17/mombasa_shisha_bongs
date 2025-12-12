@@ -42,7 +42,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-medium mb-2">Site Name</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Site Name</label>
           <input
             type="text"
             name="siteName"
@@ -51,7 +51,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Contact Email</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Contact Email</label>
           <input
             type="email"
             name="contactEmail"
@@ -60,7 +60,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Contact Phone</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Contact Phone</label>
           <input
             type="tel"
             name="contactPhone"
@@ -69,7 +69,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2">Address</label>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Address</label>
           <input
             type="text"
             name="address"
@@ -79,7 +79,7 @@ export default function SettingsForm({ settings }: { settings: any }) {
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium mb-2">Site Description</label>
+        <label className="block text-sm font-semibold text-gray-900 mb-2">Site Description</label>
         <textarea
           name="siteDescription"
           rows={3}
