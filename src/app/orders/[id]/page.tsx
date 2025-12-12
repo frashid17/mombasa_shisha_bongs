@@ -93,7 +93,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                 orderId={order.id}
                 amount={Number(order.total)}
                 orderNumber={order.orderNumber}
-                phoneNumber={order.customerPhone}
+                phoneNumber={order.userPhone}
               />
             </div>
           )}
