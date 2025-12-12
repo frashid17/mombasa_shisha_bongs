@@ -1,15 +1,18 @@
 /**
  * Notification Service
  * 
- * Centralized notification service that handles sending emails and SMS/WhatsApp
+ * Centralized notification service that handles sending emails
  * notifications for orders, payments, and other events.
+ * 
+ * Note: WhatsApp notifications are disabled for now and will be implemented later.
  */
 
 import { sendEmail } from './email'
-import { sendSMS, sendWhatsApp } from './sms'
+import { sendSMS } from './sms'
 import { getNotificationTemplate } from './templates'
 import { NotificationType } from '@prisma/client'
 import prisma from '@/lib/prisma'
+import { ADMIN_CONFIG } from '@/utils/constants'
 
 interface OrderNotificationData {
   orderNumber: string
@@ -35,20 +38,15 @@ interface PaymentNotificationData {
 
 /**
  * Send order confirmation notifications
- * Sends WhatsApp to: Delivery Person, Admin, and Buyer
+ * Sends email to: Customer and Admin
  */
 export async function sendOrderConfirmationNotification(
   orderId: string,
   data: OrderNotificationData
 ): Promise<void> {
   const template = getNotificationTemplate('ORDER_CONFIRMATION', data)
-  const { WHATSAPP_CONFIG } = await import('@/utils/constants')
-  const { 
-    getDeliveryPersonOrderNotification, 
-    getAdminOrderNotification 
-  } = await import('./whatsapp-templates')
 
-  // Send email (optional, can be disabled)
+  // Send email to customer
   await sendEmail({
     to: data.customerEmail,
     subject: template.subject || 'Order Confirmation',
@@ -59,59 +57,49 @@ export async function sendOrderConfirmationNotification(
     metadata: { orderNumber: data.orderNumber },
   }).catch(err => console.error('Email send failed:', err))
 
-  // Send WhatsApp to Delivery Person
-  if (WHATSAPP_CONFIG.DELIVERY_PHONE) {
-    await sendWhatsApp({
-      to: WHATSAPP_CONFIG.DELIVERY_PHONE,
-      message: getDeliveryPersonOrderNotification({
-        orderNumber: data.orderNumber,
-        customerName: data.customerName,
-        customerPhone: data.customerPhone,
-        total: data.total,
-        items: data.items,
-        deliveryAddress: data.deliveryAddress,
-        deliveryCity: data.deliveryCity,
-      }),
-      orderId,
-      type: 'ORDER_CONFIRMATION',
-      metadata: { orderNumber: data.orderNumber, recipient: 'delivery_person' },
-    }).catch(err => console.error('WhatsApp to delivery person failed:', err))
-  }
+  // Send email to admin
+  const adminEmail = ADMIN_CONFIG.EMAIL
+  if (adminEmail) {
+    const adminTemplate = {
+      subject: `New Order Received - #${data.orderNumber}`,
+      html: `
+        <h1>New Order Received</h1>
+        <p><strong>Order Number:</strong> #${data.orderNumber}</p>
+        <p><strong>Customer:</strong> ${data.customerName}</p>
+        <p><strong>Email:</strong> ${data.customerEmail}</p>
+        <p><strong>Phone:</strong> ${data.customerPhone}</p>
+        <p><strong>Delivery Address:</strong> ${data.deliveryAddress}, ${data.deliveryCity}</p>
+        <p><strong>Total:</strong> KES ${data.total.toLocaleString()}</p>
+        <h2>Order Items:</h2>
+        <ul>
+          ${data.items.map(item => `<li>${item.name} x${item.quantity} - KES ${item.price.toLocaleString()}</li>`).join('')}
+        </ul>
+        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/orders/${orderId}">View Order in Admin Panel</a></p>
+      `,
+      text: `New Order #${data.orderNumber} from ${data.customerName}. Total: KES ${data.total.toLocaleString()}. View in admin panel.`,
+    }
 
-  // Send WhatsApp to Admin
-  if (WHATSAPP_CONFIG.ADMIN_PHONE) {
-    await sendWhatsApp({
-      to: WHATSAPP_CONFIG.ADMIN_PHONE,
-      message: getAdminOrderNotification({
-        orderNumber: data.orderNumber,
-        customerName: data.customerName,
-        customerPhone: data.customerPhone,
-        total: data.total,
-        items: data.items,
-        deliveryAddress: data.deliveryAddress,
-        deliveryCity: data.deliveryCity,
-      }),
+    await sendEmail({
+      to: adminEmail,
+      subject: adminTemplate.subject,
+      html: adminTemplate.html,
+      text: adminTemplate.text,
       orderId,
       type: 'ORDER_CONFIRMATION',
       metadata: { orderNumber: data.orderNumber, recipient: 'admin' },
-    }).catch(err => console.error('WhatsApp to admin failed:', err))
+    }).catch(err => console.error('Admin email send failed:', err))
   }
 }
 
 /**
  * Send payment received notifications
- * Sends WhatsApp to: Buyer and Admin
+ * Sends email to: Customer and Admin
  */
 export async function sendPaymentReceivedNotification(
   orderId: string,
   data: PaymentNotificationData
 ): Promise<void> {
   const template = getNotificationTemplate('PAYMENT_RECEIVED', data)
-  const { WHATSAPP_CONFIG } = await import('@/utils/constants')
-  const { 
-    getBuyerPaymentConfirmation, 
-    getAdminPaymentNotification 
-  } = await import('./whatsapp-templates')
 
   // Get order details for admin notification
   const order = await prisma.order.findUnique({
@@ -119,7 +107,7 @@ export async function sendPaymentReceivedNotification(
     select: { userName: true },
   })
 
-  // Send email (optional)
+  // Send email to customer
   await sendEmail({
     to: data.customerEmail,
     subject: template.subject || 'Payment Received',
@@ -134,36 +122,28 @@ export async function sendPaymentReceivedNotification(
     },
   }).catch(err => console.error('Email send failed:', err))
 
-  // Send WhatsApp to Buyer
-  if (data.customerPhone) {
-    await sendWhatsApp({
-      to: data.customerPhone,
-      message: getBuyerPaymentConfirmation({
-        orderNumber: data.orderNumber,
-        customerName: order?.userName || 'Customer',
-        amount: data.amount,
-        receiptNumber: data.receiptNumber,
-      }),
-      orderId,
-      type: 'PAYMENT_RECEIVED',
-      metadata: {
-        orderNumber: data.orderNumber,
-        receiptNumber: data.receiptNumber,
-        recipient: 'buyer',
-      },
-    }).catch(err => console.error('WhatsApp to buyer failed:', err))
-  }
+  // Send email to admin
+  const adminEmail = ADMIN_CONFIG.EMAIL
+  if (adminEmail) {
+    const adminTemplate = {
+      subject: `Payment Received - Order #${data.orderNumber}`,
+      html: `
+        <h1>Payment Received</h1>
+        <p><strong>Order Number:</strong> #${data.orderNumber}</p>
+        <p><strong>Customer:</strong> ${order?.userName || 'Customer'}</p>
+        <p><strong>Amount:</strong> KES ${data.amount.toLocaleString()}</p>
+        ${data.receiptNumber ? `<p><strong>Mpesa Receipt:</strong> ${data.receiptNumber}</p>` : ''}
+        ${data.transactionId ? `<p><strong>Transaction ID:</strong> ${data.transactionId}</p>` : ''}
+        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/orders/${orderId}">View Order in Admin Panel</a></p>
+      `,
+      text: `Payment received for Order #${data.orderNumber}. Amount: KES ${data.amount.toLocaleString()}. ${data.receiptNumber ? `Receipt: ${data.receiptNumber}` : ''}`,
+    }
 
-  // Send WhatsApp to Admin
-  if (WHATSAPP_CONFIG.ADMIN_PHONE) {
-    await sendWhatsApp({
-      to: WHATSAPP_CONFIG.ADMIN_PHONE,
-      message: getAdminPaymentNotification({
-        orderNumber: data.orderNumber,
-        customerName: order?.userName || 'Customer',
-        amount: data.amount,
-        receiptNumber: data.receiptNumber,
-      }),
+    await sendEmail({
+      to: adminEmail,
+      subject: adminTemplate.subject,
+      html: adminTemplate.html,
+      text: adminTemplate.text,
       orderId,
       type: 'PAYMENT_RECEIVED',
       metadata: {
@@ -171,22 +151,21 @@ export async function sendPaymentReceivedNotification(
         receiptNumber: data.receiptNumber,
         recipient: 'admin',
       },
-    }).catch(err => console.error('WhatsApp to admin failed:', err))
+    }).catch(err => console.error('Admin email send failed:', err))
   }
 }
 
 /**
  * Send order shipped notifications
- * Sends WhatsApp to: Buyer
+ * Sends email to: Customer
  */
 export async function sendOrderShippedNotification(
   orderId: string,
   data: OrderNotificationData
 ): Promise<void> {
   const template = getNotificationTemplate('ORDER_SHIPPED', data)
-  const { getBuyerOrderShippedNotification } = await import('./whatsapp-templates')
 
-  // Send email (optional)
+  // Send email to customer
   await sendEmail({
     to: data.customerEmail,
     subject: template.subject || 'Order Shipped',
@@ -199,30 +178,6 @@ export async function sendOrderShippedNotification(
       trackingNumber: data.trackingNumber,
     },
   }).catch(err => console.error('Email send failed:', err))
-
-  // Send WhatsApp to Buyer
-  if (data.customerPhone) {
-    await sendWhatsApp({
-      to: data.customerPhone,
-      message: getBuyerOrderShippedNotification({
-        orderNumber: data.orderNumber,
-        customerName: data.customerName,
-        customerPhone: data.customerPhone,
-        total: data.total,
-        items: data.items,
-        deliveryAddress: data.deliveryAddress,
-        deliveryCity: data.deliveryCity,
-        trackingNumber: data.trackingNumber,
-      }),
-      orderId,
-      type: 'ORDER_SHIPPED',
-      metadata: {
-        orderNumber: data.orderNumber,
-        trackingNumber: data.trackingNumber,
-        recipient: 'buyer',
-      },
-    }).catch(err => console.error('WhatsApp to buyer failed:', err))
-  }
 }
 
 /**

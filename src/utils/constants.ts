@@ -185,6 +185,8 @@ export const SMS_CONFIG = {
 // ============================================
 // WHATSAPP CONFIGURATION (360dialog)
 // ============================================
+// NOTE: WhatsApp notifications are currently disabled
+// This configuration is kept for future implementation
 
 export const WHATSAPP_CONFIG = {
   // 360dialog WhatsApp Business API credentials
@@ -202,7 +204,7 @@ export const WHATSAPP_CONFIG = {
 
 export const ADMIN_CONFIG = {
   ROLE: 'admin',
-  EMAIL: process.env.ADMIN_EMAIL || 'admin@mombasashishabongs.com',
+  EMAIL: process.env.ADMIN_EMAIL || 'mombasashishabongs@gmail.com',
 } as const
 
 // ============================================
