@@ -81,6 +81,7 @@ export const orderItemSchema = z.object({
     .positive('Quantity must be positive')
     .min(1, 'Quantity must be at least 1')
     .max(100, 'Maximum quantity is 100'),
+  price: z.number().positive('Price must be positive'),
 })
 
 export const createOrderSchema = z.object({
@@ -88,15 +89,17 @@ export const createOrderSchema = z.object({
     .array(orderItemSchema)
     .min(1, 'At least one item is required')
     .max(50, 'Maximum 50 items per order'),
+  customerName: z.string().min(2, 'Name must be at least 2 characters').max(255),
+  customerEmail: z.string().email('Invalid email address'),
+  customerPhone: z
+    .string()
+    .regex(/^\+254[17]\d{8}$/, 'Invalid Kenyan phone number. Format: +254712345678'),
   deliveryAddress: z
     .string()
     .min(10, 'Delivery address must be at least 10 characters')
     .max(500),
-  deliveryCity: z.string().min(2).max(100),
-  deliveryNotes: z.string().max(1000).optional(),
-  userPhone: z
-    .string()
-    .regex(/^\+254[17]\d{8}$/, 'Invalid Kenyan phone number. Format: +254712345678'),
+  city: z.string().min(2).max(100),
+  notes: z.string().max(1000).optional(),
 })
 
 export const updateOrderStatusSchema = z.object({

@@ -1,18 +1,34 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
-import { orderSchema } from '@/utils/validations'
+import { createOrderSchema } from '@/utils/validations'
 
 export async function POST(req: Request) {
   try {
     const { userId } = await auth()
     const body = await req.json()
 
-    const validated = orderSchema.parse({
-      ...body,
-      userId: userId || null,
-      status: 'PENDING',
+    const validated = createOrderSchema.parse(body)
+
+    // Fetch product details for order items
+    const productIds = validated.items.map(item => item.productId)
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      include: { images: { take: 1 } },
     })
+
+    const productMap = new Map(products.map(p => [p.id, p]))
+
+    // Calculate totals
+    const subtotal = validated.items.reduce((sum, item) => {
+      const product = productMap.get(item.productId)
+      const price = product ? Number(product.price) : item.price
+      return sum + price * item.quantity
+    }, 0)
+    const deliveryFee = 0
+    const tax = 0
+    const discount = 0
+    const total = subtotal + deliveryFee + tax - discount
 
     // Generate order number
     const orderCount = await prisma.order.count()
@@ -22,21 +38,33 @@ export async function POST(req: Request) {
     const order = await prisma.order.create({
       data: {
         orderNumber,
-        userId: validated.userId,
-        customerName: validated.customerName,
-        customerEmail: validated.customerEmail,
-        customerPhone: validated.customerPhone,
+        userId: userId || 'guest',
+        userEmail: validated.customerEmail,
+        userName: validated.customerName,
+        userPhone: validated.customerPhone,
         deliveryAddress: validated.deliveryAddress,
-        city: validated.city,
-        notes: validated.notes,
-        status: validated.status,
-        total: validated.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        deliveryCity: validated.city,
+        deliveryNotes: validated.notes || null,
+        subtotal,
+        deliveryFee,
+        tax,
+        discount,
+        total,
+        status: 'PENDING',
+        paymentStatus: 'PENDING',
         items: {
-          create: validated.items.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-          })),
+          create: validated.items.map((item) => {
+            const product = productMap.get(item.productId)
+            return {
+              productId: item.productId,
+              productName: product?.name || '',
+              productSku: product?.sku || null,
+              productImage: product?.images[0]?.url || null,
+              price: product ? Number(product.price) : item.price,
+              quantity: item.quantity,
+              subtotal: (product ? Number(product.price) : item.price) * item.quantity,
+            }
+          }),
         },
       },
       include: { items: { include: { product: true } } },
