@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { sendPaymentReceivedNotification, sendPaymentFailedNotification } from '@/lib/notifications'
 
 interface MpesaCallbackBody {
   Body: {
@@ -70,15 +71,28 @@ export async function POST(req: Request) {
       })
 
       // Update order
-      await prisma.order.update({
+      const updatedOrder = await prisma.order.update({
         where: { id: payment.orderId },
         data: {
           paymentStatus: 'PAID',
           status: 'PROCESSING', // Move to processing after payment
         },
+        include: { items: true },
       })
 
-      // TODO: Send notification (Step 9)
+      // Send payment received notification (async, don't wait)
+      sendPaymentReceivedNotification(payment.orderId, {
+        orderNumber: payment.order.orderNumber,
+        customerEmail: payment.order.userEmail,
+        customerPhone: payment.order.userPhone,
+        amount: Number(payment.amount),
+        receiptNumber: receiptNumber || undefined,
+        transactionId: CheckoutRequestID,
+      }).catch((error) => {
+        console.error('Failed to send payment notification:', error)
+        // Don't fail the callback if notification fails
+      })
+
       console.log(`Payment successful for order ${payment.order.orderNumber}`)
     } else {
       // Payment failed
@@ -91,11 +105,24 @@ export async function POST(req: Request) {
         },
       })
 
-      await prisma.order.update({
+      const updatedOrder = await prisma.order.update({
         where: { id: payment.orderId },
         data: {
           paymentStatus: 'FAILED',
         },
+        include: { items: true },
+      })
+
+      // Send payment failed notification (async, don't wait)
+      sendPaymentFailedNotification(payment.orderId, {
+        orderNumber: payment.order.orderNumber,
+        customerEmail: payment.order.userEmail,
+        customerPhone: payment.order.userPhone,
+        amount: Number(payment.amount),
+        errorMessage: ResultDesc,
+      }).catch((error) => {
+        console.error('Failed to send payment failed notification:', error)
+        // Don't fail the callback if notification fails
       })
 
       console.error(`Payment failed for order ${payment.order.orderNumber}: ${ResultDesc}`)

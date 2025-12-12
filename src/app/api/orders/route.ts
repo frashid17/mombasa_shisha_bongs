@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
 import { createOrderSchema } from '@/utils/validations'
+import { sendOrderConfirmationNotification } from '@/lib/notifications'
 
 export async function POST(req: Request) {
   try {
@@ -68,6 +69,25 @@ export async function POST(req: Request) {
         },
       },
       include: { items: { include: { product: true } } },
+    })
+
+    // Send order confirmation notification (async, don't wait)
+    sendOrderConfirmationNotification(order.id, {
+      orderNumber: order.orderNumber,
+      customerName: order.userName,
+      customerEmail: order.userEmail,
+      customerPhone: order.userPhone,
+      total: Number(order.total),
+      items: order.items.map((item) => ({
+        name: item.productName,
+        quantity: item.quantity,
+        price: Number(item.price),
+      })),
+      deliveryAddress: order.deliveryAddress,
+      deliveryCity: order.deliveryCity,
+    }).catch((error) => {
+      console.error('Failed to send order confirmation notification:', error)
+      // Don't fail the order creation if notification fails
     })
 
     return NextResponse.json({ order }, { status: 201 })
