@@ -37,19 +37,27 @@ async function handlePOST(req: Request) {
       )
     }
 
-    // Get order
+    // Get order with payment relation
     const order = await prisma.order.findUnique({
       where: { id: validated.orderId },
-      include: { items: true, payment: true },
+      include: { 
+        items: true, 
+        payment: true 
+      },
     })
 
     if (!order) {
-      return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+      return createSecureResponse(
+        { success: false, error: 'Order not found' },
+        404
+      )
     }
 
     // Check if order is eligible for payment
     // Allow payment if status is PENDING or if it's a COD order that hasn't been paid
-    const isCOD = order.payment?.method === 'CASH_ON_DELIVERY'
+    const existingPayment = order.payment
+    const isCOD = existingPayment?.method === 'CASH_ON_DELIVERY'
+    
     if (order.paymentStatus !== 'PENDING' && !isCOD) {
       return createSecureResponse(
         {
@@ -61,10 +69,10 @@ async function handlePOST(req: Request) {
     }
 
     // If it's a COD order, we need to create a new Mpesa payment
-    if (isCOD && order.payment) {
+    if (isCOD && existingPayment) {
       // Delete the COD payment record to create a new Mpesa one
       await prisma.payment.delete({
-        where: { id: order.payment.id },
+        where: { id: existingPayment.id },
       })
     }
 
