@@ -172,13 +172,14 @@ export const EMAIL_CONFIG = {
 } as const
 
 // ============================================
-// SMS CONFIGURATION
+// SMS CONFIGURATION (Twilio)
 // ============================================
 
 export const SMS_CONFIG = {
-  API_KEY: process.env.SMS_API_KEY || '',
-  USERNAME: process.env.SMS_USERNAME || '',
-  FROM: 'MombasaSB',
+  // Twilio credentials
+  ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID || '',
+  AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN || '',
+  FROM_NUMBER: process.env.TWILIO_PHONE_NUMBER || '', // Format: +1234567890
 } as const
 
 // ============================================

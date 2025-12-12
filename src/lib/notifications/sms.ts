@@ -11,8 +11,10 @@ interface SendSMSOptions {
 }
 
 /**
- * Send SMS notification using Africa's Talking API
- * Falls back to console.log in development if API key is not set
+ * Send SMS notification using Twilio API
+ * Falls back to console.log in development if credentials are not set
+ * 
+ * Twilio Free Trial: Get $15.50 credit at https://www.twilio.com/try-twilio
  */
 export async function sendSMS({
   to,
@@ -36,13 +38,18 @@ export async function sendSMS({
   })
 
   try {
-    // If no API key, log in development mode
-    if (!SMS_CONFIG.API_KEY || !SMS_CONFIG.USERNAME) {
+    // If no credentials, log in development mode
+    if (!SMS_CONFIG.ACCOUNT_SID || !SMS_CONFIG.AUTH_TOKEN || !SMS_CONFIG.FROM_NUMBER) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('📱 SMS (Development Mode - No API Key):')
+        console.log('📱 SMS (Development Mode - No Twilio Credentials):')
         console.log('To:', to)
         console.log('Message:', message)
         console.log('---')
+        console.log('💡 To enable SMS: Get free Twilio account at https://www.twilio.com/try-twilio')
+        console.log('   Add credentials to .env.local:')
+        console.log('   TWILIO_ACCOUNT_SID=your_account_sid')
+        console.log('   TWILIO_AUTH_TOKEN=your_auth_token')
+        console.log('   TWILIO_PHONE_NUMBER=+1234567890')
       }
 
       // Mark as sent in development
@@ -57,25 +64,30 @@ export async function sendSMS({
       return { success: true, notificationId: notification.id }
     }
 
-    // Use Africa's Talking API
-    const response = await fetch('https://api.africastalking.com/version1/messaging', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'apiKey': SMS_CONFIG.API_KEY,
-      },
-      body: new URLSearchParams({
-        username: SMS_CONFIG.USERNAME,
-        to: to,
-        message: message,
-        from: SMS_CONFIG.FROM,
-      }),
-    })
+    // Use Twilio API
+    // Twilio uses Basic Auth with Account SID as username and Auth Token as password
+    const auth = Buffer.from(`${SMS_CONFIG.ACCOUNT_SID}:${SMS_CONFIG.AUTH_TOKEN}`).toString('base64')
+    
+    const response = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${SMS_CONFIG.ACCOUNT_SID}/Messages.json`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${auth}`,
+        },
+        body: new URLSearchParams({
+          From: SMS_CONFIG.FROM_NUMBER,
+          To: to,
+          Body: message,
+        }),
+      }
+    )
 
     const data = await response.json()
 
-    if (!response.ok || data.SMSMessageData?.Recipients?.[0]?.status !== 'Success') {
-      throw new Error(data.SMSMessageData?.Recipients?.[0]?.statusCode || 'Failed to send SMS')
+    if (!response.ok) {
+      throw new Error(data.message || `Twilio error: ${data.code || 'Unknown error'}`)
     }
 
     // Update notification as sent
@@ -84,7 +96,7 @@ export async function sendSMS({
       data: {
         status: NotificationStatus.SENT,
         sentAt: new Date(),
-        metadata: JSON.stringify({ ...metadata, messageId: data.SMSMessageData?.Recipients?.[0]?.messageId }),
+        metadata: JSON.stringify({ ...metadata, messageSid: data.sid, status: data.status }),
       },
     })
 
@@ -130,13 +142,14 @@ export async function sendWhatsApp({
   })
 
   try {
-    // If no API key, log in development mode
-    if (!SMS_CONFIG.API_KEY || !SMS_CONFIG.USERNAME) {
+    // If no credentials, log in development mode
+    if (!SMS_CONFIG.ACCOUNT_SID || !SMS_CONFIG.AUTH_TOKEN || !SMS_CONFIG.FROM_NUMBER) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('💬 WhatsApp (Development Mode - No API Key):')
+        console.log('💬 WhatsApp (Development Mode - No Twilio Credentials):')
         console.log('To:', to)
         console.log('Message:', message)
         console.log('---')
+        console.log('💡 WhatsApp requires Twilio WhatsApp Business API setup')
       }
 
       // Mark as sent in development
@@ -151,10 +164,10 @@ export async function sendWhatsApp({
       return { success: true, notificationId: notification.id }
     }
 
-    // Use Africa's Talking WhatsApp API (if available)
-    // Note: This requires WhatsApp Business API setup
+    // Note: WhatsApp via Twilio requires WhatsApp Business API setup
     // For now, we'll use SMS as fallback or log it
-    console.log('WhatsApp sending not fully implemented - requires WhatsApp Business API')
+    console.log('WhatsApp sending not fully implemented - requires Twilio WhatsApp Business API setup')
+    console.log('💡 For now, SMS notifications are sent instead')
     
     // Update notification as sent (for now)
     await prisma.notification.update({
