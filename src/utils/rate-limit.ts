@@ -124,12 +124,31 @@ export function withRateLimit(
       }
 
       // Add rate limit headers to response
-      const response = await handler(req)
-      response.headers.set('X-RateLimit-Limit', limit.toString())
-      response.headers.set('X-RateLimit-Remaining', remaining.toString())
-      response.headers.set('X-RateLimit-Reset', resetTime.toString())
+      try {
+        const response = await handler(req)
+        response.headers.set('X-RateLimit-Limit', limit.toString())
+        response.headers.set('X-RateLimit-Remaining', remaining.toString())
+        response.headers.set('X-RateLimit-Reset', resetTime.toString())
 
-      return response
+        return response
+      } catch (error: any) {
+        // Ensure errors are returned as JSON, not HTML
+        console.error('Handler error in rate limit middleware:', error)
+        return NextResponse.json(
+          {
+            success: false,
+            error: error.message || 'An unexpected error occurred',
+          },
+          {
+            status: 500,
+            headers: {
+              'X-RateLimit-Limit': limit.toString(),
+              'X-RateLimit-Remaining': remaining.toString(),
+              'X-RateLimit-Reset': resetTime.toString(),
+            },
+          }
+        )
+      }
     }
   }
 }

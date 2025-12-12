@@ -11,11 +11,31 @@ async function handlePOST(req: Request) {
   try {
     const { userId } = await auth()
     if (!userId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return createSecureResponse(
+        { success: false, error: 'Unauthorized. Please sign in to make a payment.' },
+        401
+      )
     }
 
-    const body = await req.json()
-    const validated = initiateMpesaSchema.parse(body)
+    let body
+    try {
+      body = await req.json()
+    } catch (parseError) {
+      return createSecureResponse(
+        { success: false, error: 'Invalid request body. Expected JSON.' },
+        400
+      )
+    }
+
+    let validated
+    try {
+      validated = initiateMpesaSchema.parse(body)
+    } catch (validationError: any) {
+      return createSecureResponse(
+        { success: false, error: validationError.message || 'Invalid request data' },
+        400
+      )
+    }
 
     // Get order
     const order = await prisma.order.findUnique({
@@ -47,12 +67,24 @@ async function handlePOST(req: Request) {
     }
 
     // Initiate STK Push
-    const stkResponse = await initiateSTKPush(
-      validated.phoneNumber,
-      Number(order.total),
-      order.orderNumber,
-      `Payment for order ${order.orderNumber}`
-    )
+    let stkResponse
+    try {
+      stkResponse = await initiateSTKPush(
+        validated.phoneNumber,
+        Number(order.total),
+        order.orderNumber,
+        `Payment for order ${order.orderNumber}`
+      )
+    } catch (stkError: any) {
+      console.error('STK Push initiation failed:', stkError)
+      return createSecureResponse(
+        {
+          success: false,
+          error: stkError.message || 'Failed to initiate payment. Please check your Mpesa credentials and try again.',
+        },
+        500
+      )
+    }
 
     // Create or update payment record
     if (payment) {
@@ -96,12 +128,14 @@ async function handlePOST(req: Request) {
     })
   } catch (error: any) {
     console.error('Mpesa initiation error:', error)
+    
+    // Ensure we always return JSON, never HTML
     return createSecureResponse(
       {
         success: false,
-        error: error.message || 'Failed to initiate Mpesa payment',
+        error: error.message || 'An unexpected error occurred. Please try again or contact support.',
       },
-      400
+      500
     )
   }
 }

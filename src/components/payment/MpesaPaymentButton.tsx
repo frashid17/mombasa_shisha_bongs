@@ -54,6 +54,16 @@ export default function MpesaPaymentButton({
         }),
       })
 
+      // Check if response is JSON
+      const contentType = res.headers.get('content-type')
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await res.text()
+        console.error('Non-JSON response:', text.substring(0, 200))
+        setError('Server error: Invalid response format. Please try again or contact support.')
+        setLoading(false)
+        return
+      }
+
       const data = await res.json()
 
       if (res.ok && data.success) {
@@ -66,9 +76,13 @@ export default function MpesaPaymentButton({
       } else {
         setError(data.error || 'Failed to initiate payment. Please try again.')
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Payment error:', error)
-      setError('An error occurred. Please try again.')
+      if (error.message && error.message.includes('JSON')) {
+        setError('Server error: Invalid response. Please try again or contact support.')
+      } else {
+        setError(error.message || 'An error occurred. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
