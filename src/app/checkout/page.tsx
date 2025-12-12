@@ -52,7 +52,8 @@ export default function CheckoutPage() {
 
       const data = await res.json()
       if (res.ok) {
-        clearCart()
+        // Don't clear cart yet - wait for payment confirmation
+        // Redirect to order page where user can initiate payment
         router.push(`/orders/${data.order.id}`)
       } else {
         alert(data.error || 'Failed to create order')
