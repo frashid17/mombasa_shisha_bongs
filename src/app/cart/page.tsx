@@ -5,9 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react'
 import Navbar from '@/components/Navbar'
-import dynamic from 'next/dynamic'
-
-const CartRecommendations = dynamic(() => import('./recommendations'), { ssr: false })
+import CartRecommendations from '@/components/cart/CartRecommendations'
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, getTotal, clearCart } = useCartStore()
