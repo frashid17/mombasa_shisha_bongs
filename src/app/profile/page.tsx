@@ -1,14 +1,12 @@
 'use client'
 
 import { useUser } from '@clerk/nextjs'
-import { useState } from 'react'
 import { UserProfile } from '@clerk/nextjs'
-import { ArrowLeft, Settings, User, Mail, Lock, Trash2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser()
-  const [activeTab, setActiveTab] = useState<'profile' | 'account'>('profile')
 
   if (!isLoaded) {
     return (
@@ -36,151 +34,68 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-4"
+            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
           <h1 className="text-3xl font-bold text-white mb-2">My Profile</h1>
-          <p className="text-gray-400">Manage your account settings and preferences</p>
+          <p className="text-gray-400">Manage your account settings, profile information, and security</p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="mb-6 border-b border-gray-700">
-          <div className="flex gap-4">
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`px-4 py-2 font-semibold transition-colors ${
-                activeTab === 'profile'
-                  ? 'text-blue-400 border-b-2 border-blue-400'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                Profile
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab('account')}
-              className={`px-4 py-2 font-semibold transition-colors ${
-                activeTab === 'account'
-                  ? 'text-blue-400 border-b-2 border-blue-400'
-                  : 'text-gray-400 hover:text-gray-300'
-              }`}
-            >
-              <div className="flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Account
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
+        {/* Clerk UserProfile Component */}
         <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden">
-          {activeTab === 'profile' ? (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                  <User className="w-5 h-5" />
-                  Profile Information
-                </h2>
-                <p className="text-gray-400 text-sm">
-                  Update your name, email, and profile picture
-                </p>
-              </div>
-              <UserProfile
-                appearance={{
-                  elements: {
-                    rootBox: 'w-full',
-                    card: 'bg-gray-800 border-gray-700 shadow-none',
-                    navbar: 'bg-gray-800 border-gray-700',
-                    navbarButton: 'text-gray-300 hover:text-white hover:bg-gray-700',
-                    navbarButtonActive: 'text-blue-400 bg-gray-700',
-                    page: 'bg-gray-800',
-                    pageHeader: 'text-white',
-                    headerTitle: 'text-white',
-                    headerSubtitle: 'text-gray-400',
-                    formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white',
-                    formFieldInput: 'bg-gray-900 border-gray-600 text-white',
-                    formFieldLabel: 'text-gray-300',
-                    formFieldSuccessText: 'text-green-400',
-                    formFieldErrorText: 'text-red-400',
-                    avatarBox: 'w-24 h-24',
-                    identityPreview: 'bg-gray-900 border-gray-600',
-                    identityPreviewText: 'text-white',
-                    identityPreviewEditButton: 'text-blue-400 hover:text-blue-300',
-                    formResendCodeLink: 'text-blue-400 hover:text-blue-300',
-                    footer: 'hidden',
-                  },
-                }}
-              />
-            </div>
-          ) : (
-            <div className="p-6">
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-white mb-2 flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  Account Settings
-                </h2>
-                <p className="text-gray-400 text-sm">
-                  Manage your password, email, and account security
-                </p>
-              </div>
-              <UserProfile
-                appearance={{
-                  elements: {
-                    rootBox: 'w-full',
-                    card: 'bg-gray-800 border-gray-700 shadow-none',
-                    navbar: 'bg-gray-800 border-gray-700',
-                    navbarButton: 'text-gray-300 hover:text-white hover:bg-gray-700',
-                    navbarButtonActive: 'text-blue-400 bg-gray-700',
-                    page: 'bg-gray-800',
-                    pageHeader: 'text-white',
-                    headerTitle: 'text-white',
-                    headerSubtitle: 'text-gray-400',
-                    formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white',
-                    formFieldInput: 'bg-gray-900 border-gray-600 text-white',
-                    formFieldLabel: 'text-gray-300',
-                    formFieldSuccessText: 'text-green-400',
-                    formFieldErrorText: 'text-red-400',
-                    footer: 'hidden',
-                  },
-                }}
-              />
-            </div>
-          )}
+          <UserProfile
+            appearance={{
+              elements: {
+                rootBox: 'w-full',
+                card: 'bg-gray-800 border-gray-700 shadow-none',
+                navbar: 'bg-gray-800 border-gray-700',
+                navbarButton: 'text-gray-300 hover:text-white hover:bg-gray-700 transition-colors',
+                navbarButtonActive: 'text-blue-400 bg-gray-700',
+                page: 'bg-gray-800',
+                pageHeader: 'text-white',
+                headerTitle: 'text-white text-xl font-bold',
+                headerSubtitle: 'text-gray-400',
+                formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold',
+                formButtonSecondary: 'bg-gray-700 hover:bg-gray-600 text-white',
+                formFieldInput: 'bg-gray-900 border-gray-600 text-white focus:border-blue-500',
+                formFieldLabel: 'text-gray-300 font-semibold',
+                formFieldSuccessText: 'text-green-400',
+                formFieldErrorText: 'text-red-400',
+                avatarBox: 'w-24 h-24',
+                identityPreview: 'bg-gray-900 border-gray-600',
+                identityPreviewText: 'text-white',
+                identityPreviewEditButton: 'text-blue-400 hover:text-blue-300',
+                formResendCodeLink: 'text-blue-400 hover:text-blue-300',
+                footer: 'hidden',
+                dividerLine: 'bg-gray-700',
+                dividerText: 'text-gray-400',
+                alertText: 'text-gray-300',
+                alertTextDanger: 'text-red-400',
+                badge: 'bg-blue-600 text-white',
+                formButtonReset: 'text-red-400 hover:text-red-300',
+                // Danger zone styling
+                danger: 'bg-red-900/20 border-red-700',
+                dangerButton: 'bg-red-600 hover:bg-red-700 text-white',
+              },
+            }}
+            routing="path"
+            path="/profile"
+          />
         </div>
 
-        {/* Danger Zone */}
-        <div className="mt-8 bg-red-900/20 border border-red-700 rounded-lg p-6">
-          <div className="flex items-start gap-3">
-            <Trash2 className="w-5 h-5 text-red-400 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="text-lg font-bold text-red-400 mb-2">Danger Zone</h3>
-              <p className="text-gray-300 text-sm mb-4">
-                Once you delete your account, there is no going back. Please be certain.
-              </p>
-              <button
-                onClick={() => {
-                  if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-                    // Clerk handles account deletion through UserProfile component
-                    // This is just a visual button - actual deletion is in Clerk's UI
-                    alert('Please use the "Delete Account" option in the Account Settings tab above.')
-                  }
-                }}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-              >
-                Delete Account
-              </button>
-            </div>
-          </div>
+        {/* Info Note */}
+        <div className="mt-6 bg-blue-900/20 border border-blue-700 rounded-lg p-4">
+          <p className="text-blue-300 text-sm">
+            <strong>Note:</strong> You can update your name, email, password, and profile picture using the tabs above. 
+            Account deletion is available in the "Account" section under "Danger Zone".
+          </p>
         </div>
       </div>
     </div>
