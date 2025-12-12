@@ -7,7 +7,7 @@ import { withRateLimit } from '@/utils/rate-limit'
 import { RATE_LIMITS } from '@/utils/constants'
 import { sanitizeText, sanitizeEmail, sanitizePhone } from '@/utils/sanitize'
 import { createSecureResponse } from '@/utils/security-headers'
-import { Decimal } from '@/generated/prisma'
+import { Decimal } from '@prisma/client/runtime/library'
 
 async function handlePOST(req: Request) {
   try {
