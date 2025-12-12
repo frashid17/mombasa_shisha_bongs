@@ -1,4 +1,15 @@
+// Import MPESA_CONFIG after ensuring env vars are loaded
+// Note: In Next.js, env vars are loaded automatically, but for standalone scripts
+// we need to ensure they're loaded first
 import { MPESA_CONFIG } from '@/utils/constants'
+
+// Helper to get trimmed credentials
+function getTrimmedCredentials() {
+  return {
+    consumerKey: MPESA_CONFIG.CONSUMER_KEY.trim(),
+    consumerSecret: MPESA_CONFIG.CONSUMER_SECRET.trim(),
+  }
+}
 import crypto from 'crypto'
 
 /**
@@ -12,8 +23,16 @@ export async function getMpesaAccessToken(): Promise<string> {
 
   const authUrl = `${baseUrl}${MPESA_CONFIG.AUTH_URL}`
 
+  // Get trimmed credentials
+  const { consumerKey, consumerSecret } = getTrimmedCredentials()
+  
+  // Validate credentials are not empty
+  if (!consumerKey || !consumerSecret) {
+    throw new Error('Mpesa credentials are missing. Please check your .env.local file.')
+  }
+  
   const credentials = Buffer.from(
-    `${MPESA_CONFIG.CONSUMER_KEY}:${MPESA_CONFIG.CONSUMER_SECRET}`
+    `${consumerKey}:${consumerSecret}`
   ).toString('base64')
 
   try {

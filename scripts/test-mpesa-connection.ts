@@ -10,20 +10,54 @@
 import { config } from 'dotenv'
 import { resolve } from 'path'
 
-// Load environment variables from .env.local BEFORE importing anything else
-config({ path: resolve(__dirname, '../.env.local') })
+// Load environment variables from .env.local FIRST
+const envPath = resolve(__dirname, '../.env.local')
+config({ path: envPath })
 
-// Now import after env vars are loaded
-import { getMpesaAccessToken } from '../src/lib/mpesa'
-
-// Import constants after env is loaded
+// Verify env vars are loaded
 const MPESA_CONFIG = {
-  CONSUMER_KEY: process.env.MPESA_CONSUMER_KEY || '',
-  CONSUMER_SECRET: process.env.MPESA_CONSUMER_SECRET || '',
-  PASSKEY: process.env.MPESA_PASSKEY || '',
-  SHORTCODE: process.env.MPESA_SHORTCODE || '',
-  CALLBACK_URL: process.env.MPESA_CALLBACK_URL || '',
+  CONSUMER_KEY: (process.env.MPESA_CONSUMER_KEY || '').trim(),
+  CONSUMER_SECRET: (process.env.MPESA_CONSUMER_SECRET || '').trim(),
+  PASSKEY: (process.env.MPESA_PASSKEY || '').trim(),
+  SHORTCODE: (process.env.MPESA_SHORTCODE || '').trim(),
+  CALLBACK_URL: (process.env.MPESA_CALLBACK_URL || '').trim(),
   ENVIRONMENT: (process.env.MPESA_ENVIRONMENT || 'sandbox') as 'sandbox' | 'production',
+  SANDBOX_URL: 'https://sandbox.safaricom.co.ke',
+  PRODUCTION_URL: 'https://api.safaricom.co.ke',
+  AUTH_URL: '/oauth/v1/generate?grant_type=client_credentials',
+  STK_PUSH_URL: '/mpesa/stkpush/v1/processrequest',
+  QUERY_URL: '/mpesa/stkpushquery/v1/query',
+}
+
+// Now import mpesa functions (they'll use the constants from their own module)
+// But we'll test directly with our loaded config
+async function getMpesaAccessToken(): Promise<string> {
+  const baseUrl = MPESA_CONFIG.ENVIRONMENT === 'production' 
+    ? MPESA_CONFIG.PRODUCTION_URL 
+    : MPESA_CONFIG.SANDBOX_URL
+
+  const authUrl = `${baseUrl}${MPESA_CONFIG.AUTH_URL}`
+  const credentials = Buffer.from(
+    `${MPESA_CONFIG.CONSUMER_KEY}:${MPESA_CONFIG.CONSUMER_SECRET}`
+  ).toString('base64')
+
+  const response = await fetch(authUrl, {
+    method: 'GET',
+    headers: {
+      Authorization: `Basic ${credentials}`,
+    },
+  })
+
+  if (!response.ok) {
+    const errorText = await response.text()
+    throw new Error(`Mpesa auth failed: ${errorText || response.statusText}`)
+  }
+
+  const data = await response.json()
+  if (!data.access_token) {
+    throw new Error('No access token in response')
+  }
+  return data.access_token
 }
 
 async function testMpesaConnection() {
