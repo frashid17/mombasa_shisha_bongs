@@ -48,7 +48,8 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     notFound()
   }
 
-  const needsPayment = order.paymentStatus === 'PENDING' || order.paymentStatus === 'FAILED'
+  const isCOD = order.payment?.method === 'CASH_ON_DELIVERY'
+  const needsPayment = (order.paymentStatus === 'PENDING' || order.paymentStatus === 'FAILED') && !isCOD
   const paymentProcessing = order.paymentStatus === 'PROCESSING'
 
   return (
@@ -85,7 +86,21 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           </div>
 
           {/* Payment Section */}
-          {needsPayment && (
+          {isCOD && (
+            <div className="bg-green-900/50 border border-green-700 rounded-lg p-6 mb-6">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-6 h-6 text-green-400" />
+                <div>
+                  <h3 className="text-lg font-semibold text-white mb-1">Pay on Delivery</h3>
+                  <p className="text-green-300">
+                    Your order is confirmed! Please have KES {Number(order.total).toLocaleString()} ready when your order is delivered.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {needsPayment && !isCOD && (
             <div className="mb-6">
               <MpesaPaymentButton
                 orderId={order.id}
