@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import AddToCartButton from '@/components/cart/AddToCartButton'
 import Navbar from '@/components/Navbar'
-import Navbar from '@/components/Navbar'
+import ProductRecommendations from '@/components/products/ProductRecommendations'
+import ProductReviews from '@/components/products/ProductReviews'
+import { getRecommendedProducts } from '@/lib/recommendations'
 
 async function getProduct(id: string) {
   return prisma.product.findUnique({
@@ -22,7 +24,10 @@ async function getProduct(id: string) {
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const product = await getProduct(id)
+  const [product, recommendations] = await Promise.all([
+    getProduct(id),
+    getRecommendedProducts(id),
+  ])
 
   if (!product || !product.isActive) {
     notFound()
@@ -75,24 +80,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Reviews */}
-      {product.reviews.length > 0 && (
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold text-white mb-4">Reviews</h2>
-          <div className="space-y-4">
-            {product.reviews.map((review) => (
-              <div key={review.id} className="bg-gray-800 border border-gray-700 p-4 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <p className="font-semibold text-white">{review.userName || 'Anonymous'}</p>
-                  <div className="flex text-yellow-400">
-                    {'★'.repeat(review.rating)}
-                  </div>
-                </div>
-                <p className="text-gray-300">{review.comment}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <ProductReviews reviews={product.reviews} />
+
+      {/* Recommendations */}
+      <ProductRecommendations products={recommendations} />
       </div>
     </div>
   )

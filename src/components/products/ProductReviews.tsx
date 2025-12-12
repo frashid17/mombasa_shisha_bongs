@@ -1,0 +1,108 @@
+import { Star } from 'lucide-react'
+
+type Review = {
+  id: string
+  userName: string
+  rating: number
+  comment: string
+  title?: string
+  isVerified?: boolean
+  createdAt: Date
+}
+
+export default function ProductReviews({ reviews }: { reviews: Review[] }) {
+  if (reviews.length === 0) return null
+
+  const averageRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+  const ratingCounts = [5, 4, 3, 2, 1].map((rating) => ({
+    rating,
+    count: reviews.filter((r) => r.rating === rating).length,
+  }))
+
+  return (
+    <div className="mt-12">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-2">Customer Reviews</h2>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`w-5 h-5 ${
+                    star <= Math.round(averageRating)
+                      ? 'text-yellow-400 fill-yellow-400'
+                      : 'text-gray-600'
+                  }`}
+                />
+              ))}
+            </div>
+            <span className="text-gray-400">
+              {averageRating.toFixed(1)} ({reviews.length} {reviews.length === 1 ? 'review' : 'reviews'})
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Rating Breakdown */}
+      <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
+        <h3 className="text-lg font-semibold text-white mb-3">Rating Breakdown</h3>
+        <div className="space-y-2">
+          {ratingCounts.map(({ rating, count }) => {
+            const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0
+            return (
+              <div key={rating} className="flex items-center gap-3">
+                <span className="text-white w-8">{rating}★</span>
+                <div className="flex-1 bg-gray-700 rounded-full h-2">
+                  <div
+                    className="bg-yellow-400 h-2 rounded-full"
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+                <span className="text-gray-400 text-sm w-12 text-right">{count}</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Reviews List */}
+      <div className="space-y-4">
+        {reviews.map((review) => (
+          <div key={review.id} className="bg-gray-800 border border-gray-700 p-4 rounded-lg">
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="font-semibold text-white">{review.userName}</p>
+                  {review.isVerified && (
+                    <span className="text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded-full border border-green-700">
+                      Verified Purchase
+                    </span>
+                  )}
+                </div>
+                {review.title && (
+                  <p className="text-white font-medium mb-1">{review.title}</p>
+                )}
+                <div className="flex text-yellow-400">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-4 h-4 ${
+                        star <= review.rating ? 'fill-yellow-400' : 'text-gray-600'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+              <span className="text-xs text-gray-500">
+                {new Date(review.createdAt).toLocaleDateString()}
+              </span>
+            </div>
+            <p className="text-gray-300 mt-2">{review.comment}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
