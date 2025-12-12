@@ -220,6 +220,8 @@ export async function sendWhatsApp({
         errorMessage = `Twilio Error 21612: Cannot send to unverified number. For sandbox, send "join <code>" to +1 415 523 8886 first.`
       } else if (data.code === 21211) {
         errorMessage = `Twilio Error 21211: Invalid 'To' phone number. Format: whatsapp:+254712345678`
+      } else if (data.code === 63055) {
+        errorMessage = `Twilio Error 63055: MM Lite API only supports marketing messages. Make sure you're using Cloud API (Messages.json endpoint) and your TWILIO_WHATSAPP_NUMBER is correct. For sandbox, use: whatsapp:+14155238886`
       }
       
       throw new Error(errorMessage)
