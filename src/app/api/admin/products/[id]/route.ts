@@ -22,12 +22,26 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const data = productSchema.parse(body)
+    const { images, ...productData } = body
+    const data = productSchema.parse(productData)
 
+    // Update product and handle images
     const product = await prisma.product.update({
       where: { id: params.id },
-      data,
-      include: { category: true },
+      data: {
+        ...data,
+        // Delete existing images and create new ones
+        images: {
+          deleteMany: {},
+          create: (images || []).map((img: any, index: number) => ({
+            url: img.url,
+            altText: img.altText || '',
+            position: img.position ?? index,
+            isPrimary: img.isPrimary || (index === 0 && !images.some((i: any) => i.isPrimary)),
+          })),
+        },
+      },
+      include: { category: true, images: true },
     })
 
     return NextResponse.json(product)

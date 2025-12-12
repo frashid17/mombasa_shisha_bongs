@@ -9,14 +9,29 @@ export async function POST(req: Request) {
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const data = productSchema.parse(body)
+    const { images, ...productData } = body
+    const data = productSchema.parse(productData)
+
+    // Generate slug from name
+    const slug = data.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
 
     const product = await prisma.product.create({
       data: {
         ...data,
-        images: { create: [] },
+        slug,
+        images: {
+          create: (images || []).map((img: any, index: number) => ({
+            url: img.url,
+            altText: img.altText || '',
+            position: img.position ?? index,
+            isPrimary: img.isPrimary || (index === 0),
+          })),
+        },
       },
-      include: { category: true },
+      include: { category: true, images: true },
     })
 
     return NextResponse.json(product, { status: 201 })

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Plus, X, Image as ImageIcon } from 'lucide-react'
 
 type Category = {
   id: string
@@ -14,15 +15,59 @@ type ProductFormProps = {
   product?: any
 }
 
+type ImageInput = {
+  url: string
+  altText: string
+  isPrimary: boolean
+}
+
 export default function ProductForm({ categories, product }: ProductFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [images, setImages] = useState<ImageInput[]>(
+    product?.images?.map((img: any) => ({
+      url: img.url,
+      altText: img.altText || '',
+      isPrimary: img.isPrimary || false,
+    })) || [{ url: '', altText: '', isPrimary: true }]
+  )
+
+  const addImage = () => {
+    setImages([...images, { url: '', altText: '', isPrimary: false }])
+  }
+
+  const removeImage = (index: number) => {
+    const newImages = images.filter((_, i) => i !== index)
+    // Ensure at least one image remains, and mark first as primary if needed
+    if (newImages.length > 0 && !newImages.some(img => img.isPrimary)) {
+      newImages[0].isPrimary = true
+    }
+    setImages(newImages)
+  }
+
+  const updateImage = (index: number, field: keyof ImageInput, value: string | boolean) => {
+    const newImages = [...images]
+    newImages[index] = { ...newImages[index], [field]: value }
+    
+    // If setting as primary, unset others
+    if (field === 'isPrimary' && value === true) {
+      newImages.forEach((img, i) => {
+        if (i !== index) img.isPrimary = false
+      })
+    }
+    
+    setImages(newImages)
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
 
     const formData = new FormData(e.currentTarget)
+    const imageUrls = images
+      .map(img => img.url.trim())
+      .filter(url => url.length > 0)
+
     const data = {
       name: formData.get('name'),
       description: formData.get('description'),
@@ -31,6 +76,12 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       sku: formData.get('sku'),
       categoryId: formData.get('categoryId'),
       isActive: formData.get('isActive') === 'on',
+      images: imageUrls.map((url, index) => ({
+        url,
+        altText: images[index].altText || '',
+        position: index,
+        isPrimary: images[index].isPrimary || (index === 0 && !images.some(img => img.isPrimary)),
+      })),
     }
 
     try {
@@ -46,9 +97,13 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       if (res.ok) {
         router.push('/admin/products')
         router.refresh()
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Failed to save product')
       }
     } catch (error) {
       console.error(error)
+      alert('An error occurred while saving the product')
     } finally {
       setLoading(false)
     }
@@ -134,6 +189,93 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           className="w-full border rounded-lg px-4 py-2"
         />
       </div>
+
+      {/* Product Images */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <label className="block text-sm font-semibold text-gray-900">Product Images</label>
+          <button
+            type="button"
+            onClick={addImage}
+            className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            Add Image
+          </button>
+        </div>
+        <div className="space-y-4">
+          {images.map((image, index) => (
+            <div key={index} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
+              <div className="flex items-start gap-4">
+                <div className="flex-1 space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Image URL *
+                    </label>
+                    <input
+                      type="url"
+                      value={image.url}
+                      onChange={(e) => updateImage(index, 'url', e.target.value)}
+                      placeholder="https://example.com/image.jpg"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Alt Text (for accessibility)
+                    </label>
+                    <input
+                      type="text"
+                      value={image.altText}
+                      onChange={(e) => updateImage(index, 'altText', e.target.value)}
+                      placeholder="Product image description"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={image.isPrimary}
+                      onChange={(e) => updateImage(index, 'isPrimary', e.target.checked)}
+                      className="w-4 h-4"
+                      id={`primary-${index}`}
+                    />
+                    <label htmlFor={`primary-${index}`} className="text-xs text-gray-700">
+                      Set as primary image
+                    </label>
+                  </div>
+                </div>
+                {images.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+              {image.url && (
+                <div className="mt-3">
+                  <img
+                    src={image.url}
+                    alt={image.altText || 'Preview'}
+                    className="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                    onError={(e) => {
+                      e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect width="100" height="100" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%239ca3af" font-size="12"%3EInvalid URL%3C/text%3E%3C/svg%3E'
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-gray-500 mt-2">
+          <ImageIcon className="w-3 h-3 inline mr-1" />
+          Enter image URLs. The first image or the one marked as primary will be used as the main product image.
+        </p>
+      </div>
+
       <div className="flex gap-4">
         <button
           type="submit"
