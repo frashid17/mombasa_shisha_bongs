@@ -10,18 +10,20 @@ export async function POST(req: Request) {
 
     const body = await req.json()
     const { images, ...productData } = body
+    
+    // Generate slug from name if not provided
+    if (!productData.slug && productData.name) {
+      productData.slug = productData.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+    }
+    
     const data = productSchema.parse(productData)
-
-    // Generate slug from name
-    const slug = data.name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
 
     const product = await prisma.product.create({
       data: {
         ...data,
-        slug,
         images: {
           create: (images || []).map((img: any, index: number) => ({
             url: img.url,
