@@ -20,7 +20,33 @@ export default async function AdminLayout({
   const role = (user?.publicMetadata as { role?: string })?.role
 
   if (role !== 'admin') {
-    redirect('/')
+    // Show helpful error page instead of silent redirect
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Admin Access Required</h1>
+          <p className="text-gray-600 mb-6">
+            You need admin privileges to access this page. Your current role: <strong>{role || 'none'}</strong>
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left mb-6">
+            <h2 className="font-semibold text-blue-900 mb-2">How to get admin access:</h2>
+            <ol className="list-decimal list-inside space-y-2 text-sm text-blue-800">
+              <li>Go to your <a href="https://dashboard.clerk.com" target="_blank" rel="noopener noreferrer" className="underline">Clerk Dashboard</a></li>
+              <li>Navigate to <strong>Users</strong> → Find your user</li>
+              <li>Go to <strong>Metadata</strong> tab</li>
+              <li>In <strong>Public metadata</strong>, add: <code className="bg-blue-100 px-1 rounded">{"role": "admin"}</code></li>
+              <li>Save and refresh this page</li>
+            </ol>
+          </div>
+          <a
+            href="/"
+            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Go to Home
+          </a>
+        </div>
+      </div>
+    )
   }
 
   return (
