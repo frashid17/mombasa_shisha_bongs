@@ -40,7 +40,7 @@ async function handlePOST(req: Request) {
     // Get order
     const order = await prisma.order.findUnique({
       where: { id: validated.orderId },
-      include: { items: true },
+      include: { items: true, payment: true },
     })
 
     if (!order) {
