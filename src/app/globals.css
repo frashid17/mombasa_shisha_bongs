@@ -63,3 +63,179 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #b1b1b1;
 }
+
+/* Clerk UserProfile Nightlife Aesthetic Styles */
+.cl-rootBox,
+.cl-card,
+.cl-page {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+.cl-navbar {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.cl-navbarButton {
+  color: #d1d5db !important;
+}
+
+.cl-navbarButton[aria-selected="true"] {
+  color: #60a5fa !important;
+  background-color: #374151 !important;
+}
+
+.cl-formFieldInput,
+.cl-input,
+.cl-selectButton {
+  background-color: #111827 !important;
+  border-color: #4b5563 !important;
+  color: #ffffff !important;
+}
+
+.cl-formFieldInput:focus,
+.cl-input:focus {
+  border-color: #3b82f6 !important;
+  outline-color: #3b82f6 !important;
+}
+
+.cl-buttonPrimary {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.cl-buttonPrimary:hover {
+  background-color: #1d4ed8 !important;
+}
+
+.cl-buttonSecondary {
+  background-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+.cl-headerTitle,
+.cl-headerSubtitle,
+.cl-formFieldLabel,
+.cl-identityPreviewText {
+  color: #ffffff !important;
+}
+
+.cl-headerSubtitle,
+.cl-formFieldLabel {
+  color: #9ca3af !important;
+}
+
+.cl-section,
+.cl-sectionHeader {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+.cl-list,
+.cl-listItem {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+  color: #ffffff !important;
+}
+
+.cl-danger {
+  background-color: rgba(127, 29, 29, 0.2) !important;
+  border-color: #991b1b !important;
+}
+
+.cl-buttonDanger {
+  background-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.cl-buttonDanger:hover {
+  background-color: #b91c1c !important;
+}
+
+.cl-link,
+.cl-formResendCodeLink {
+  color: #60a5fa !important;
+}
+
+.cl-link:hover {
+  color: #93c5fd !important;
+}
+
+.cl-dividerLine {
+  background-color: #374151 !important;
+}
+
+.cl-dividerText {
+  color: #9ca3af !important;
+}
+
+.cl-alert {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.cl-alertText {
+  color: #d1d5db !important;
+}
+
+.cl-badge {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.cl-table {
+  background-color: #1f2937 !important;
+}
+
+.cl-tableHead {
+  background-color: #111827 !important;
+}
+
+.cl-tableHeadCell {
+  color: #d1d5db !important;
+}
+
+.cl-tableBodyCell {
+  color: #ffffff !important;
+}
+
+.cl-tableRow {
+  border-color: #374151 !important;
+}
+
+.cl-tableRow:hover {
+  background-color: rgba(55, 65, 81, 0.5) !important;
+}
+
+.cl-modalContent {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.cl-modalHeader {
+  color: #ffffff !important;
+}
+
+.cl-selectButton {
+  background-color: #111827 !important;
+  border-color: #4b5563 !important;
+  color: #ffffff !important;
+}
+
+.cl-phoneInputBox {
+  background-color: #111827 !important;
+  border-color: #4b5563 !important;
+}
+
+.cl-otpCodeFieldInput {
+  background-color: #111827 !important;
+  border-color: #4b5563 !important;
+  color: #ffffff !important;
+}
+
+.cl-fileDropAreaBox {
+  background-color: #111827 !important;
+  border-color: #4b5563 !important;
+  border-style: dashed !important;
+}
