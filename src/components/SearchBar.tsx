@@ -57,28 +57,32 @@ export default function SearchBar() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       <form onSubmit={handleSubmit} className="relative">
-        <div className="relative">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search for shisha, vapes, accessories..."
-            className="w-full px-6 py-4 pl-14 rounded-full bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700 focus:border-blue-500 focus:outline-none text-white text-lg placeholder-gray-400"
-          />
-          <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-2">
+        <div className="relative flex items-center gap-2">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search for shisha, vapes, accessories..."
+              className="w-full px-4 py-3 pl-12 pr-4 md:px-6 md:py-4 md:pl-14 md:pr-32 rounded-full bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700 focus:border-blue-500 focus:outline-none text-white text-base md:text-lg placeholder-gray-400"
+            />
+            <Search className="absolute left-3 md:left-5 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
+          </div>
+          <div className="flex gap-2 flex-shrink-0">
             <button
               type="button"
               onClick={() => setShowFilters(!showFilters)}
-              className="p-2 bg-gray-700 hover:bg-gray-600 rounded-full text-white"
+              className="p-2 md:p-2.5 bg-gray-700 hover:bg-gray-600 rounded-full text-white transition"
+              aria-label="Toggle filters"
             >
-              <Filter className="w-5 h-5" />
+              <Filter className="w-4 h-4 md:w-5 md:h-5" />
             </button>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 font-semibold"
+              className="bg-blue-600 text-white px-4 py-2 md:px-6 md:py-2.5 rounded-full hover:bg-blue-700 font-semibold text-sm md:text-base transition whitespace-nowrap"
             >
-              Search
+              <span className="hidden sm:inline">Search</span>
+              <Search className="w-4 h-4 sm:hidden" />
             </button>
           </div>
         </div>
