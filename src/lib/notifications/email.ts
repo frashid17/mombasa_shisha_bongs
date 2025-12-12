@@ -1,6 +1,7 @@
 import { EMAIL_CONFIG } from '@/utils/constants'
 import prisma from '@/lib/prisma'
-import { NotificationType, NotificationChannel, NotificationStatus } from '@prisma/client'
+import { NotificationType, NotificationChannel, NotificationStatus } from '@/generated/prisma'
+import nodemailer from 'nodemailer'
 
 interface SendEmailOptions {
   to: string
@@ -13,8 +14,8 @@ interface SendEmailOptions {
 }
 
 /**
- * Send email notification using Resend API
- * Falls back to console.log in development if API key is not set
+ * Send email notification using Gmail SMTP
+ * Falls back to console.log in development if credentials are not set
  */
 export async function sendEmail({
   to,
@@ -40,10 +41,10 @@ export async function sendEmail({
   })
 
   try {
-    // If no API key, log in development mode
-    if (!EMAIL_CONFIG.API_KEY) {
+    // If no Gmail credentials, log in development mode
+    if (!EMAIL_CONFIG.GMAIL_USER || !EMAIL_CONFIG.GMAIL_APP_PASSWORD) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('📧 Email (Development Mode - No API Key):')
+        console.log('📧 Email (Development Mode - No Gmail Credentials):')
         console.log('To:', to)
         console.log('Subject:', subject)
         console.log('Body:', text || html)
@@ -62,27 +63,25 @@ export async function sendEmail({
       return { success: true, notificationId: notification.id }
     }
 
-    // Use Resend API for production
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${EMAIL_CONFIG.API_KEY}`,
+    // Create Gmail SMTP transporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: EMAIL_CONFIG.GMAIL_USER,
+        pass: EMAIL_CONFIG.GMAIL_APP_PASSWORD,
       },
-      body: JSON.stringify({
-        from: `${EMAIL_CONFIG.FROM_NAME} <${EMAIL_CONFIG.FROM_ADDRESS}>`,
-        to: [to],
-        subject,
-        html,
-        text,
-      }),
     })
 
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to send email')
+    // Send email via Gmail SMTP
+    const mailOptions = {
+      from: `${EMAIL_CONFIG.FROM_NAME} <${EMAIL_CONFIG.GMAIL_USER}>`,
+      to,
+      subject,
+      html,
+      text: text || html.replace(/<[^>]*>/g, ''), // Strip HTML tags for text version if not provided
     }
+
+    const info = await transporter.sendMail(mailOptions)
 
     // Update notification as sent
     await prisma.notification.update({
@@ -90,7 +89,7 @@ export async function sendEmail({
       data: {
         status: NotificationStatus.SENT,
         sentAt: new Date(),
-        metadata: JSON.stringify({ ...metadata, resendId: data.id }),
+        metadata: JSON.stringify({ ...metadata, messageId: info.messageId }),
       },
     })
 

@@ -42,7 +42,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
  * Returns AuthUser if authenticated, or error Response if not
  */
 export async function requireAuth(): Promise<AuthUser | Response> {
-  const { userId } = auth()
+  const { userId } = await auth()
 
   if (!userId) {
     return unauthorizedError('Authentication required')

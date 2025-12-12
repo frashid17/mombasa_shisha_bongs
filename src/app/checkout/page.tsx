@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useUser } from '@clerk/nextjs'
 import LocationPicker from '@/components/checkout/LocationPicker'
-import { MapPin, CreditCard, Smartphone, Wallet } from 'lucide-react'
+import { MapPin, CreditCard, Smartphone, Wallet, Loader2 } from 'lucide-react'
 
 type PaymentMethod = 'MPESA' | 'CASH_ON_DELIVERY'
 
@@ -276,14 +276,14 @@ export default function CheckoutPage() {
                               Available
                             </span>
                           )}
-                          {isWithinMombasa === false && (
+                          {selectedLocation && isWithinMombasa !== null && !isWithinMombasa && (
                             <span className="text-xs bg-red-900 text-red-400 px-2 py-0.5 rounded-full">
                               Not Available
                             </span>
                           )}
-                          {isWithinMombasa === null && (
-                            <span className="text-xs bg-yellow-900 text-yellow-400 px-2 py-0.5 rounded-full">
-                              Checking...
+                          {isWithinMombasa === null && selectedLocation && (
+                            <span className="text-xs bg-yellow-900 text-yellow-400 px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <Loader2 className="w-3 h-3 animate-spin" /> Checking...
                             </span>
                           )}
                         </div>

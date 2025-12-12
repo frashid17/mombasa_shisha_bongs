@@ -3,9 +3,10 @@ import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import prisma from '@/lib/prisma'
 import ProductsTable from '@/components/admin/products/ProductsTable'
+import { serializeProducts } from '@/lib/prisma-serialize'
 
 async function getProducts() {
-  return prisma.product.findMany({
+  const products = await prisma.product.findMany({
     include: {
       category: true,
       images: { take: 1 },
@@ -13,6 +14,9 @@ async function getProducts() {
     },
     orderBy: { createdAt: 'desc' },
   })
+  
+  // Convert Decimal to number for client components
+  return serializeProducts(products)
 }
 
 export default async function ProductsPage() {

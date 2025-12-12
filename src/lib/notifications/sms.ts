@@ -1,6 +1,6 @@
 import { SMS_CONFIG } from '@/utils/constants'
 import prisma from '@/lib/prisma'
-import { NotificationType, NotificationChannel, NotificationStatus } from '@prisma/client'
+import { NotificationType, NotificationChannel, NotificationStatus } from '@/generated/prisma'
 
 interface SendSMSOptions {
   to: string // Phone number in format +254XXXXXXXXX
