@@ -119,7 +119,7 @@ MPESA_SHORTCODE=174379
 MPESA_ENVIRONMENT=sandbox
 
 # Email (Resend)
-EMAIL_API_KEY=re_RdKA1u9P_4NPzyvWxWxdrZ8wmsTyHr8aN
+EMAIL_API_KEY=your_resend_api_key
 EMAIL_FROM=noreply@mombasashishabongs.com
 
 # WhatsApp (Twilio)
