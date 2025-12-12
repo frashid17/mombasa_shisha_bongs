@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
-import { categorySchema } from '@/utils/validations'
+import { createCategorySchema } from '@/utils/validations'
 
 export async function POST(req: Request) {
   try {
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await req.json()
-    const data = categorySchema.parse(body)
+    const data = createCategorySchema.parse(body)
 
     const category = await prisma.category.create({ data })
     return NextResponse.json(category, { status: 201 })
