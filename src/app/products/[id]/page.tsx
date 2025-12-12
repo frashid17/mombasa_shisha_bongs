@@ -5,6 +5,7 @@ import AddToCartButton from '@/components/cart/AddToCartButton'
 import ProductRecommendations from '@/components/products/ProductRecommendations'
 import ProductReviews from '@/components/products/ProductReviews'
 import { getRecommendedProducts } from '@/lib/recommendations'
+import { serializeProduct, serializeProducts } from '@/lib/prisma-serialize'
 
 async function getProduct(id: string) {
   return prisma.product.findUnique({
@@ -31,6 +32,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   if (!product || !product.isActive) {
     notFound()
   }
+
+  // Serialize product to convert Decimal fields to numbers for Client Components
+  const serializedProduct = serializeProduct(product)
+  const serializedRecommendations = serializeProducts(recommendations)
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -73,7 +78,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             )}
           </div>
 
-          {product.stock > 0 && <AddToCartButton product={product} />}
+          {product.stock > 0 && <AddToCartButton product={serializedProduct} />}
         </div>
       </div>
 
@@ -84,7 +89,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       }))} />
 
       {/* Recommendations */}
-      <ProductRecommendations products={recommendations} />
+      <ProductRecommendations products={serializedRecommendations} />
       </div>
     </div>
   )
