@@ -1,0 +1,22 @@
+QUICK WHATSAPP SETUP CHECKLIST
+================================
+
+1. GET SANDBOX NUMBER:
+   - Go to: https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn
+   - Copy sandbox number (e.g., whatsapp:+14155238886)
+   - Copy join code (e.g., join xyz-abc)
+
+2. JOIN SANDBOX:
+   - Admin: Send "join <code>" to +1 415 523 8886
+   - Delivery: Send "join <code>" to +1 415 523 8886
+
+3. UPDATE .env.local:
+   TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
+   ADMIN_WHATSAPP_PHONE=whatsapp:+254712345678
+   DELIVERY_WHATSAPP_PHONE=whatsapp:+254712345678
+
+4. RESTART SERVER:
+   npm run dev
+
+5. TEST:
+   Create an order and check WhatsApp!
