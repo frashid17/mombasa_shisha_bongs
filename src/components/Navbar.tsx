@@ -5,6 +5,7 @@ import { useUser } from '@clerk/nextjs'
 import { useCartStore } from '@/store/cartStore'
 import { ShoppingCart, User, Menu } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import Logo from './Logo'
 
 export default function Navbar() {
   const { user, isSignedIn } = useUser()
@@ -25,9 +26,7 @@ export default function Navbar() {
     <nav className="bg-gray-900 text-white border-b border-gray-800 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          <Link href="/" className="text-2xl font-bold text-white hover:text-blue-400 transition">
-            Mombasa Shisha
-          </Link>
+          <Logo width={50} height={50} />
 
           <div className="hidden md:flex items-center gap-6">
             <Link href="/products" className="hover:text-blue-400 transition">

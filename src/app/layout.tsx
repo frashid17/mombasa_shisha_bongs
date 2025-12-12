@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,6 +18,15 @@ export const metadata: Metadata = {
   title: "Mombasa Shisha Bongs - Premium Shisha & Vapes",
   description: "Premium shisha, vapes, and smoking accessories in Mombasa. Fast delivery, authentic products, secure payment with Mpesa.",
   keywords: ["shisha", "hookah", "vape", "tobacco", "mombasa", "kenya"],
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
+  openGraph: {
+    title: "Mombasa Shisha Bongs - Premium Shisha & Vapes",
+    description: "Premium shisha, vapes, and smoking accessories in Mombasa.",
+    images: ['/logo.png'],
+  },
 };
 
 export default function RootLayout({
@@ -27,9 +37,13 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
+        <head>
+          <link rel="icon" href="/logo.png" type="image/png" />
+        </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-gray-100`}
         >
+          <Navbar />
           {children}
         </body>
       </html>
