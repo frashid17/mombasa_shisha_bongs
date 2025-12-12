@@ -289,10 +289,10 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                       <div className="flex-1 flex items-center gap-2">
                         <LinkIcon className="w-4 h-4 text-gray-400" />
                         <input
-                          type="url"
+                          type="text"
                           value={image.url}
                           onChange={(e) => updateImage(index, 'url', e.target.value)}
-                          placeholder="Or enter image URL (e.g., https://example.com/image.jpg)"
+                          placeholder="Or enter image URL (e.g., https://example.com/image.jpg or /uploads/products/image.jpg)"
                           className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400"
                           style={{ color: '#111827' }}
                         />
