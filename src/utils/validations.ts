@@ -183,7 +183,7 @@ export const createAdminLogSchema = z.object({
   entityId: z.string().cuid().optional(),
   description: z.string(),
   metadata: z.string().optional(),
-  ipAddress: z.string().ip().optional(),
+  ipAddress: z.string().optional(),
   userAgent: z.string().max(500).optional(),
 })
 
