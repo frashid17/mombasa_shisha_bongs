@@ -51,9 +51,6 @@ export default async function AdminNotificationsPage() {
                 <th className="hidden xl:table-cell px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
                   Error
                 </th>
-                <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                  Actions
-                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">

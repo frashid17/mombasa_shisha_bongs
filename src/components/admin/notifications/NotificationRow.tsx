@@ -1,8 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Eye, Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 
 interface NotificationRowProps {
@@ -119,19 +118,6 @@ export default function NotificationRow({ notification }: NotificationRowProps) 
       </td>
       <td className="hidden xl:table-cell px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
         {notification.errorMessage || '-'}
-      </td>
-      <td
-        className="hidden md:table-cell px-6 py-4 whitespace-nowrap"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <Link
-          href={`/admin/notifications/${notification.id}`}
-          className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
-          title="View Details"
-        >
-          <Eye className="w-4 h-4" />
-          <span className="hidden lg:inline">View</span>
-        </Link>
       </td>
     </tr>
   )
