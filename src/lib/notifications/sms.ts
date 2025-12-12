@@ -187,9 +187,12 @@ export async function sendWhatsApp({
     // Format phone number for WhatsApp (add whatsapp: prefix if not present)
     const whatsappTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`
     
-    // Use Twilio WhatsApp API
+    // Use Twilio WhatsApp Cloud API (not MM Lite - supports transactional messages)
+    // For sandbox: Use whatsapp:+14155238886
+    // For production: Use your approved WhatsApp Business number
     const auth = Buffer.from(`${WHATSAPP_CONFIG.ACCOUNT_SID}:${WHATSAPP_CONFIG.AUTH_TOKEN}`).toString('base64')
     
+    // Use the Messages API endpoint (Cloud API) - supports transactional messages
     const response = await fetch(
       `https://api.twilio.com/2010-04-01/Accounts/${WHATSAPP_CONFIG.ACCOUNT_SID}/Messages.json`,
       {
@@ -202,6 +205,8 @@ export async function sendWhatsApp({
           From: WHATSAPP_CONFIG.FROM_NUMBER,
           To: whatsappTo,
           Body: message,
+          // Important: Don't use ContentSid or ContentVariables (those are for MM Lite)
+          // Just use Body for transactional messages
         }),
       }
     )
