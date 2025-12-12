@@ -3,8 +3,12 @@ import { auth } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
 import { createOrderSchema } from '@/utils/validations'
 import { sendOrderConfirmationNotification } from '@/lib/notifications'
+import { withRateLimit } from '@/utils/rate-limit'
+import { RATE_LIMITS } from '@/utils/constants'
+import { sanitizeText, sanitizeEmail, sanitizePhone } from '@/utils/sanitize'
+import { createSecureResponse } from '@/utils/security-headers'
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const { userId } = await auth()
     const body = await req.json()
@@ -90,10 +94,16 @@ export async function POST(req: Request) {
       // Don't fail the order creation if notification fails
     })
 
-    return NextResponse.json({ order }, { status: 201 })
+    return createSecureResponse({ order }, 201)
   } catch (error: any) {
     console.error('Order creation error:', error)
-    return NextResponse.json({ error: error.message || 'Failed to create order' }, { status: 400 })
+    return createSecureResponse(
+      { success: false, error: error.message || 'Failed to create order' },
+      400
+    )
   }
 }
+
+// Apply rate limiting
+export const POST = withRateLimit(RATE_LIMITS.CREATE_ORDER)(handlePOST)
 
