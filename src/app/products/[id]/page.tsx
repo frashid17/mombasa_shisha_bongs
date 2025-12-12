@@ -1,0 +1,94 @@
+import Image from 'next/image'
+import { notFound } from 'next/navigation'
+import prisma from '@/lib/prisma'
+import AddToCartButton from '@/components/cart/AddToCartButton'
+
+async function getProduct(id: string) {
+  return prisma.product.findUnique({
+    where: { id },
+    include: {
+      images: true,
+      category: true,
+      reviews: {
+        include: { user: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      },
+    },
+  })
+}
+
+export default async function ProductPage({ params }: { params: { id: string } }) {
+  const product = await getProduct(params.id)
+
+  if (!product || !product.isActive) {
+    notFound()
+  }
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Images */}
+        <div>
+          {product.images[0] ? (
+            <Image
+              src={product.images[0].url}
+              alt={product.name}
+              width={600}
+              height={600}
+              className="w-full rounded-lg"
+            />
+          ) : (
+            <div className="w-full h-96 bg-gray-200 rounded-lg" />
+          )}
+        </div>
+
+        {/* Product Info */}
+        <div>
+          <p className="text-blue-600 mb-2">{product.category.name}</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
+          <p className="text-3xl font-bold text-blue-600 mb-6">KES {product.price.toLocaleString()}</p>
+
+          {product.description && (
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Description</h2>
+              <p className="text-gray-700">{product.description}</p>
+            </div>
+          )}
+
+          <div className="mb-6 space-y-2">
+            <p className="text-sm text-gray-600">SKU: {product.sku}</p>
+            {product.stock > 0 ? (
+              <p className="text-green-600 font-semibold">In Stock ({product.stock} available)</p>
+            ) : (
+              <p className="text-red-600 font-semibold">Out of Stock</p>
+            )}
+          </div>
+
+          {product.stock > 0 && <AddToCartButton product={product} />}
+        </div>
+      </div>
+
+      {/* Reviews */}
+      {product.reviews.length > 0 && (
+        <div className="mt-12">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Reviews</h2>
+          <div className="space-y-4">
+            {product.reviews.map((review) => (
+              <div key={review.id} className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="font-semibold text-gray-900">{review.user?.name || 'Anonymous'}</p>
+                  <div className="flex text-yellow-400">
+                    {'★'.repeat(review.rating)}
+                  </div>
+                </div>
+                <p className="text-gray-700">{review.comment}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
