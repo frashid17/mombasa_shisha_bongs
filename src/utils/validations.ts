@@ -98,8 +98,8 @@ export const createOrderSchema = z.object({
     .string()
     .min(10, 'Delivery address must be at least 10 characters')
     .max(500),
-  deliveryLatitude: z.number().min(-90).max(90).optional(),
-  deliveryLongitude: z.number().min(-180).max(180).optional(),
+  deliveryLatitude: z.coerce.number().min(-90).max(90).optional(),
+  deliveryLongitude: z.coerce.number().min(-180).max(180).optional(),
   city: z.string().min(2).max(100),
   notes: z.string().max(1000).optional(),
   paymentMethod: z.enum(['MPESA', 'CASH_ON_DELIVERY']).default('MPESA'),
