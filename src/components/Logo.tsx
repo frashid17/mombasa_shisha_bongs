@@ -1,5 +1,8 @@
+'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
+import { useState } from 'react'
 
 interface LogoProps {
   className?: string
@@ -9,10 +12,11 @@ interface LogoProps {
 }
 
 export default function Logo({ className = '', width = 40, height = 40, showText = true }: LogoProps) {
+  const [imageError, setImageError] = useState(false)
+
   return (
     <Link href="/" className={`flex items-center gap-3 ${className}`}>
-      {/* Check if logo.png exists, otherwise show placeholder */}
-      <div className="relative">
+      {!imageError ? (
         <Image
           src="/logo.png"
           alt="Mombasa Shisha Bongs Logo"
@@ -20,19 +24,16 @@ export default function Logo({ className = '', width = 40, height = 40, showText
           height={height}
           className="object-contain"
           priority
-          onError={(e) => {
-            // Fallback if image fails to load
-            const target = e.target as HTMLImageElement
-            target.style.display = 'none'
-            if (target.parentElement) {
-              const fallback = document.createElement('div')
-              fallback.className = `w-[${width}px] h-[${height}px] bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-xs`
-              fallback.textContent = 'MSB'
-              target.parentElement.appendChild(fallback)
-            }
-          }}
+          onError={() => setImageError(true)}
         />
-      </div>
+      ) : (
+        <div 
+          className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-xs shadow-lg border-2 border-blue-400"
+          style={{ width: `${width}px`, height: `${height}px` }}
+        >
+          MSB
+        </div>
+      )}
       {showText && (
         <span className="text-2xl font-bold text-white hover:text-blue-400 transition">
           Mombasa Shisha
