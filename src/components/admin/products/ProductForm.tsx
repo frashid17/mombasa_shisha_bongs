@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, X, Image as ImageIcon } from 'lucide-react'
+import { Plus, X, Image as ImageIcon, Upload, Link as LinkIcon } from 'lucide-react'
 
 type Category = {
   id: string
@@ -24,6 +24,8 @@ type ImageInput = {
 export default function ProductForm({ categories, product }: ProductFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState<number | null>(null)
+  const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({})
   const [images, setImages] = useState<ImageInput[]>(
     product?.images?.map((img: any) => ({
       url: img.url,
@@ -31,6 +33,38 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       isPrimary: img.isPrimary || false,
     })) || [{ url: '', altText: '', isPrimary: true }]
   )
+
+  const handleFileUpload = async (index: number, file: File) => {
+    setUploading(index)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const data = await res.json()
+      if (res.ok && data.url) {
+        updateImage(index, 'url', data.url)
+      } else {
+        alert(data.error || 'Failed to upload image')
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
+      alert('Failed to upload image')
+    } finally {
+      setUploading(null)
+    }
+  }
+
+  const handleFileSelect = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleFileUpload(index, file)
+    }
+  }
 
   const addImage = () => {
     setImages([...images, { url: '', altText: '', isPrimary: false }])
@@ -210,15 +244,36 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                 <div className="flex-1 space-y-3">
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Image URL *
+                      Image *
                     </label>
-                    <input
-                      type="url"
-                      value={image.url}
-                      onChange={(e) => updateImage(index, 'url', e.target.value)}
-                      placeholder="https://example.com/image.jpg"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
-                    />
+                    <div className="flex gap-2">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        ref={(el) => (fileInputRefs.current[index] = el)}
+                        onChange={(e) => handleFileSelect(index, e)}
+                        className="hidden"
+                        id={`file-${index}`}
+                      />
+                      <label
+                        htmlFor={`file-${index}`}
+                        className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm font-medium cursor-pointer hover:bg-gray-50 transition"
+                      >
+                        <Upload className="w-4 h-4" />
+                        {uploading === index ? 'Uploading...' : 'Upload File'}
+                      </label>
+                      <div className="flex-1 flex items-center gap-2">
+                        <LinkIcon className="w-4 h-4 text-gray-400" />
+                        <input
+                          type="url"
+                          value={image.url}
+                          onChange={(e) => updateImage(index, 'url', e.target.value)}
+                          placeholder="Or enter image URL (e.g., https://example.com/image.jpg)"
+                          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400"
+                          style={{ color: '#111827' }}
+                        />
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
@@ -228,8 +283,9 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                       type="text"
                       value={image.altText}
                       onChange={(e) => updateImage(index, 'altText', e.target.value)}
-                      placeholder="Product image description"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+                      placeholder="Describe the image for accessibility (e.g., Red shisha hookah on wooden table)"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 placeholder-gray-400"
+                      style={{ color: '#111827' }}
                     />
                   </div>
                   <div className="flex items-center gap-2">
