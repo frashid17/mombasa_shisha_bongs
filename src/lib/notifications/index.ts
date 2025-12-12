@@ -10,7 +10,6 @@
 import { sendEmail } from './email'
 import { sendSMS } from './sms'
 import { getNotificationTemplate } from './templates'
-import { NotificationType } from '@prisma/client'
 import prisma from '@/lib/prisma'
 import { ADMIN_CONFIG } from '@/utils/constants'
 
