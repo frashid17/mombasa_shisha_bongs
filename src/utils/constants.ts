@@ -183,6 +183,20 @@ export const SMS_CONFIG = {
 } as const
 
 // ============================================
+// WHATSAPP CONFIGURATION (Twilio)
+// ============================================
+
+export const WHATSAPP_CONFIG = {
+  // Twilio WhatsApp credentials (same as SMS)
+  ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID || '',
+  AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN || '',
+  FROM_NUMBER: process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886', // Twilio Sandbox or your WhatsApp Business number
+  // Recipients
+  ADMIN_PHONE: process.env.ADMIN_WHATSAPP_PHONE || '', // Admin WhatsApp number (format: whatsapp:+254712345678)
+  DELIVERY_PHONE: process.env.DELIVERY_WHATSAPP_PHONE || '', // Delivery person WhatsApp number (format: whatsapp:+254712345678)
+} as const
+
+// ============================================
 // ADMIN CONFIGURATION
 // ============================================
 

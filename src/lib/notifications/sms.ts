@@ -128,8 +128,12 @@ export async function sendSMS({
 }
 
 /**
- * Send WhatsApp message (using Africa's Talking WhatsApp API or Twilio)
- * Note: WhatsApp requires business verification
+ * Send WhatsApp message using Twilio WhatsApp API
+ * 
+ * Twilio WhatsApp Sandbox: https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn
+ * - Free for testing
+ * - Send to any number after joining sandbox
+ * - For production, need WhatsApp Business API approval
  */
 export async function sendWhatsApp({
   to,
@@ -153,14 +157,19 @@ export async function sendWhatsApp({
   })
 
   try {
+    const { WHATSAPP_CONFIG } = await import('@/utils/constants')
+    
     // If no credentials, log in development mode
-    if (!SMS_CONFIG.ACCOUNT_SID || !SMS_CONFIG.AUTH_TOKEN || !SMS_CONFIG.FROM_NUMBER) {
+    if (!WHATSAPP_CONFIG.ACCOUNT_SID || !WHATSAPP_CONFIG.AUTH_TOKEN || !WHATSAPP_CONFIG.FROM_NUMBER) {
       if (process.env.NODE_ENV === 'development') {
         console.log('💬 WhatsApp (Development Mode - No Twilio Credentials):')
         console.log('To:', to)
         console.log('Message:', message)
         console.log('---')
-        console.log('💡 WhatsApp requires Twilio WhatsApp Business API setup')
+        console.log('💡 To enable WhatsApp:')
+        console.log('   1. Get Twilio WhatsApp Sandbox: https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn')
+        console.log('   2. Join sandbox by sending "join <code>" to +1 415 523 8886')
+        console.log('   3. Add TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886 to .env.local')
       }
 
       // Mark as sent in development
@@ -175,17 +184,49 @@ export async function sendWhatsApp({
       return { success: true, notificationId: notification.id }
     }
 
-    // Note: WhatsApp via Twilio requires WhatsApp Business API setup
-    // For now, we'll use SMS as fallback or log it
-    console.log('WhatsApp sending not fully implemented - requires Twilio WhatsApp Business API setup')
-    console.log('💡 For now, SMS notifications are sent instead')
+    // Format phone number for WhatsApp (add whatsapp: prefix if not present)
+    const whatsappTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`
     
-    // Update notification as sent (for now)
+    // Use Twilio WhatsApp API
+    const auth = Buffer.from(`${WHATSAPP_CONFIG.ACCOUNT_SID}:${WHATSAPP_CONFIG.AUTH_TOKEN}`).toString('base64')
+    
+    const response = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${WHATSAPP_CONFIG.ACCOUNT_SID}/Messages.json`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${auth}`,
+        },
+        body: new URLSearchParams({
+          From: WHATSAPP_CONFIG.FROM_NUMBER,
+          To: whatsappTo,
+          Body: message,
+        }),
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      let errorMessage = data.message || `Twilio WhatsApp error: ${data.code || 'Unknown error'}`
+      
+      if (data.code === 21612) {
+        errorMessage = `Twilio Error 21612: Cannot send to unverified number. For sandbox, send "join <code>" to +1 415 523 8886 first.`
+      } else if (data.code === 21211) {
+        errorMessage = `Twilio Error 21211: Invalid 'To' phone number. Format: whatsapp:+254712345678`
+      }
+      
+      throw new Error(errorMessage)
+    }
+
+    // Update notification as sent
     await prisma.notification.update({
       where: { id: notification.id },
       data: {
         status: NotificationStatus.SENT,
         sentAt: new Date(),
+        metadata: JSON.stringify({ ...metadata, messageSid: data.sid, status: data.status }),
       },
     })
 
