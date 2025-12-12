@@ -250,7 +250,9 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                       <input
                         type="file"
                         accept="image/*"
-                        ref={(el) => (fileInputRefs.current[index] = el)}
+                        ref={(el) => {
+                          fileInputRefs.current[index] = el
+                        }}
                         onChange={(e) => handleFileSelect(index, e)}
                         className="hidden"
                         id={`file-${index}`}
