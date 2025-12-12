@@ -95,6 +95,11 @@ model Order {
   deliveryAddress    String         @db.Text
   deliveryCity       String
   deliveryNotes      String?        @db.Text
+  
+  // Location Coordinates (for map-based delivery)
+  deliveryLatitude   Float?
+  deliveryLongitude  Float?
+  
   subtotal           Decimal        @db.Decimal(10, 2)
   deliveryFee        Decimal        @default(0.00) @db.Decimal(10, 2)
   tax                Decimal        @default(0.00) @db.Decimal(10, 2)
@@ -273,7 +278,7 @@ enum PaymentMethod {
   MPESA
   CARD
   BANK_TRANSFER
-  CASH
+  CASH_ON_DELIVERY
 }
 
 enum NotificationType {

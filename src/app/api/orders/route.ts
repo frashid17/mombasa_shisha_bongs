@@ -39,6 +39,10 @@ async function handlePOST(req: Request) {
     const orderCount = await prisma.order.count()
     const orderNumber = `ORD-${Date.now()}-${orderCount + 1}`
 
+    // Determine payment status based on payment method
+    const paymentStatus = validated.paymentMethod === 'CASH_ON_DELIVERY' ? 'PENDING' : 'PENDING'
+    const orderStatus = validated.paymentMethod === 'CASH_ON_DELIVERY' ? 'CONFIRMED' : 'PENDING'
+
     // Create order with items
     const order = await prisma.order.create({
       data: {
@@ -50,13 +54,15 @@ async function handlePOST(req: Request) {
         deliveryAddress: validated.deliveryAddress,
         deliveryCity: validated.city,
         deliveryNotes: validated.notes || null,
+        deliveryLatitude: validated.deliveryLatitude || null,
+        deliveryLongitude: validated.deliveryLongitude || null,
         subtotal,
         deliveryFee,
         tax,
         discount,
         total,
-        status: 'PENDING',
-        paymentStatus: 'PENDING',
+        status: orderStatus,
+        paymentStatus,
         items: {
           create: validated.items.map((item) => {
             const product = productMap.get(item.productId)
@@ -71,8 +77,17 @@ async function handlePOST(req: Request) {
             }
           }),
         },
+        // Create payment record for COD orders
+        payment: validated.paymentMethod === 'CASH_ON_DELIVERY' ? {
+          create: {
+            method: 'CASH_ON_DELIVERY',
+            amount: total,
+            currency: 'KES',
+            status: 'PENDING',
+          },
+        } : undefined,
       },
-      include: { items: { include: { product: true } } },
+      include: { items: { include: { product: true } }, payment: true },
     })
 
     // Send order confirmation notification (async, don't wait)

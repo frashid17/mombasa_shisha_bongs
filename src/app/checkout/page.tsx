@@ -4,12 +4,23 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useUser } from '@clerk/nextjs'
+import LocationPicker from '@/components/checkout/LocationPicker'
+import { MapPin, CreditCard, Smartphone, Wallet } from 'lucide-react'
+
+type PaymentMethod = 'MPESA' | 'CASH_ON_DELIVERY'
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { user } = useUser()
   const { items, getTotal, clearCart } = useCartStore()
   const [loading, setLoading] = useState(false)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('MPESA')
+  const [selectedLocation, setSelectedLocation] = useState<{
+    lat: number
+    lng: number
+    address: string
+  } | null>(null)
+  const [isWithinMombasa, setIsWithinMombasa] = useState<boolean | null>(null)
   const [formData, setFormData] = useState({
     customerName: user?.fullName || '',
     customerEmail: user?.primaryEmailAddress?.emailAddress || '',
@@ -26,8 +37,39 @@ export default function CheckoutPage() {
     return null
   }
 
+  const handleLocationSelect = async (location: { lat: number; lng: number; address: string }) => {
+    setSelectedLocation(location)
+    setFormData({ ...formData, deliveryAddress: location.address })
+
+    // Check if location is within Mombasa
+    try {
+      const response = await fetch('/api/location/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lat: location.lat, lng: location.lng }),
+      })
+      const data = await response.json()
+      setIsWithinMombasa(data.isWithinMombasa)
+
+      // Auto-select payment method based on location
+      if (data.isWithinMombasa) {
+        setPaymentMethod('CASH_ON_DELIVERY')
+      } else {
+        setPaymentMethod('MPESA')
+      }
+    } catch (error) {
+      console.error('Error checking location:', error)
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    if (!selectedLocation) {
+      alert('Please select a delivery location on the map')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -38,22 +80,30 @@ export default function CheckoutPage() {
           items: items.map((item) => ({
             productId: item.id,
             quantity: item.quantity,
-            price: Number(item.price), // Ensure price is a number
+            price: Number(item.price),
           })),
           customerName: formData.customerName,
           customerEmail: formData.customerEmail,
           customerPhone: formData.customerPhone ? `+254${formData.customerPhone}` : formData.customerPhone,
           deliveryAddress: formData.deliveryAddress,
+          deliveryLatitude: selectedLocation.lat,
+          deliveryLongitude: selectedLocation.lng,
           city: formData.city,
           notes: formData.notes,
+          paymentMethod: paymentMethod,
         }),
       })
 
       const data = await res.json()
       if (res.ok) {
-        // Don't clear cart yet - wait for payment confirmation
-        // Redirect to order page where user can initiate payment
-        router.push(`/orders/${data.order.id}`)
+        if (paymentMethod === 'CASH_ON_DELIVERY') {
+          // For COD, clear cart and redirect to success page
+          clearCart()
+          router.push(`/orders/${data.order.id}?cod=true`)
+        } else {
+          // For Mpesa, redirect to payment page
+          router.push(`/orders/${data.order.id}`)
+        }
       } else {
         alert(data.error || 'Failed to create order')
       }
@@ -71,8 +121,9 @@ export default function CheckoutPage() {
         <h1 className="text-3xl font-bold text-white mb-8">Checkout</h1>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Customer Information */}
             <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-bold text-white mb-4">Delivery Information</h2>
+              <h2 className="text-xl font-bold text-white mb-4">Customer Information</h2>
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-white mb-2">Full Name *</label>
@@ -107,7 +158,6 @@ export default function CheckoutPage() {
                       required
                       value={formData.customerPhone}
                       onChange={(e) => {
-                        // Remove any non-digit characters and limit to 9 digits (Kenyan format)
                         const value = e.target.value.replace(/\D/g, '').slice(0, 9)
                         setFormData({ ...formData, customerPhone: value })
                       }}
@@ -119,45 +169,117 @@ export default function CheckoutPage() {
                   </div>
                   <p className="text-xs text-gray-400 mt-1">Enter 9 digits (e.g., 708786000)</p>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Delivery Address *</label>
-                  <textarea
-                    required
-                    value={formData.deliveryAddress}
-                    onChange={(e) => setFormData({ ...formData, deliveryAddress: e.target.value })}
-                    className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-                    rows={3}
-                    placeholder="Street address, building, apartment number"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-white mb-2">City</label>
-                  <input
-                    type="text"
-                    value={formData.city}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-                    placeholder="Mombasa"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Order Notes</label>
-                  <textarea
-                    value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-                    rows={2}
-                    placeholder="Any special instructions for delivery..."
-                  />
-                </div>
               </div>
             </div>
+
+            {/* Location Picker */}
+            <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-bold text-white mb-4">Delivery Location</h2>
+              <LocationPicker onLocationSelect={handleLocationSelect} />
+            </div>
+
+            {/* Additional Address Details */}
+            {selectedLocation && (
+              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Additional Details</h2>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">
+                      Additional Address Details (Optional)
+                    </label>
+                    <textarea
+                      value={formData.deliveryAddress.replace(selectedLocation.address, '').trim()}
+                      onChange={(e) => {
+                        const additional = e.target.value
+                        setFormData({
+                          ...formData,
+                          deliveryAddress: additional
+                            ? `${selectedLocation.address}, ${additional}`
+                            : selectedLocation.address,
+                        })
+                      }}
+                      className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      rows={2}
+                      placeholder="Building name, floor, apartment number, etc."
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">Order Notes</label>
+                    <textarea
+                      value={formData.notes}
+                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      rows={2}
+                      placeholder="Any special instructions for delivery..."
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Payment Method Selection */}
+            {selectedLocation && (
+              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Payment Method</h2>
+                <div className="space-y-3">
+                  {isWithinMombasa && (
+                    <label className="flex items-start gap-3 p-4 border-2 border-blue-500 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="CASH_ON_DELIVERY"
+                        checked={paymentMethod === 'CASH_ON_DELIVERY'}
+                        onChange={() => setPaymentMethod('CASH_ON_DELIVERY')}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Wallet className="w-5 h-5 text-green-400" />
+                          <span className="font-semibold text-white">Pay on Delivery</span>
+                          <span className="text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded-full">
+                            Available
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-400">
+                          Pay with cash when your order is delivered. Only available within Mombasa.
+                        </p>
+                      </div>
+                    </label>
+                  )}
+
+                  <label className="flex items-start gap-3 p-4 border-2 border-gray-600 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors">
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="MPESA"
+                      checked={paymentMethod === 'MPESA'}
+                      onChange={() => setPaymentMethod('MPESA')}
+                      className="mt-1"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Smartphone className="w-5 h-5 text-blue-400" />
+                        <span className="font-semibold text-white">Mpesa Payment</span>
+                      </div>
+                      <p className="text-sm text-gray-400">
+                        Pay instantly via Mpesa STK Push. You'll receive a payment prompt on your phone.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50"
+              disabled={loading || !selectedLocation}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Processing...' : 'Place Order'}
+              {loading
+                ? 'Processing...'
+                : paymentMethod === 'CASH_ON_DELIVERY'
+                  ? 'Place Order (Pay on Delivery)'
+                  : 'Place Order & Pay'}
             </button>
           </form>
 
@@ -176,6 +298,11 @@ export default function CheckoutPage() {
                 <span>Total</span>
                 <span>KES {total.toLocaleString()}</span>
               </div>
+              {paymentMethod === 'CASH_ON_DELIVERY' && (
+                <p className="text-sm text-green-400 mt-2">
+                  ✓ Pay this amount when your order is delivered
+                </p>
+              )}
             </div>
           </div>
         </div>
