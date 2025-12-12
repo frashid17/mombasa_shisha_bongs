@@ -87,10 +87,18 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             <div className="space-y-4">
               {order.items.map((item) => (
                 <div key={item.id} className="flex items-center gap-4 border-b pb-4 last:border-0">
-                  {item.product.images[0] ? (
+                  {item.productImage ? (
+                    <Image
+                      src={item.productImage}
+                      alt={item.productName}
+                      width={80}
+                      height={80}
+                      className="rounded object-cover"
+                    />
+                  ) : item.product?.images?.[0] ? (
                     <Image
                       src={item.product.images[0].url}
-                      alt={item.product.name}
+                      alt={item.productName}
                       width={80}
                       height={80}
                       className="rounded object-cover"
@@ -101,8 +109,8 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     </div>
                   )}
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{item.product.name}</h3>
-                    <p className="text-sm text-gray-600">SKU: {item.product.sku || 'N/A'}</p>
+                    <h3 className="font-semibold text-gray-900">{item.productName || item.product?.name || 'Product'}</h3>
+                    <p className="text-sm text-gray-600">SKU: {item.productSku || item.product?.sku || 'N/A'}</p>
                     <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
                   </div>
                   <div className="text-right">
