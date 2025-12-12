@@ -12,8 +12,9 @@ async function getData(id: string) {
   return { product, categories }
 }
 
-export default async function EditProductPage({ params }: { params: { id: string } }) {
-  const { product, categories } = await getData(params.id)
+export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const { product, categories } = await getData(id)
 
   if (!product) {
     return <div>Product not found</div>
