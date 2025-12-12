@@ -330,7 +330,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
         </div>
         <p className="text-xs text-gray-500 mt-2">
           <ImageIcon className="w-3 h-3 inline mr-1" />
-          Enter image URLs. The first image or the one marked as primary will be used as the main product image.
+          Upload images from your computer or enter image URLs. The first image or the one marked as primary will be used as the main product image.
         </p>
       </div>
 
