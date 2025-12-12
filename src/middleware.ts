@@ -2,7 +2,7 @@ import { clerkMiddleware } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { addSecurityHeaders } from '@/utils/security-headers'
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   // Get response
   const response = NextResponse.next()
 
@@ -10,9 +10,9 @@ export default clerkMiddleware((auth, req) => {
   addSecurityHeaders(response)
 
   // Add user ID to headers for rate limiting (if authenticated)
-  const { userId } = auth()
-  if (userId) {
-    response.headers.set('x-user-id', userId)
+  const authResult = await auth()
+  if (authResult.userId) {
+    response.headers.set('x-user-id', authResult.userId)
   }
 
   return response
