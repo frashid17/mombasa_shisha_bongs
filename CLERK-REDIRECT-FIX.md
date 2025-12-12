@@ -17,7 +17,7 @@ Pages load then immediately redirect back to homepage (`http://localhost:3000`)
 
 Your current publishable key ends with `$` which looks suspicious:
 ```
-pk_test_d29ya2FibGUtbXV0dC00My5jbGVyay5hY2NvdW50cy5kZXYk
+your_clerk_publishable_key
 ```
 
 **Action Required:**

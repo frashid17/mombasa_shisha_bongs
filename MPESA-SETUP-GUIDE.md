@@ -349,7 +349,7 @@ npm run db:studio
 ```env
 MPESA_CONSUMER_KEY=your_sandbox_key
 MPESA_CONSUMER_SECRET=your_sandbox_secret
-MPESA_PASSKEY=bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919
+MPESA_PASSKEY=your_mpesa_passkey
 MPESA_SHORTCODE=174379
 MPESA_CALLBACK_URL=https://your-ngrok-url.ngrok.io/api/mpesa/callback
 MPESA_ENVIRONMENT=sandbox

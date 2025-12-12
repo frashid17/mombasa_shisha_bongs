@@ -12,7 +12,7 @@ This guide will help you set up Twilio WhatsApp Cloud API for sending transactio
 
 1. Go to: **https://console.twilio.com**
 2. Log in with your Twilio account
-3. Make sure you're in the correct account (the one with Account SID: `your_twilio_account_sid`)
+3. Make sure you're in the correct account (the one with your Account SID)
 
 ### 1.2 Navigate to WhatsApp Sandbox
 
@@ -59,9 +59,9 @@ Open your `.env.local` file and add/update these lines:
 # WHATSAPP CONFIGURATION (Twilio Cloud API)
 # ============================================
 
-# Twilio Credentials (you already have these)
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
+# Twilio Credentials (get these from Twilio Console)
+TWILIO_ACCOUNT_SID=your_account_sid_here
+TWILIO_AUTH_TOKEN=your_auth_token_here
 
 # WhatsApp Sandbox Number (from Step 1.2)
 # Format: whatsapp:+14155238886

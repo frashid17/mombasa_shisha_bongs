@@ -6,7 +6,7 @@ Your Resend API key has been configured. Add this to your `.env.local`:
 
 ```env
 # Email Configuration (Resend)
-EMAIL_API_KEY=re_RdKA1u9P_4NPzyvWxWxdrZ8wmsTyHr8aN
+EMAIL_API_KEY=your_resend_api_key
 EMAIL_FROM=noreply@mombasashishabongs.com
 ```
 
@@ -95,7 +95,7 @@ This allows you to develop without spending credits!
 
 ```env
 # Email Configuration (Resend)
-EMAIL_API_KEY=re_RdKA1u9P_4NPzyvWxWxdrZ8wmsTyHr8aN
+EMAIL_API_KEY=your_resend_api_key
 EMAIL_FROM=noreply@mombasashishabongs.com
 
 # SMS Configuration (Twilio)

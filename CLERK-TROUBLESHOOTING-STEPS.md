@@ -10,7 +10,7 @@
 
 Your publishable key:
 ```
-pk_test_d29ya2FibGUtbXV0dC00My5jbGVyay5hY2NvdW50cy5kZXYk
+your_clerk_publishable_key
                                                            ↑
                                                     Ends with '$'?
 ```

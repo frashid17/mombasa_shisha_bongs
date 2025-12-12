@@ -5,8 +5,8 @@
 I've updated your `.env.local` with the Clerk keys you provided:
 
 ```env
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_d29ya2FibGUtbXV0dC00My5jbGVyay5hY2NvdW50cy5kZXYk
-CLERK_SECRET_KEY=sk_test_xGShHZ3hcXsw7yWmHXZF9SPUbdX2rHGtMeTvYszWYv
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
 ```
 
 ## 📏 Key Verification

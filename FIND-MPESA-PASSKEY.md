@@ -21,7 +21,7 @@
 
 4. **Copy the Passkey:**
    - It's a long string of characters (usually 64+ characters)
-   - Example format: `bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919`
+   - Example format: `your_passkey_here` (64 character hex string)
    - Click the "Copy" button or select and copy it
 
 5. **Update `.env.local`:**
