@@ -2,7 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import type { Category } from '@prisma/client'
+
+type Category = {
+  id: string
+  name: string
+  slug: string
+}
 
 type ProductFormProps = {
   categories: Category[]
