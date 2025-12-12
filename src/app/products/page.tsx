@@ -64,10 +64,11 @@ async function getCategories() {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { search?: string; category?: string; minPrice?: string; maxPrice?: string }
+  searchParams: Promise<{ search?: string; category?: string; minPrice?: string; maxPrice?: string }>
 }) {
+  const params = await searchParams
   const [products, categories] = await Promise.all([
-    getProducts(searchParams),
+    getProducts(params),
     getCategories(),
   ])
 
@@ -82,21 +83,21 @@ export default async function ProductsPage({
         </div>
 
         {/* Active Filters */}
-        {(searchParams.search || searchParams.category || searchParams.minPrice || searchParams.maxPrice) && (
+        {(params.search || params.category || params.minPrice || params.maxPrice) && (
           <div className="mb-6 flex flex-wrap gap-2">
-            {searchParams.search && (
+            {params.search && (
               <span className="bg-blue-900 text-blue-300 px-3 py-1 rounded-full text-sm">
-                Search: {searchParams.search}
+                Search: {params.search}
               </span>
             )}
-            {searchParams.category && (
+            {params.category && (
               <span className="bg-purple-900 text-purple-300 px-3 py-1 rounded-full text-sm">
-                Category: {searchParams.category}
+                Category: {params.category}
               </span>
             )}
-            {(searchParams.minPrice || searchParams.maxPrice) && (
+            {(params.minPrice || params.maxPrice) && (
               <span className="bg-green-900 text-green-300 px-3 py-1 rounded-full text-sm">
-                Price: KES {searchParams.minPrice || '0'} - {searchParams.maxPrice || '∞'}
+                Price: KES {params.minPrice || '0'} - {params.maxPrice || '∞'}
               </span>
             )}
           </div>
