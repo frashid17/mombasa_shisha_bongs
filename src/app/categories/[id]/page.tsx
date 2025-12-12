@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
-import Navbar from '@/components/Navbar'
 
 async function getCategoryProducts(categoryId: string) {
   const category = await prisma.category.findUnique({
@@ -28,7 +27,6 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">

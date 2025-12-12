@@ -2,7 +2,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import prisma from '@/lib/prisma'
 import SearchBar from '@/components/SearchBar'
-import Navbar from '@/components/Navbar'
 
 async function getProducts(searchParams: {
   search?: string
@@ -74,7 +73,6 @@ export default async function ProductsPage({
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">

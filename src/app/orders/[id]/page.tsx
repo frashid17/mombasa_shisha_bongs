@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import { format } from 'date-fns'
 import Image from 'next/image'
-import Navbar from '@/components/Navbar'
 import MpesaPaymentButton from '@/components/payment/MpesaPaymentButton'
 import { CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react'
 
@@ -54,7 +53,6 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
-      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold text-white mb-8">Order #{order.orderNumber}</h1>

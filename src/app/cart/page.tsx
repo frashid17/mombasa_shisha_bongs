@@ -4,7 +4,6 @@ import { useCartStore } from '@/store/cartStore'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react'
-import Navbar from '@/components/Navbar'
 import CartRecommendations from '@/components/cart/CartRecommendations'
 
 export default function CartPage() {
@@ -14,7 +13,6 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-gray-900">
-        <Navbar />
         <div className="container mx-auto px-4 py-16 text-center">
           <ShoppingBag className="w-24 h-24 text-gray-600 mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-white mb-4">Your cart is empty</h1>
@@ -31,7 +29,6 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-white mb-8">Shopping Cart</h1>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -3,7 +3,6 @@ import Image from 'next/image'
 import prisma from '@/lib/prisma'
 import { Shield, Star, TrendingUp, Truck } from 'lucide-react'
 import SearchBar from '@/components/SearchBar'
-import Navbar from '@/components/Navbar'
 
 async function getFeaturedData() {
   const [categories, featuredProducts, stats] = await Promise.all([
@@ -24,7 +23,6 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
 
       {/* Hero Section - Nightlife Theme */}
       <section className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white py-20 relative overflow-hidden">

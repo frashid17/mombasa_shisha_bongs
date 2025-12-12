@@ -2,7 +2,6 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import AddToCartButton from '@/components/cart/AddToCartButton'
-import Navbar from '@/components/Navbar'
 import ProductRecommendations from '@/components/products/ProductRecommendations'
 import ProductReviews from '@/components/products/ProductReviews'
 import { getRecommendedProducts } from '@/lib/recommendations'
@@ -35,7 +34,6 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-gray-900">
-      <Navbar />
       <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Images */}
