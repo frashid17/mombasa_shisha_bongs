@@ -44,24 +44,27 @@ export default function CartPage() {
                   <h3 className="font-semibold text-white mb-2">{item.name}</h3>
                   <p className="text-blue-400 font-bold mb-4">KES {item.price.toLocaleString()}</p>
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 border border-gray-600 rounded bg-gray-900">
+                    <div className="flex items-center gap-2 border border-gray-600 rounded-lg bg-gray-900">
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="p-2 hover:bg-gray-700 text-white"
+                        className="p-2 hover:bg-gray-700 text-white rounded-l-lg transition-colors"
+                        aria-label="Decrease quantity"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="px-4 py-2 text-white">{item.quantity}</span>
+                      <span className="px-4 py-2 text-white font-semibold min-w-[3rem] text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="p-2 hover:bg-gray-700 text-white"
+                        className="p-2 hover:bg-gray-700 text-white rounded-r-lg transition-colors"
+                        aria-label="Increase quantity"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="p-2 text-red-400 hover:bg-red-900/20 rounded"
+                      className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                      aria-label="Remove item"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>

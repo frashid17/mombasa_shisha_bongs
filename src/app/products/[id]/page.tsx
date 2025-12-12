@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import AddToCartButton from '@/components/cart/AddToCartButton'
+import BuyNowButton from '@/components/cart/BuyNowButton'
 import ProductRecommendations from '@/components/products/ProductRecommendations'
 import ProductReviews from '@/components/products/ProductReviews'
 import { getRecommendedProducts } from '@/lib/recommendations'
@@ -78,7 +79,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             )}
           </div>
 
-          {product.stock > 0 && <AddToCartButton product={serializedProduct} />}
+          {product.stock > 0 && (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <AddToCartButton product={serializedProduct} />
+              <BuyNowButton product={serializedProduct} />
+            </div>
+          )}
         </div>
       </div>
 
