@@ -187,23 +187,23 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             <h2 className="text-xl font-bold text-white mb-4">Delivery Information</h2>
             <div className="space-y-2 text-gray-300">
               <p>
-                <strong className="text-white">Name:</strong> {order.customerName}
+                <strong className="text-white">Name:</strong> {order.userName}
               </p>
               <p>
-                <strong className="text-white">Email:</strong> {order.customerEmail}
+                <strong className="text-white">Email:</strong> {order.userEmail}
               </p>
               <p>
-                <strong className="text-white">Phone:</strong> {order.customerPhone}
+                <strong className="text-white">Phone:</strong> {order.userPhone}
               </p>
               <p>
                 <strong className="text-white">Address:</strong> {order.deliveryAddress}
               </p>
               <p>
-                <strong className="text-white">City:</strong> {order.city}
+                <strong className="text-white">City:</strong> {order.deliveryCity}
               </p>
-              {order.notes && (
+              {order.deliveryNotes && (
                 <p>
-                  <strong className="text-white">Notes:</strong> {order.notes}
+                  <strong className="text-white">Notes:</strong> {order.deliveryNotes}
                 </p>
               )}
             </div>
