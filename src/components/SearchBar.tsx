@@ -23,7 +23,7 @@ export default function SearchBar() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for shisha, vapes, accessories..."
-          className="w-full px-6 py-4 pl-14 rounded-full border-2 border-gray-200 focus:border-blue-500 focus:outline-none text-gray-900 text-lg"
+          className="w-full px-6 py-4 pl-14 rounded-full bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700 focus:border-blue-500 focus:outline-none text-white text-lg placeholder-gray-400"
         />
         <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <button
