@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useUser } from '@clerk/nextjs'
@@ -9,17 +9,20 @@ import { MapPin, CreditCard, Smartphone, Wallet } from 'lucide-react'
 
 type PaymentMethod = 'MPESA' | 'CASH_ON_DELIVERY'
 
+interface LocationData {
+  lat: number
+  lng: number
+  address: string
+  isWithinMombasa?: boolean
+}
+
 export default function CheckoutPage() {
   const router = useRouter()
   const { user } = useUser()
   const { items, getTotal, clearCart } = useCartStore()
   const [loading, setLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('MPESA')
-  const [selectedLocation, setSelectedLocation] = useState<{
-    lat: number
-    lng: number
-    address: string
-  } | null>(null)
+  const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [isWithinMombasa, setIsWithinMombasa] = useState<boolean | null>(null)
   const [formData, setFormData] = useState({
     customerName: user?.fullName || '',
@@ -32,12 +35,18 @@ export default function CheckoutPage() {
 
   const total = getTotal()
 
+  // Redirect to cart if empty - use useEffect to avoid render error
+  useEffect(() => {
+    if (items.length === 0) {
+      router.push('/cart')
+    }
+  }, [items.length, router])
+
   if (items.length === 0) {
-    router.push('/cart')
     return null
   }
 
-  const handleLocationSelect = async (location: { lat: number; lng: number; address: string; isWithinMombasa?: boolean }) => {
+  const handleLocationSelect = async (location: LocationData) => {
     setSelectedLocation(location)
     setFormData({ ...formData, deliveryAddress: location.address })
 

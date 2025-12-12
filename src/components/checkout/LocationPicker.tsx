@@ -3,8 +3,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { MapPin, Navigation } from 'lucide-react'
 
+interface LocationData {
+  lat: number
+  lng: number
+  address: string
+  isWithinMombasa?: boolean
+}
+
 interface LocationPickerProps {
-  onLocationSelect: (location: { lat: number; lng: number; address: string }) => void
+  onLocationSelect: (location: LocationData) => void
   initialLocation?: { lat: number; lng: number }
 }
 
