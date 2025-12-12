@@ -1,0 +1,68 @@
+/**
+ * Test Mpesa Connection Script
+ * 
+ * This script tests if your Mpesa credentials are correctly configured
+ * and if you can successfully connect to the Mpesa Daraja API.
+ * 
+ * Usage: npx tsx scripts/test-mpesa-connection.ts
+ */
+
+import { getMpesaAccessToken, initiateSTKPush } from '../src/lib/mpesa'
+import { MPESA_CONFIG } from '../src/utils/constants'
+
+async function testMpesaConnection() {
+  console.log('🔍 Testing Mpesa Connection...\n')
+  console.log('Configuration:')
+  console.log(`  Environment: ${MPESA_CONFIG.ENVIRONMENT}`)
+  console.log(`  Shortcode: ${MPESA_CONFIG.SHORTCODE}`)
+  console.log(`  Callback URL: ${MPESA_CONFIG.CALLBACK_URL}`)
+  console.log(`  Consumer Key: ${MPESA_CONFIG.CONSUMER_KEY ? '✅ Set' : '❌ Missing'}`)
+  console.log(`  Consumer Secret: ${MPESA_CONFIG.CONSUMER_SECRET ? '✅ Set' : '❌ Missing'}`)
+  console.log(`  Passkey: ${MPESA_CONFIG.PASSKEY ? '✅ Set' : '❌ Missing'}\n`)
+
+  // Check if credentials are set
+  if (!MPESA_CONFIG.CONSUMER_KEY || !MPESA_CONFIG.CONSUMER_SECRET || !MPESA_CONFIG.PASSKEY) {
+    console.error('❌ Error: Missing Mpesa credentials!')
+    console.error('Please set the following in your .env.local file:')
+    console.error('  - MPESA_CONSUMER_KEY')
+    console.error('  - MPESA_CONSUMER_SECRET')
+    console.error('  - MPESA_PASSKEY')
+    console.error('  - MPESA_SHORTCODE')
+    console.error('  - MPESA_CALLBACK_URL')
+    process.exit(1)
+  }
+
+  // Test 1: Access Token Generation
+  console.log('Test 1: Generating Access Token...')
+  try {
+    const accessToken = await getMpesaAccessToken()
+    console.log('✅ Success! Access token generated')
+    console.log(`   Token: ${accessToken.substring(0, 20)}...\n`)
+  } catch (error: any) {
+    console.error('❌ Failed to generate access token')
+    console.error(`   Error: ${error.message}\n`)
+    console.error('Possible issues:')
+    console.error('  - Invalid consumer key or secret')
+    console.error('  - Network connectivity issues')
+    console.error('  - Mpesa API is down')
+    process.exit(1)
+  }
+
+  // Test 2: STK Push Initiation (Optional - requires valid order)
+  console.log('Test 2: STK Push Initiation (Skipped - requires order ID)')
+  console.log('   To test STK Push, create an order and use the payment button\n')
+
+  console.log('✅ All basic tests passed!')
+  console.log('\n📝 Next Steps:')
+  console.log('  1. Make sure your callback URL is publicly accessible (use ngrok for local)')
+  console.log('  2. Create a test order on your website')
+  console.log('  3. Try making a payment with a test phone number')
+  console.log('  4. Check the payment status in your database\n')
+}
+
+// Run the test
+testMpesaConnection().catch((error) => {
+  console.error('Unexpected error:', error)
+  process.exit(1)
+})
+
