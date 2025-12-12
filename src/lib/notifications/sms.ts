@@ -128,12 +128,13 @@ export async function sendSMS({
 }
 
 /**
- * Send WhatsApp message using Twilio WhatsApp API
+ * Send WhatsApp message using 360dialog WhatsApp Business API
  * 
- * Twilio WhatsApp Sandbox: https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn
- * - Free for testing
- * - Send to any number after joining sandbox
- * - For production, need WhatsApp Business API approval
+ * 360dialog: https://www.360dialog.com/
+ * - WhatsApp Business API provider
+ * - Easy setup with QR code scanning
+ * - Good pricing and reliability
+ * - Supports Kenya
  */
 export async function sendWhatsApp({
   to,
@@ -160,16 +161,17 @@ export async function sendWhatsApp({
     const { WHATSAPP_CONFIG } = await import('@/utils/constants')
     
     // If no credentials, log in development mode
-    if (!WHATSAPP_CONFIG.ACCOUNT_SID || !WHATSAPP_CONFIG.AUTH_TOKEN || !WHATSAPP_CONFIG.FROM_NUMBER) {
+    if (!WHATSAPP_CONFIG.API_KEY) {
       if (process.env.NODE_ENV === 'development') {
-        console.log('💬 WhatsApp (Development Mode - No Twilio Credentials):')
+        console.log('💬 WhatsApp (Development Mode - No 360dialog Credentials):')
         console.log('To:', to)
         console.log('Message:', message)
         console.log('---')
         console.log('💡 To enable WhatsApp:')
-        console.log('   1. Get Twilio WhatsApp Sandbox: https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn')
-        console.log('   2. Join sandbox by sending "join <code>" to +1 415 523 8886')
-        console.log('   3. Add TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886 to .env.local')
+        console.log('   1. Sign up at https://www.360dialog.com/')
+        console.log('   2. Connect your WhatsApp Business number')
+        console.log('   3. Get your API key from dashboard')
+        console.log('   4. Add WHATSAPP_API_KEY=your_api_key to .env.local')
       }
 
       // Mark as sent in development
@@ -184,44 +186,55 @@ export async function sendWhatsApp({
       return { success: true, notificationId: notification.id }
     }
 
-    // Format phone number for WhatsApp (add whatsapp: prefix if not present)
-    const whatsappTo = to.startsWith('whatsapp:') ? to : `whatsapp:${to}`
+    // Format phone number for 360dialog (remove + and whatsapp: prefix, keep country code)
+    // Input can be: +254712345678, whatsapp:+254712345678, or 254712345678
+    // Output should be: 254712345678 (no +, no whatsapp: prefix)
+    let phoneNumber = to.replace(/^whatsapp:/, '').replace(/^\+/, '')
     
-    // Use Twilio WhatsApp Cloud API (not MM Lite - supports transactional messages)
-    // For sandbox: Use whatsapp:+14155238886
-    // For production: Use your approved WhatsApp Business number
-    const auth = Buffer.from(`${WHATSAPP_CONFIG.ACCOUNT_SID}:${WHATSAPP_CONFIG.AUTH_TOKEN}`).toString('base64')
-    
-    // Use the Messages API endpoint (Cloud API) - supports transactional messages
-    const response = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${WHATSAPP_CONFIG.ACCOUNT_SID}/Messages.json`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Basic ${auth}`,
-        },
-        body: new URLSearchParams({
-          From: WHATSAPP_CONFIG.FROM_NUMBER,
-          To: whatsappTo,
-          Body: message,
-          // Important: Don't use ContentSid or ContentVariables (those are for MM Lite)
-          // Just use Body for transactional messages
-        }),
+    // Ensure it starts with country code (Kenya is 254)
+    if (!phoneNumber.startsWith('254')) {
+      // If it starts with 0, replace with 254
+      if (phoneNumber.startsWith('0')) {
+        phoneNumber = '254' + phoneNumber.substring(1)
+      } else {
+        // Assume it's missing country code, add 254
+        phoneNumber = '254' + phoneNumber
       }
-    )
+    }
+    
+    // Build API URL
+    const apiUrl = WHATSAPP_CONFIG.INSTANCE_ID
+      ? `${WHATSAPP_CONFIG.API_URL}/instances/${WHATSAPP_CONFIG.INSTANCE_ID}/messages`
+      : `${WHATSAPP_CONFIG.API_URL}/messages`
+    
+    // Use 360dialog WhatsApp Business API
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'D360-API-KEY': WHATSAPP_CONFIG.API_KEY,
+      },
+      body: JSON.stringify({
+        to: phoneNumber,
+        type: 'text',
+        text: {
+          body: message,
+        },
+      }),
+    })
 
     const data = await response.json()
 
     if (!response.ok) {
-      let errorMessage = data.message || `Twilio WhatsApp error: ${data.code || 'Unknown error'}`
+      let errorMessage = data.error?.message || data.message || `360dialog WhatsApp error: ${response.status}`
       
-      if (data.code === 21612) {
-        errorMessage = `Twilio Error 21612: Cannot send to unverified number. For sandbox, send "join <code>" to +1 415 523 8886 first.`
-      } else if (data.code === 21211) {
-        errorMessage = `Twilio Error 21211: Invalid 'To' phone number. Format: whatsapp:+254712345678`
-      } else if (data.code === 63055) {
-        errorMessage = `Twilio Error 63055: MM Lite API only supports marketing messages. Make sure you're using Cloud API (Messages.json endpoint) and your TWILIO_WHATSAPP_NUMBER is correct. For sandbox, use: whatsapp:+14155238886`
+      // Provide helpful error messages
+      if (response.status === 401) {
+        errorMessage = '360dialog Error 401: Invalid API key. Check your WHATSAPP_API_KEY in .env.local'
+      } else if (response.status === 400) {
+        errorMessage = `360dialog Error 400: Invalid request. ${data.error?.message || 'Check phone number format (should be: 254712345678)'}`
+      } else if (response.status === 404) {
+        errorMessage = '360dialog Error 404: Instance ID not found. Check your WHATSAPP_INSTANCE_ID in .env.local or remove it if not needed'
       }
       
       throw new Error(errorMessage)
@@ -233,7 +246,12 @@ export async function sendWhatsApp({
       data: {
         status: NotificationStatus.SENT,
         sentAt: new Date(),
-        metadata: JSON.stringify({ ...metadata, messageSid: data.sid, status: data.status }),
+        metadata: JSON.stringify({ 
+          ...metadata, 
+          messageId: data.messages?.[0]?.id || data.id,
+          status: data.messages?.[0]?.status || 'sent',
+          provider: '360dialog',
+        }),
       },
     })
 
