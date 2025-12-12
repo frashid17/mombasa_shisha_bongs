@@ -47,11 +47,25 @@ async function handlePOST(req: Request) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
-    if (order.paymentStatus !== 'PENDING') {
-      return NextResponse.json(
-        { error: 'Order payment already processed' },
-        { status: 400 }
+    // Check if order is eligible for payment
+    // Allow payment if status is PENDING or if it's a COD order that hasn't been paid
+    const isCOD = order.payment?.method === 'CASH_ON_DELIVERY'
+    if (order.paymentStatus !== 'PENDING' && !isCOD) {
+      return createSecureResponse(
+        {
+          success: false,
+          error: `Order payment status is ${order.paymentStatus}. Cannot initiate new payment.`,
+        },
+        400
       )
+    }
+
+    // If it's a COD order, we need to create a new Mpesa payment
+    if (isCOD && order.payment) {
+      // Delete the COD payment record to create a new Mpesa one
+      await prisma.payment.delete({
+        where: { id: order.payment.id },
+      })
     }
 
     // Check if payment already exists
