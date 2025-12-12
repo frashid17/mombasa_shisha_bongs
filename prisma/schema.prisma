@@ -365,8 +365,9 @@ model AdminLog {
 
 enum OrderStatus {
   PENDING // Order created, awaiting payment
-  PROCESSING // Payment received, preparing order
-  SHIPPED // Order shipped
+  CONFIRMED // Payment received, order confirmed
+  PROCESSING // Order being prepared
+  SHIPPED // Order shipped/dispatched
   DELIVERED // Order delivered
   CANCELLED // Order cancelled
   REFUNDED // Order refunded

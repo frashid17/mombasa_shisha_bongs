@@ -103,7 +103,7 @@ export const createOrderSchema = z.object({
 })
 
 export const updateOrderStatusSchema = z.object({
-  status: z.enum(['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED']),
+  status: z.enum(['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED']),
   trackingNumber: z.string().max(100).optional(),
   estimatedDelivery: z.coerce.date().optional(),
   adminNotes: z.string().max(1000).optional(),

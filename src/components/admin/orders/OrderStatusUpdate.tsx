@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Package, Truck, CheckCircle, Clock, XCircle } from 'lucide-react'
+import { Package, Truck, CheckCircle, Clock, XCircle, CheckCircle2 as CheckCircleIcon } from 'lucide-react'
 
 interface OrderStatusUpdateProps {
   order: {
@@ -16,8 +16,9 @@ interface OrderStatusUpdateProps {
 
 const statusOptions = [
   { value: 'PENDING', label: 'Pending', icon: Clock, description: 'Order is pending confirmation' },
+  { value: 'CONFIRMED', label: 'Confirmed', icon: CheckCircleIcon, description: 'Payment received, order confirmed' },
   { value: 'PROCESSING', label: 'Processing', icon: Package, description: 'Order is being prepared' },
-  { value: 'SHIPPED', label: 'Shipped', icon: Truck, description: 'Order has been shipped' },
+  { value: 'SHIPPED', label: 'Shipped/Dispatched', icon: Truck, description: 'Order has been shipped/dispatched' },
   { value: 'DELIVERED', label: 'Delivered', icon: CheckCircle, description: 'Order has been delivered' },
   { value: 'CANCELLED', label: 'Cancelled', icon: XCircle, description: 'Order has been cancelled' },
 ]

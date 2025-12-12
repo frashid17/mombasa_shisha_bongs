@@ -25,6 +25,7 @@ async function getOrder(id: string) {
 
 const statusColors: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
+  CONFIRMED: 'bg-green-100 text-green-800',
   PROCESSING: 'bg-blue-100 text-blue-800',
   SHIPPED: 'bg-purple-100 text-purple-800',
   DELIVERED: 'bg-green-100 text-green-800',
@@ -42,6 +43,7 @@ const paymentStatusColors: Record<string, string> = {
 
 const statusIcons: Record<string, any> = {
   PENDING: Clock,
+  CONFIRMED: CheckCircle,
   PROCESSING: Package,
   SHIPPED: Truck,
   DELIVERED: CheckCircle,
