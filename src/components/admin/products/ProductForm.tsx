@@ -78,11 +78,12 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
             name="categoryId"
             required
             defaultValue={product?.categoryId}
-            className="w-full border rounded-lg px-4 py-2"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            style={{ color: '#111827' }}
           >
-            <option value="">Select category</option>
+            <option value="" style={{ color: '#6b7280' }}>Select category</option>
             {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
+              <option key={cat.id} value={cat.id} style={{ color: '#111827', backgroundColor: '#ffffff' }}>
                 {cat.name}
               </option>
             ))}
