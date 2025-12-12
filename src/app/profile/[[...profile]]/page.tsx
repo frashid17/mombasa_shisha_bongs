@@ -49,47 +49,47 @@ export default function ProfilePage() {
         </div>
 
         {/* Clerk UserProfile Component */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
           <UserProfile
             appearance={{
               baseTheme: undefined,
               elements: {
                 // Root and container
                 rootBox: 'w-full',
-                card: 'bg-gray-800 border-gray-700 shadow-none',
-                cardBox: 'bg-gray-800',
+                card: 'bg-white border-gray-200 shadow-none',
+                cardBox: 'bg-white',
                 
                 // Navigation
-                navbar: 'bg-gray-800 border-gray-700',
-                navbarButton: 'text-gray-300 hover:text-white hover:bg-gray-700/50 transition-colors rounded-lg',
-                navbarButtonActive: 'text-blue-400 bg-gray-700 border-blue-400',
-                navbarButtonText: 'text-gray-300',
-                navbarButtonTextActive: 'text-blue-400',
+                navbar: 'bg-white border-gray-200',
+                navbarButton: 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors rounded-lg',
+                navbarButtonActive: 'text-blue-600 bg-gray-50 border-blue-600',
+                navbarButtonText: 'text-gray-600',
+                navbarButtonTextActive: 'text-blue-600',
                 
                 // Page content
-                page: 'bg-gray-800',
-                pageHeader: 'text-white',
-                headerTitle: 'text-white text-xl font-bold',
-                headerSubtitle: 'text-gray-400',
-                headerTitleText: 'text-white',
-                headerSubtitleText: 'text-gray-400',
+                page: 'bg-white',
+                pageHeader: 'text-gray-900',
+                headerTitle: 'text-gray-900 text-xl font-bold',
+                headerSubtitle: 'text-gray-500',
+                headerTitleText: 'text-gray-900',
+                headerSubtitleText: 'text-gray-500',
                 
                 // Forms
-                form: 'bg-gray-800',
-                formField: 'bg-gray-800',
-                formFieldInput: 'bg-gray-900 border-gray-600 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500',
-                formFieldInputShowPasswordButton: 'text-blue-400 hover:text-blue-300',
-                formFieldLabel: 'text-gray-300 font-semibold',
-                formFieldLabelText: 'text-gray-300',
-                formFieldSuccessText: 'text-green-400',
-                formFieldErrorText: 'text-red-400',
-                formFieldWarningText: 'text-yellow-400',
-                formFieldInputGroup: 'bg-gray-900 border-gray-600',
+                form: 'bg-white',
+                formField: 'bg-white',
+                formFieldInput: 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500',
+                formFieldInputShowPasswordButton: 'text-blue-600 hover:text-blue-700',
+                formFieldLabel: 'text-gray-700 font-semibold',
+                formFieldLabelText: 'text-gray-700',
+                formFieldSuccessText: 'text-green-600',
+                formFieldErrorText: 'text-red-600',
+                formFieldWarningText: 'text-yellow-600',
+                formFieldInputGroup: 'bg-white border-gray-300',
                 
                 // Buttons
                 formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors',
-                formButtonSecondary: 'bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors',
-                formButtonReset: 'text-red-400 hover:text-red-300 rounded-lg transition-colors',
+                formButtonSecondary: 'bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg transition-colors',
+                formButtonReset: 'text-red-600 hover:text-red-700 rounded-lg transition-colors',
                 formButtonText: 'text-white',
                 
                 // Avatar
@@ -97,65 +97,65 @@ export default function ProfilePage() {
                 avatarImage: 'rounded-full',
                 
                 // Identity preview
-                identityPreview: 'bg-gray-900 border-gray-600 rounded-lg',
-                identityPreviewText: 'text-white',
-                identityPreviewEditButton: 'text-blue-400 hover:text-blue-300 bg-gray-800 hover:bg-gray-700 rounded-lg',
-                identityPreviewTextIdentifier: 'text-gray-300',
+                identityPreview: 'bg-gray-50 border-gray-200 rounded-lg',
+                identityPreviewText: 'text-gray-900',
+                identityPreviewEditButton: 'text-blue-600 hover:text-blue-700 bg-white hover:bg-gray-50 rounded-lg',
+                identityPreviewTextIdentifier: 'text-gray-600',
                 
                 // Links
-                formResendCodeLink: 'text-blue-400 hover:text-blue-300',
-                linkButton: 'text-blue-400 hover:text-blue-300',
-                linkButtonText: 'text-blue-400',
+                formResendCodeLink: 'text-blue-600 hover:text-blue-700',
+                linkButton: 'text-blue-600 hover:text-blue-700',
+                linkButtonText: 'text-blue-600',
                 
                 // Dividers
-                dividerLine: 'bg-gray-700',
-                dividerText: 'text-gray-400',
+                dividerLine: 'bg-gray-200',
+                dividerText: 'text-gray-500',
                 
                 // Alerts and messages
-                alertText: 'text-gray-300',
-                alertTextDanger: 'text-red-400',
-                alertTextSuccess: 'text-green-400',
-                alertTextWarning: 'text-yellow-400',
+                alertText: 'text-gray-700',
+                alertTextDanger: 'text-red-600',
+                alertTextSuccess: 'text-green-600',
+                alertTextWarning: 'text-yellow-600',
                 
                 // Badges
                 badge: 'bg-blue-600 text-white rounded-full',
                 badgeText: 'text-white',
                 
                 // Sections
-                section: 'bg-gray-800',
-                sectionHeader: 'text-white',
-                sectionHeaderTitle: 'text-white font-bold',
-                sectionHeaderSubtitle: 'text-gray-400',
-                sectionContent: 'bg-gray-800',
+                section: 'bg-white',
+                sectionHeader: 'text-gray-900',
+                sectionHeaderTitle: 'text-gray-900 font-bold',
+                sectionHeaderSubtitle: 'text-gray-500',
+                sectionContent: 'bg-white',
                 
                 // Lists
-                list: 'bg-gray-800',
-                listItem: 'bg-gray-900 border-gray-700 hover:bg-gray-800',
-                listItemText: 'text-white',
-                listItemTextSecondary: 'text-gray-400',
+                list: 'bg-white',
+                listItem: 'bg-gray-50 border-gray-200 hover:bg-gray-100',
+                listItemText: 'text-gray-900',
+                listItemTextSecondary: 'text-gray-500',
                 
                 // Tables
-                table: 'bg-gray-800',
-                tableHead: 'bg-gray-900',
-                tableHeadCell: 'text-gray-300 font-semibold',
-                tableBody: 'bg-gray-800',
-                tableBodyCell: 'text-white',
-                tableRow: 'border-gray-700 hover:bg-gray-700/50',
+                table: 'bg-white',
+                tableHead: 'bg-gray-50',
+                tableHeadCell: 'text-gray-700 font-semibold',
+                tableBody: 'bg-white',
+                tableBodyCell: 'text-gray-900',
+                tableRow: 'border-gray-200 hover:bg-gray-50',
                 
                 // Danger zone
-                danger: 'bg-red-900/20 border-red-700 rounded-lg',
+                danger: 'bg-red-50 border-red-200 rounded-lg',
                 dangerButton: 'bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors',
                 dangerButtonText: 'text-white',
                 
                 // Modals
-                modalContent: 'bg-gray-800 border-gray-700',
-                modalHeader: 'text-white',
-                modalHeaderTitle: 'text-white',
-                modalBody: 'text-gray-300',
+                modalContent: 'bg-white border-gray-200',
+                modalHeader: 'text-gray-900',
+                modalHeaderTitle: 'text-gray-900',
+                modalBody: 'text-gray-700',
                 
                 // Selects and dropdowns
-                selectButton: 'bg-gray-900 border-gray-600 text-white hover:bg-gray-800',
-                selectOption: 'bg-gray-800 text-white hover:bg-gray-700',
+                selectButton: 'bg-white border-gray-300 text-gray-900 hover:bg-gray-50',
+                selectOption: 'bg-white text-gray-900 hover:bg-gray-50',
                 
                 // Checkboxes and radios
                 formFieldInputRadio: 'text-blue-600',
@@ -168,24 +168,24 @@ export default function ProfilePage() {
                 footerPageButtonText: 'hidden',
                 
                 // Additional elements
-                breadcrumbs: 'text-gray-400',
-                breadcrumbItem: 'text-gray-400 hover:text-blue-400',
-                breadcrumbItemText: 'text-gray-400',
-                breadcrumbItemTextActive: 'text-white',
+                breadcrumbs: 'text-gray-500',
+                breadcrumbItem: 'text-gray-500 hover:text-blue-600',
+                breadcrumbItemText: 'text-gray-500',
+                breadcrumbItemTextActive: 'text-gray-900',
                 
                 // Social buttons
-                socialButtonsBlockButton: 'bg-gray-700 hover:bg-gray-600 border-gray-600 text-white',
-                socialButtonsBlockButtonText: 'text-white',
+                socialButtonsBlockButton: 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-900',
+                socialButtonsBlockButtonText: 'text-gray-900',
                 
                 // Phone input
-                phoneInputBox: 'bg-gray-900 border-gray-600',
-                phoneInputInput: 'text-white',
+                phoneInputBox: 'bg-white border-gray-300',
+                phoneInputInput: 'text-gray-900',
                 
                 // Code input
-                otpCodeFieldInput: 'bg-gray-900 border-gray-600 text-white focus:border-blue-500',
+                otpCodeFieldInput: 'bg-white border-gray-300 text-gray-900 focus:border-blue-500',
                 
                 // File upload
-                fileDropAreaBox: 'bg-gray-900 border-gray-600 border-dashed',
+                fileDropAreaBox: 'bg-gray-50 border-gray-300 border-dashed',
                 fileDropAreaButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white',
               },
             }}

@@ -64,40 +64,40 @@ body {
   background: #b1b1b1;
 }
 
-/* Clerk UserProfile Nightlife Aesthetic Styles */
+/* Clerk UserProfile Light Theme Styles for Better Visibility */
 .cl-rootBox,
 .cl-card,
 .cl-page {
-  background-color: #1f2937 !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
 }
 
 .cl-navbar {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
 }
 
 .cl-navbarButton {
-  color: #d1d5db !important;
+  color: #4b5563 !important;
 }
 
 .cl-navbarButton[aria-selected="true"] {
-  color: #60a5fa !important;
-  background-color: #374151 !important;
+  color: #2563eb !important;
+  background-color: #f9fafb !important;
 }
 
 .cl-formFieldInput,
 .cl-input,
 .cl-selectButton {
-  background-color: #111827 !important;
-  border-color: #4b5563 !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #111827 !important;
 }
 
 .cl-formFieldInput:focus,
 .cl-input:focus {
-  border-color: #3b82f6 !important;
-  outline-color: #3b82f6 !important;
+  border-color: #2563eb !important;
+  outline-color: #2563eb !important;
 }
 
 .cl-buttonPrimary {
@@ -110,38 +110,39 @@ body {
 }
 
 .cl-buttonSecondary {
-  background-color: #374151 !important;
-  color: #ffffff !important;
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
 }
 
 .cl-headerTitle,
 .cl-headerSubtitle,
 .cl-formFieldLabel,
-.cl-identityPreviewText {
-  color: #ffffff !important;
+.cl-identityPreviewText,
+.cl-sectionHeaderTitle {
+  color: #111827 !important;
 }
 
 .cl-headerSubtitle,
 .cl-formFieldLabel {
-  color: #9ca3af !important;
+  color: #6b7280 !important;
 }
 
 .cl-section,
 .cl-sectionHeader {
-  background-color: #1f2937 !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #111827 !important;
 }
 
 .cl-list,
 .cl-listItem {
-  background-color: #111827 !important;
-  border-color: #374151 !important;
-  color: #ffffff !important;
+  background-color: #f9fafb !important;
+  border-color: #e5e7eb !important;
+  color: #111827 !important;
 }
 
 .cl-danger {
-  background-color: rgba(127, 29, 29, 0.2) !important;
-  border-color: #991b1b !important;
+  background-color: #fef2f2 !important;
+  border-color: #fecaca !important;
 }
 
 .cl-buttonDanger {
@@ -155,28 +156,28 @@ body {
 
 .cl-link,
 .cl-formResendCodeLink {
-  color: #60a5fa !important;
+  color: #2563eb !important;
 }
 
 .cl-link:hover {
-  color: #93c5fd !important;
+  color: #1d4ed8 !important;
 }
 
 .cl-dividerLine {
-  background-color: #374151 !important;
+  background-color: #e5e7eb !important;
 }
 
 .cl-dividerText {
-  color: #9ca3af !important;
+  color: #6b7280 !important;
 }
 
 .cl-alert {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
 }
 
 .cl-alertText {
-  color: #d1d5db !important;
+  color: #374151 !important;
 }
 
 .cl-badge {
@@ -185,57 +186,74 @@ body {
 }
 
 .cl-table {
-  background-color: #1f2937 !important;
+  background-color: #ffffff !important;
 }
 
 .cl-tableHead {
-  background-color: #111827 !important;
+  background-color: #f9fafb !important;
 }
 
 .cl-tableHeadCell {
-  color: #d1d5db !important;
+  color: #374151 !important;
 }
 
 .cl-tableBodyCell {
-  color: #ffffff !important;
+  color: #111827 !important;
 }
 
 .cl-tableRow {
-  border-color: #374151 !important;
+  border-color: #e5e7eb !important;
 }
 
 .cl-tableRow:hover {
-  background-color: rgba(55, 65, 81, 0.5) !important;
+  background-color: #f9fafb !important;
 }
 
 .cl-modalContent {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
+  background-color: #ffffff !important;
+  border-color: #e5e7eb !important;
 }
 
 .cl-modalHeader {
-  color: #ffffff !important;
+  color: #111827 !important;
 }
 
 .cl-selectButton {
-  background-color: #111827 !important;
-  border-color: #4b5563 !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #111827 !important;
 }
 
 .cl-phoneInputBox {
-  background-color: #111827 !important;
-  border-color: #4b5563 !important;
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
 }
 
 .cl-otpCodeFieldInput {
-  background-color: #111827 !important;
-  border-color: #4b5563 !important;
-  color: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+  color: #111827 !important;
 }
 
 .cl-fileDropAreaBox {
-  background-color: #111827 !important;
-  border-color: #4b5563 !important;
+  background-color: #f9fafb !important;
+  border-color: #d1d5db !important;
   border-style: dashed !important;
+}
+
+.cl-identityPreview {
+  background-color: #f9fafb !important;
+  border-color: #e5e7eb !important;
+}
+
+.cl-identityPreviewText {
+  color: #111827 !important;
+}
+
+.cl-listItemText {
+  color: #111827 !important;
+}
+
+.cl-listItemTextSecondary {
+  color: #6b7280 !important;
 }
