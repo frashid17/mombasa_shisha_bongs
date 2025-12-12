@@ -1,17 +1,22 @@
 'use client'
 
 import Link from 'next/link'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useClerk } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
-import { ShoppingCart, User, Menu } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { ShoppingCart, User, Menu, LogOut, Settings } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import Logo from './Logo'
 
 export default function Navbar() {
   const { user, isSignedIn } = useUser()
+  const { signOut } = useClerk()
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [itemCount, setItemCount] = useState(0)
   const [isMounted, setIsMounted] = useState(false)
+  const profileMenuRef = useRef<HTMLDivElement>(null)
   
   // Get cart items from store
   const cartItems = useCartStore((state) => state.items)
@@ -21,6 +26,29 @@ export default function Navbar() {
     setIsMounted(true)
     setItemCount(cartItems.length)
   }, [cartItems.length])
+
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false)
+      }
+    }
+
+    if (profileMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [profileMenuOpen])
+
+  const handleSignOut = async () => {
+    await signOut()
+    router.push('/')
+    setProfileMenuOpen(false)
+  }
 
   return (
     <nav className="bg-gray-900 text-white border-b border-gray-800 sticky top-0 z-50">
@@ -39,21 +67,48 @@ export default function Navbar() {
 
           <div className="flex items-center gap-4">
             {isSignedIn ? (
-              <Link
-                href="/profile"
-                className="hidden md:flex items-center gap-2 hover:text-blue-400 transition"
-              >
-                {user?.imageUrl ? (
-                  <img
-                    src={user.imageUrl}
-                    alt={user.fullName || 'Profile'}
-                    className="w-8 h-8 rounded-full border-2 border-blue-400"
-                  />
-                ) : (
-                  <User className="w-5 h-5" />
+              <div className="hidden md:block relative" ref={profileMenuRef}>
+                <button
+                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                  className="flex items-center gap-2 hover:text-blue-400 transition focus:outline-none"
+                >
+                  {user?.imageUrl ? (
+                    <img
+                      src={user.imageUrl}
+                      alt={user.fullName || 'Profile'}
+                      className="w-8 h-8 rounded-full border-2 border-blue-400 cursor-pointer"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full border-2 border-blue-400 bg-gray-700 flex items-center justify-center cursor-pointer">
+                      <User className="w-5 h-5" />
+                    </div>
+                  )}
+                  <span className="hidden lg:inline">{user?.firstName || 'Profile'}</span>
+                </button>
+
+                {/* Dropdown Menu */}
+                {profileMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
+                    <div className="py-1">
+                      <Link
+                        href="/profile"
+                        onClick={() => setProfileMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                      >
+                        <Settings className="w-4 h-4" />
+                        <span>View Profile</span>
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-red-400 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  </div>
                 )}
-                <span>{user?.firstName || 'Profile'}</span>
-              </Link>
+              </div>
             ) : (
               <Link
                 href="/sign-in"
