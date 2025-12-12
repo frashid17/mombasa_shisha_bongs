@@ -1,7 +1,15 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Edit, Trash2, Eye } from 'lucide-react'
-import type { Product } from '@prisma/client'
+
+type Product = {
+  id: string
+  name: string
+  sku: string | null
+  price: number | string
+  stock: number
+  isActive: boolean
+}
 
 type ProductWithRelations = Product & {
   category: { name: string }

@@ -80,7 +80,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       </div>
 
       {/* Reviews */}
-      <ProductReviews reviews={product.reviews} />
+      <ProductReviews reviews={product.reviews.map(review => ({
+        ...review,
+        title: review.title ?? undefined,
+      }))} />
 
       {/* Recommendations */}
       <ProductRecommendations products={recommendations} />
