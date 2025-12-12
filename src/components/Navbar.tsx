@@ -40,11 +40,19 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {isSignedIn ? (
               <Link
-                href="/admin"
+                href="/profile"
                 className="hidden md:flex items-center gap-2 hover:text-blue-400 transition"
               >
-                <User className="w-5 h-5" />
-                <span>Admin</span>
+                {user?.imageUrl ? (
+                  <img
+                    src={user.imageUrl}
+                    alt={user.fullName || 'Profile'}
+                    className="w-8 h-8 rounded-full border-2 border-blue-400"
+                  />
+                ) : (
+                  <User className="w-5 h-5" />
+                )}
+                <span>{user?.firstName || 'Profile'}</span>
               </Link>
             ) : (
               <Link
@@ -95,11 +103,11 @@ export default function Navbar() {
             </Link>
             {isSignedIn ? (
               <Link
-                href="/admin"
+                href="/profile"
                 className="block py-2 hover:text-blue-400 transition"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Admin
+                Profile
               </Link>
             ) : (
               <Link
