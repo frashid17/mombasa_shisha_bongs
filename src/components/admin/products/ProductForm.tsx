@@ -100,7 +100,20 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
     const formData = new FormData(e.currentTarget)
     const imageUrls = images
       .map(img => img.url.trim())
-      .filter(url => url.length > 0)
+      .filter(url => {
+        // Accept both full URLs and relative paths
+        return url.length > 0 && (
+          url.startsWith('http://') || 
+          url.startsWith('https://') || 
+          url.startsWith('/')
+        )
+      })
+
+    if (imageUrls.length === 0) {
+      alert('Please add at least one image (upload a file or enter a URL)')
+      setLoading(false)
+      return
+    }
 
     const data = {
       name: formData.get('name'),
@@ -110,12 +123,16 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       sku: formData.get('sku'),
       categoryId: formData.get('categoryId'),
       isActive: formData.get('isActive') === 'on',
-      images: imageUrls.map((url, index) => ({
-        url,
-        altText: images[index].altText || '',
-        position: index,
-        isPrimary: images[index].isPrimary || (index === 0 && !images.some(img => img.isPrimary)),
-      })),
+      images: imageUrls.map((url, index) => {
+        // Find the original image index to get altText and isPrimary
+        const originalIndex = images.findIndex(img => img.url.trim() === url)
+        return {
+          url,
+          altText: originalIndex >= 0 ? images[originalIndex].altText || '' : '',
+          position: index,
+          isPrimary: originalIndex >= 0 ? images[originalIndex].isPrimary : (index === 0),
+        }
+      }),
     }
 
     try {
