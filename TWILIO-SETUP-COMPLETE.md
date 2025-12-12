@@ -6,7 +6,7 @@ Add these to your `.env.local` file:
 
 ```env
 # Email Configuration (Resend)
-EMAIL_API_KEY=re_RdKA1u9P_4NPzyvWxWxdrZ8wmsTyHr8aN
+EMAIL_API_KEY=your_resend_api_key
 EMAIL_FROM=noreply@mombasashishabongs.com
 
 # SMS Configuration (Twilio)
@@ -54,23 +54,23 @@ After adding the phone number:
 DATABASE_URL="mysql://root@localhost:3306/mombasa_shisha_bongs"
 
 # Clerk Authentication
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_d29ya2FibGUtbXV0dC00My5jbGVyay5hY2NvdW50cy5kZXYk
-CLERK_SECRET_KEY=sk_test_xGShHZ3hcXsw7yWmHXZF9SPUbdX2rHGtMeTvYszWYv
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
 NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
 
 # Mpesa Daraja API Configuration
-MPESA_CONSUMER_KEY=rLzMJTQmdZ9sMHAQl0RdiDKdgprdyKNMYcS1ZInmyoxNBPHQ
-MPESA_CONSUMER_SECRET=7g1eLaIOebWYe5MrVoGN5612Pfqh4VVyF4m8dLQJ7COVFwysS4DMNz6cnwjlScVq
-MPESA_PASSKEY=bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919
+MPESA_CONSUMER_KEY=your_mpesa_consumer_key
+MPESA_CONSUMER_SECRET=your_mpesa_consumer_secret
+MPESA_PASSKEY=your_mpesa_passkey
 MPESA_SHORTCODE=174379
 MPESA_CALLBACK_URL=https://yourdomain.com/api/mpesa/callback
 MPESA_ENVIRONMENT=sandbox
 
 # Email Configuration (Resend)
-EMAIL_API_KEY=re_RdKA1u9P_4NPzyvWxWxdrZ8wmsTyHr8aN
+EMAIL_API_KEY=your_resend_api_key
 EMAIL_FROM=noreply@mombasashishabongs.com
 
 # SMS Configuration (Twilio)
