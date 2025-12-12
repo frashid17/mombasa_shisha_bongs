@@ -19,8 +19,12 @@ export const metadata: Metadata = {
   description: "Premium shisha, vapes, and smoking accessories in Mombasa. Fast delivery, authentic products, secure payment with Mpesa.",
   keywords: ["shisha", "hookah", "vape", "tobacco", "mombasa", "kenya"],
   icons: {
-    icon: '/logo.png',
+    icon: [
+      { url: '/logo.png', type: 'image/png' },
+      { url: '/favicon.ico', type: 'image/x-icon' },
+    ],
     apple: '/logo.png',
+    shortcut: '/favicon.ico',
   },
   openGraph: {
     title: "Mombasa Shisha Bongs - Premium Shisha & Vapes",
@@ -38,7 +42,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <head>
-          <link rel="icon" href="/logo.png" type="image/png" />
+          <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+          <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
+          <link rel="apple-touch-icon" href="/logo.png" />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-gray-100`}
