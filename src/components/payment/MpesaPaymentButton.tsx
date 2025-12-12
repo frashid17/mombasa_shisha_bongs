@@ -19,7 +19,14 @@ export default function MpesaPaymentButton({
 }: MpesaPaymentButtonProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [phoneNumber, setPhoneNumber] = useState(initialPhoneNumber || '')
+  // Extract just the digits if phone number has +254 prefix
+  const extractPhoneDigits = (phone: string) => {
+    if (!phone) return ''
+    // Remove +254 prefix if present, or 0 prefix, then take last 9 digits
+    const cleaned = phone.replace(/^\+254/, '').replace(/^0/, '').replace(/\D/g, '')
+    return cleaned.slice(-9) // Take last 9 digits
+  }
+  const [phoneNumber, setPhoneNumber] = useState(extractPhoneDigits(initialPhoneNumber || ''))
   const [error, setError] = useState('')
 
   async function handlePayment() {
