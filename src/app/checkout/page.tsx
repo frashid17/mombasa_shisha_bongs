@@ -39,11 +39,11 @@ export default function CheckoutPage() {
           items: items.map((item) => ({
             productId: item.id,
             quantity: item.quantity,
-            price: item.price,
+            price: Number(item.price), // Ensure price is a number
           })),
           customerName: formData.customerName,
           customerEmail: formData.customerEmail,
-          customerPhone: formData.customerPhone,
+          customerPhone: formData.customerPhone ? `+254${formData.customerPhone}` : formData.customerPhone,
           deliveryAddress: formData.deliveryAddress,
           city: formData.city,
           notes: formData.notes,
@@ -100,14 +100,26 @@ export default function CheckoutPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-white mb-2">Phone Number *</label>
-                  <input
-                    type="tel"
-                    required
-                    value={formData.customerPhone}
-                    onChange={(e) => setFormData({ ...formData, customerPhone: e.target.value })}
-                    className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-                    placeholder="07XX XXX XXX"
-                  />
+                  <div className="flex items-center">
+                    <span className="bg-gray-700 text-gray-300 px-3 py-2 rounded-l-lg border border-r-0 border-gray-600">
+                      +254
+                    </span>
+                    <input
+                      type="tel"
+                      required
+                      value={formData.customerPhone}
+                      onChange={(e) => {
+                        // Remove any non-digit characters and limit to 9 digits (Kenyan format)
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 9)
+                        setFormData({ ...formData, customerPhone: value })
+                      }}
+                      className="flex-1 bg-gray-900 border border-gray-600 rounded-r-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      placeholder="708786000"
+                      pattern="[0-9]{9}"
+                      maxLength={9}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400 mt-1">Enter 9 digits (e.g., 708786000)</p>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-white mb-2">Delivery Address *</label>

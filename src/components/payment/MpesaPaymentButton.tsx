@@ -28,10 +28,9 @@ export default function MpesaPaymentButton({
       return
     }
 
-    // Validate Kenyan phone number format
-    const phoneRegex = /^(\+254|0)?[17]\d{8}$/
-    if (!phoneRegex.test(phoneNumber.replace(/\s/g, ''))) {
-      setError('Please enter a valid Kenyan phone number (e.g., 0712345678)')
+    // Validate phone number (should be 9 digits)
+    if (phoneNumber.length !== 9 || !/^[17]\d{8}$/.test(phoneNumber)) {
+      setError('Please enter a valid Kenyan phone number (9 digits starting with 7 or 1)')
       return
     }
 
@@ -44,7 +43,7 @@ export default function MpesaPaymentButton({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderId,
-          phoneNumber: phoneNumber.replace(/\s/g, ''),
+          phoneNumber: `+254${phoneNumber}`, // Add +254 prefix
         }),
       })
 
@@ -53,7 +52,7 @@ export default function MpesaPaymentButton({
       if (res.ok && data.success) {
         // Show success message
         alert(
-          `Payment request sent to ${phoneNumber}!\n\n${data.data.message}\n\nPlease check your phone and enter your Mpesa PIN.`
+          `Payment request sent to +254${phoneNumber}!\n\n${data.data.message}\n\nPlease check your phone and enter your Mpesa PIN.`
         )
         // Refresh the page to show updated payment status
         router.refresh()
@@ -79,19 +78,28 @@ export default function MpesaPaymentButton({
         <label className="block text-sm font-semibold text-white mb-2">
           Phone Number *
         </label>
-        <input
-          type="tel"
-          value={phoneNumber}
-          onChange={(e) => {
-            setPhoneNumber(e.target.value)
-            setError('')
-          }}
-          placeholder="0712345678 or +254712345678"
-          className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-          disabled={loading}
-        />
+        <div className="flex items-center">
+          <span className="bg-gray-700 text-gray-300 px-3 py-3 rounded-l-lg border border-r-0 border-gray-600">
+            +254
+          </span>
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => {
+              // Remove any non-digit characters and limit to 9 digits
+              const value = e.target.value.replace(/\D/g, '').slice(0, 9)
+              setPhoneNumber(value)
+              setError('')
+            }}
+            placeholder="708786000"
+            className="flex-1 bg-gray-900 border border-gray-600 rounded-r-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+            disabled={loading}
+            pattern="[0-9]{9}"
+            maxLength={9}
+          />
+        </div>
         <p className="text-xs text-gray-400 mt-1">
-          Enter the phone number registered with your Mpesa account
+          Enter 9 digits (e.g., 708786000). The +254 prefix is added automatically.
         </p>
       </div>
 
