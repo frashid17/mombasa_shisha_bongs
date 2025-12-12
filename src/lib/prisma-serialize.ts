@@ -54,6 +54,7 @@ export function serializeOrderItem(item: any) {
   return {
     ...item,
     price: decimalToNumber(item.price),
+    subtotal: decimalToNumber(item.subtotal),
     // Keep other fields
     product: item.product ? serializeProduct(item.product) : null,
   }
