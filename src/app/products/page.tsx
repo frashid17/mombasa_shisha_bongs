@@ -4,15 +4,52 @@ import prisma from '@/lib/prisma'
 import SearchBar from '@/components/SearchBar'
 import Navbar from '@/components/Navbar'
 
-async function getProducts(search?: string) {
+async function getProducts(searchParams: {
+  search?: string
+  category?: string
+  minPrice?: string
+  maxPrice?: string
+}) {
   const where: any = { isActive: true }
-  if (search) {
+
+  // Search filter - MySQL is case-insensitive by default with utf8mb4_unicode_ci
+  if (searchParams.search) {
+    const searchTerm = searchParams.search.trim()
     where.OR = [
-      { name: { contains: search, mode: 'insensitive' } },
-      { description: { contains: search, mode: 'insensitive' } },
-      { sku: { contains: search, mode: 'insensitive' } },
+      { name: { contains: searchTerm } },
+      { description: { contains: searchTerm } },
+      { sku: { contains: searchTerm } },
+      { tags: { contains: searchTerm } },
     ]
   }
+
+  // Category filter
+  if (searchParams.category) {
+    const category = await prisma.category.findFirst({
+      where: {
+        OR: [
+          { slug: searchParams.category },
+          { name: { contains: searchParams.category } },
+        ],
+        isActive: true,
+      },
+    })
+    if (category) {
+      where.categoryId = category.id
+    }
+  }
+
+  // Price range filter
+  if (searchParams.minPrice || searchParams.maxPrice) {
+    where.price = {}
+    if (searchParams.minPrice) {
+      where.price.gte = parseFloat(searchParams.minPrice)
+    }
+    if (searchParams.maxPrice) {
+      where.price.lte = parseFloat(searchParams.maxPrice)
+    }
+  }
+
   return prisma.product.findMany({
     where,
     include: { images: { take: 1 }, category: true },
@@ -20,12 +57,19 @@ async function getProducts(search?: string) {
   })
 }
 
+async function getCategories() {
+  return prisma.category.findMany({ orderBy: { name: 'asc' } })
+}
+
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { search?: string }
+  searchParams: { search?: string; category?: string; minPrice?: string; maxPrice?: string }
 }) {
-  const products = await getProducts(searchParams.search)
+  const [products, categories] = await Promise.all([
+    getProducts(searchParams),
+    getCategories(),
+  ])
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -36,11 +80,28 @@ export default async function ProductsPage({
           <h1 className="text-4xl font-bold text-white mb-4">All Products</h1>
           <SearchBar />
         </div>
-        {searchParams.search && (
-          <p className="text-gray-400 mb-6">
-            Found {products.length} product{products.length !== 1 ? 's' : ''} for "{searchParams.search}"
-          </p>
+
+        {/* Active Filters */}
+        {(searchParams.search || searchParams.category || searchParams.minPrice || searchParams.maxPrice) && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {searchParams.search && (
+              <span className="bg-blue-900 text-blue-300 px-3 py-1 rounded-full text-sm">
+                Search: {searchParams.search}
+              </span>
+            )}
+            {searchParams.category && (
+              <span className="bg-purple-900 text-purple-300 px-3 py-1 rounded-full text-sm">
+                Category: {searchParams.category}
+              </span>
+            )}
+            {(searchParams.minPrice || searchParams.maxPrice) && (
+              <span className="bg-green-900 text-green-300 px-3 py-1 rounded-full text-sm">
+                Price: KES {searchParams.minPrice || '0'} - {searchParams.maxPrice || '∞'}
+              </span>
+            )}
+          </div>
         )}
+
         {products.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-gray-400 text-lg">No products found</p>
@@ -52,40 +113,45 @@ export default async function ProductsPage({
             </Link>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <Link
-                key={product.id}
-                href={`/products/${product.id}`}
-                className="bg-gray-800 rounded-lg border border-gray-700 shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all"
-              >
-                {product.images[0] ? (
-                  <div className="relative h-64 bg-gray-800">
-                    <Image
-                      src={product.images[0].url}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
+          <>
+            <p className="text-gray-400 mb-6">
+              Found {products.length} product{products.length !== 1 ? 's' : ''}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <Link
+                  key={product.id}
+                  href={`/products/${product.id}`}
+                  className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all"
+                >
+                  {product.images[0] ? (
+                    <div className="relative h-64 bg-gray-800">
+                      <Image
+                        src={product.images[0].url}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="h-64 bg-gradient-to-br from-gray-700 to-gray-800" />
+                  )}
+                  <div className="p-5">
+                    <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+                    <h3 className="font-semibold text-white mb-2 line-clamp-2">{product.name}</h3>
+                    <div className="flex items-center justify-between">
+                      <p className="text-blue-400 font-bold text-xl">KES {product.price.toLocaleString()}</p>
+                      {product.stock > 0 ? (
+                        <span className="text-xs bg-green-900 text-green-400 px-2 py-1 rounded-full border border-green-700">In Stock</span>
+                      ) : (
+                        <span className="text-xs bg-red-900 text-red-400 px-2 py-1 rounded-full border border-red-700">Out of Stock</span>
+                      )}
+                    </div>
                   </div>
-                ) : (
-                  <div className="h-64 bg-gradient-to-br from-gray-700 to-gray-800" />
-                )}
-                <div className="p-5">
-                  <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
-                  <h3 className="font-semibold text-white mb-2 line-clamp-2">{product.name}</h3>
-                  <div className="flex items-center justify-between">
-                    <p className="text-blue-400 font-bold text-xl">KES {product.price.toLocaleString()}</p>
-                    {product.stock > 0 ? (
-                      <span className="text-xs bg-green-900 text-green-400 px-2 py-1 rounded-full border border-green-700">In Stock</span>
-                    ) : (
-                      <span className="text-xs bg-red-900 text-red-400 px-2 py-1 rounded-full border border-red-700">Out of Stock</span>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
