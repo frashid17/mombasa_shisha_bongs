@@ -79,16 +79,16 @@ export default async function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="py-16 bg-gray-900">
+      <section className="py-16 bg-gray-900 border-y border-gray-700">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-4xl font-bold text-white mb-2">Shop by Category</h2>
+              <h2 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Shop by Category</h2>
               <p className="text-gray-400">Browse our wide selection of premium products</p>
             </div>
             <Link
               href="/products"
-              className="text-blue-400 font-semibold hover:text-blue-300"
+              className="text-blue-400 font-semibold hover:text-blue-300 transition"
             >
               View All →
             </Link>
@@ -98,9 +98,10 @@ export default async function HomePage() {
               <Link
                 key={category.id}
                 href={`/categories/${category.id}`}
-                className="bg-gray-800 rounded-lg border border-gray-700 shadow-lg p-6 text-center hover:border-blue-500 hover:shadow-blue-500/20 transition-all"
+                className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg p-6 text-center hover:border-blue-500 hover:shadow-blue-500/20 transition-all hover:scale-105 group relative overflow-hidden"
               >
-                <h3 className="text-lg font-semibold text-white">{category.name}</h3>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <h3 className="text-lg font-semibold text-white relative z-10 group-hover:text-blue-400 transition-colors">{category.name}</h3>
               </Link>
             ))}
           </div>
