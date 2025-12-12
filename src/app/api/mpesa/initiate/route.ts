@@ -9,13 +9,9 @@ import { createSecureResponse } from '@/utils/security-headers'
 
 async function handlePOST(req: Request) {
   try {
+    // Allow both authenticated and guest users to make payments
     const { userId } = await auth()
-    if (!userId) {
-      return createSecureResponse(
-        { success: false, error: 'Unauthorized. Please sign in to make a payment.' },
-        401
-      )
-    }
+    // Note: userId can be null for guest users, which is fine
 
     let body
     try {
