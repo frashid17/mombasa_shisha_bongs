@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma'
 import { format } from 'date-fns'
-import { Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock, Eye } from 'lucide-react'
+import Link from 'next/link'
 
 async function getNotifications() {
   return prisma.notification.findMany({
@@ -73,6 +74,9 @@ export default async function AdminNotificationsPage() {
                 <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
                   Error
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -81,14 +85,11 @@ export default async function AdminNotificationsPage() {
                 const StatusIcon = statusIcons[notification.status] || Clock
 
                 return (
-                  <tr key={notification.id} className="hover:bg-gray-50 cursor-pointer">
+                  <tr key={notification.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <Link
-                        href={`/admin/notifications/${notification.id}`}
-                        className="text-sm text-gray-900 hover:text-blue-600 transition-colors"
-                      >
+                      <span className="text-sm text-gray-900">
                         {notification.type.replace(/_/g, ' ')}
-                      </Link>
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
@@ -138,6 +139,16 @@ export default async function AdminNotificationsPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
                       {notification.errorMessage || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <Link
+                        href={`/admin/notifications/${notification.id}`}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="View Details"
+                      >
+                        <Eye className="w-4 h-4" />
+                        View
+                      </Link>
                     </td>
                   </tr>
                 )
