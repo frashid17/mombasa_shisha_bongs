@@ -10,7 +10,7 @@ async function getOrder(id: string) {
   return prisma.order.findUnique({
     where: { id },
     include: {
-      orderItems: {
+      items: {
         include: {
           product: {
             include: {
@@ -146,7 +146,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6 mb-6">
             <h2 className="text-xl font-bold text-white mb-4">Order Items</h2>
             <div className="space-y-4">
-              {order.orderItems.map((item) => (
+              {order.items.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center gap-4 bg-gray-700 p-3 rounded-lg border border-gray-600"
