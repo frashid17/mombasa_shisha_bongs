@@ -2,6 +2,8 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import AddToCartButton from '@/components/cart/AddToCartButton'
+import Navbar from '@/components/Navbar'
+import Navbar from '@/components/Navbar'
 
 async function getProduct(id: string) {
   return prisma.product.findUnique({
