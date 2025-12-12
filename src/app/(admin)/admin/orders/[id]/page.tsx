@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import Image from 'next/image'
 import OrderStatusUpdate from '@/components/admin/orders/OrderStatusUpdate'
 import { Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { serializeOrder } from '@/lib/prisma-serialize'
 
 async function getOrder(id: string) {
   return prisma.order.findUnique({
