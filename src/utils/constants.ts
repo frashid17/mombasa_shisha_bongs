@@ -166,9 +166,11 @@ export const MPESA_CONFIG = {
 // ============================================
 
 export const EMAIL_CONFIG = {
-  FROM_ADDRESS: process.env.EMAIL_FROM || 'noreply@mombasashishabongs.com',
+  FROM_ADDRESS: process.env.EMAIL_FROM || 'mombasashishabongs@gmail.com',
   FROM_NAME: 'Mombasa Shisha Bongs',
-  API_KEY: process.env.EMAIL_API_KEY || '',
+  // Gmail SMTP Configuration
+  GMAIL_USER: process.env.GMAIL_USER || '',
+  GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD || '',
 } as const
 
 // ============================================

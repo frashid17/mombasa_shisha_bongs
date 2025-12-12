@@ -42,7 +42,11 @@ export async function sendEmail({
 
   try {
     // If no Gmail credentials, log in development mode
-    if (!EMAIL_CONFIG.GMAIL_USER || !EMAIL_CONFIG.GMAIL_APP_PASSWORD) {
+    // Note: Default credentials are set in constants, so this check is mainly for custom overrides
+    const gmailUser = EMAIL_CONFIG.GMAIL_USER || process.env.GMAIL_USER
+    const gmailPassword = EMAIL_CONFIG.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD
+    
+    if (!gmailUser || !gmailPassword) {
       if (process.env.NODE_ENV === 'development') {
         console.log('📧 Email (Development Mode - No Gmail Credentials):')
         console.log('To:', to)
@@ -63,12 +67,18 @@ export async function sendEmail({
       return { success: true, notificationId: notification.id }
     }
 
-    // Create Gmail SMTP transporter
+    // Create Gmail SMTP transporter with specific settings
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false, // Use TLS (port 587), not SSL (port 465)
       auth: {
-        user: EMAIL_CONFIG.GMAIL_USER,
-        pass: EMAIL_CONFIG.GMAIL_APP_PASSWORD,
+        user: gmailUser,
+        pass: gmailPassword,
+      },
+      tls: {
+        // Do not fail on invalid certs (useful for development)
+        rejectUnauthorized: false,
       },
     })
 
