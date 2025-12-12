@@ -44,11 +44,7 @@ export async function PUT(
       include: {
         items: {
           include: {
-            product: {
-              include: {
-                images: { take: 1 },
-              },
-            },
+            product: true,
           },
         },
       },
@@ -64,7 +60,7 @@ export async function PUT(
         customerPhone: updatedOrder.userPhone,
         total: Number(updatedOrder.total),
         items: updatedOrder.items.map((item) => ({
-          name: item.product.name,
+          name: item.productName || item.product?.name || 'Product',
           quantity: item.quantity,
           price: Number(item.price),
         })),
@@ -88,7 +84,7 @@ export async function PUT(
         customerPhone: updatedOrder.userPhone,
         total: Number(updatedOrder.total),
         items: updatedOrder.items.map((item) => ({
-          name: item.product.name,
+          name: item.productName || item.product?.name || 'Product',
           quantity: item.quantity,
           price: Number(item.price),
         })),
