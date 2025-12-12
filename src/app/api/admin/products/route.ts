@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
-import { productSchema } from '@/utils/validations'
+import { createProductSchema } from '@/utils/validations'
 
 export async function POST(req: Request) {
   try {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
         .replace(/(^-|-$)/g, '')
     }
     
-    const data = productSchema.parse(productData)
+    const data = createProductSchema.parse(productData)
 
     const product = await prisma.product.create({
       data: {
