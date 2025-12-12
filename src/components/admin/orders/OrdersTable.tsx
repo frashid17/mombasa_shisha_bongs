@@ -17,28 +17,28 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order #</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Order #</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Customer</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Items</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Total</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Date</th>
+              <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {orders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-mono text-sm">#{order.orderNumber}</td>
-                <td className="px-6 py-4 text-sm">{order.customerName || 'Guest'}</td>
-                <td className="px-6 py-4 text-sm">{order.items.length} items</td>
-                <td className="px-6 py-4 text-sm font-medium">KES {order.total.toLocaleString()}</td>
+                <td className="px-6 py-4 font-mono text-sm text-gray-900">#{order.orderNumber}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{order.customerName || 'Guest'}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{order.items.length} items</td>
+                <td className="px-6 py-4 text-sm font-semibold text-gray-900">KES {order.total.toLocaleString()}</td>
                 <td className="px-6 py-4">
                   <span className={`px-2 py-1 text-xs rounded-full ${statusColors[order.status] || 'bg-gray-100'}`}>
                     {order.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-sm text-gray-500">
+                <td className="px-6 py-4 text-sm text-gray-700">
                   {format(new Date(order.createdAt), 'MMM d, yyyy')}
                 </td>
                 <td className="px-6 py-4 text-right">

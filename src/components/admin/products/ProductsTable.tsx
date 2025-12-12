@@ -16,13 +16,13 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Sales</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Product</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Category</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Price</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Stock</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Sales</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Status</th>
+              <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -42,14 +42,14 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
                       <div className="w-10 h-10 bg-gray-200 rounded" />
                     )}
                     <div>
-                      <div className="font-medium">{product.name}</div>
-                      <div className="text-sm text-gray-500">{product.sku}</div>
+                      <div className="font-semibold text-gray-900">{product.name}</div>
+                      <div className="text-sm text-gray-600">{product.sku}</div>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 text-sm">{product.category.name}</td>
-                <td className="px-6 py-4 text-sm font-medium">KES {product.price.toLocaleString()}</td>
-                <td className="px-6 py-4 text-sm">{product.stock}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{product.category.name}</td>
+                <td className="px-6 py-4 text-sm font-semibold text-gray-900">KES {product.price.toLocaleString()}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">{product.stock}</td>
                 <td className="px-6 py-4 text-sm">{product._count.orderItems}</td>
                 <td className="px-6 py-4">
                   <span
