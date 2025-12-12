@@ -35,7 +35,7 @@ export default async function AdminLayout({
                 <li>Go to your <a href="https://dashboard.clerk.com" target="_blank" rel="noopener noreferrer" className="underline">Clerk Dashboard</a></li>
                 <li>Navigate to <strong>Users</strong> → Find your user</li>
                 <li>Go to <strong>Metadata</strong> tab</li>
-                <li>In <strong>Public metadata</strong>, add: <code className="bg-blue-100 px-1 rounded">{"role": "admin"}</code></li>
+                <li>In <strong>Public metadata</strong>, add: <code className="bg-blue-100 px-1 rounded">{`{"role": "admin"}`}</code></li>
                 <li>Save and refresh this page</li>
               </ol>
             </div>

@@ -87,33 +87,35 @@ export async function isAdmin(): Promise<boolean> {
 
 /**
  * Check if current user is authenticated (returns boolean)
+ * Note: This is a synchronous check, but auth() is async in newer Clerk versions
+ * For async checks, use getCurrentUser() instead
  */
-export function isAuthenticated(): boolean {
-  const { userId } = auth()
+export async function isAuthenticated(): Promise<boolean> {
+  const { userId } = await auth()
   return !!userId
 }
 
 /**
  * Get user ID (returns null if not authenticated)
  */
-export function getUserId(): string | null {
-  const { userId } = auth()
+export async function getUserId(): Promise<string | null> {
+  const { userId } = await auth()
   return userId
 }
 
 /**
  * Get session ID
  */
-export function getSessionId(): string | null {
-  const { sessionId } = auth()
+export async function getSessionId(): Promise<string | null> {
+  const { sessionId } = await auth()
   return sessionId
 }
 
 /**
  * Check if user owns resource (by userId)
  */
-export function checkOwnership(resourceUserId: string): boolean {
-  const currentUserId = getUserId()
+export async function checkOwnership(resourceUserId: string): Promise<boolean> {
+  const currentUserId = await getUserId()
   return currentUserId === resourceUserId
 }
 
