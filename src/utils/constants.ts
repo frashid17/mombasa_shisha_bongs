@@ -170,8 +170,8 @@ export const EMAIL_CONFIG = {
   FROM_NAME: 'Mombasa Shisha Bongs',
   // Gmail SMTP Configuration
   // Host: smtp.gmail.com, Port: 587, Encryption: TLS
-  GMAIL_USER: process.env.GMAIL_USER || 'mombasashishabongs@gmail.com',
-  GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD || 'posg khhg xtec issp',
+  GMAIL_USER: process.env.GMAIL_USER || '',
+  GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD || '',
 } as const
 
 // ============================================
