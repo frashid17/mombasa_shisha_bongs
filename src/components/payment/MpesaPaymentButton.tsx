@@ -86,10 +86,12 @@ export default function MpesaPaymentButton({
         // Refresh the page to show updated payment status
         router.refresh()
       } else {
-        const errorMsg = data.error || 'Failed to initiate payment. Please try again.'
+        const errorMsg = data.error || data.message || 'Failed to initiate payment. Please try again.'
         console.error('STK Push initiation failed:', {
-          error: data.error,
+          error: data.error || data.message,
           response: data,
+          status: res.status,
+          statusText: res.statusText,
         })
         setError(errorMsg)
       }

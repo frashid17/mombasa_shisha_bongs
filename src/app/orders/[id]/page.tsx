@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import Image from 'next/image'
 import Link from 'next/link'
 import MpesaPaymentButton from '@/components/payment/MpesaPaymentButton'
+import PaystackPaymentButton from '@/components/payment/PaystackPaymentButton'
 import { CheckCircle, XCircle, Clock, Loader2, Package, Truck, ArrowLeft } from 'lucide-react'
 
 async function getOrder(id: string) {

@@ -86,20 +86,20 @@ model ProductImage {
 }
 
 model Order {
-  id                 String         @id @default(cuid())
-  orderNumber        String         @unique
-  userId             String
-  userEmail          String
-  userName           String
-  userPhone          String
-  deliveryAddress    String         @db.Text
-  deliveryCity       String
-  deliveryNotes      String?        @db.Text
-  
+  id              String  @id @default(cuid())
+  orderNumber     String  @unique
+  userId          String
+  userEmail       String
+  userName        String
+  userPhone       String
+  deliveryAddress String  @db.Text
+  deliveryCity    String
+  deliveryNotes   String? @db.Text
+
   // Location Coordinates (for map-based delivery)
-  deliveryLatitude   Float?
-  deliveryLongitude  Float?
-  
+  deliveryLatitude  Float?
+  deliveryLongitude Float?
+
   subtotal           Decimal        @db.Decimal(10, 2)
   deliveryFee        Decimal        @default(0.00) @db.Decimal(10, 2)
   tax                Decimal        @default(0.00) @db.Decimal(10, 2)
@@ -147,30 +147,35 @@ model OrderItem {
 }
 
 model Payment {
-  id                     String        @id @default(cuid())
-  orderId                String        @unique
-  method                 PaymentMethod
-  mpesaPhone             String?
-  mpesaReceiptNumber     String?       @unique
-  mpesaTransactionId     String?       @unique
-  mpesaCheckoutRequestId String?       @unique
-  cardLast4              String?
-  cardBrand              String?
-  bankReference          String?
-  amount                 Decimal       @db.Decimal(10, 2)
-  currency               String        @default("KES")
-  status                 PaymentStatus @default(PENDING)
-  providerResponse       String?       @db.Text
-  errorMessage           String?       @db.Text
-  paidAt                 DateTime?
-  createdAt              DateTime      @default(now())
-  updatedAt              DateTime      @updatedAt
-  order                  Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id                        String        @id @default(cuid())
+  orderId                   String        @unique
+  method                    PaymentMethod
+  mpesaPhone                String?
+  mpesaReceiptNumber        String?       @unique
+  mpesaTransactionId        String?       @unique
+  mpesaCheckoutRequestId    String?       @unique
+  paystackReference         String?       @unique
+  paystackAuthorizationCode String?
+  paystackCustomerCode      String?
+  paystackChannel           String?
+  cardLast4                 String?
+  cardBrand                 String?
+  bankReference             String?
+  amount                    Decimal       @db.Decimal(10, 2)
+  currency                  String        @default("KES")
+  status                    PaymentStatus @default(PENDING)
+  providerResponse          String?       @db.Text
+  errorMessage              String?       @db.Text
+  paidAt                    DateTime?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+  order                     Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
   @@index([status])
   @@index([mpesaReceiptNumber])
   @@index([mpesaTransactionId])
+  @@index([paystackReference])
   @@map("payments")
 }
 
@@ -276,6 +281,7 @@ enum PaymentStatus {
 
 enum PaymentMethod {
   MPESA
+  PAYSTACK
   CARD
   BANK_TRANSFER
   CASH_ON_DELIVERY
