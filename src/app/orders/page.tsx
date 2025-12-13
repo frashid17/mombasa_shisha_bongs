@@ -112,7 +112,7 @@ export default async function OrdersPage() {
 
                           {/* Order Items Preview */}
                           <div className="flex items-center gap-4 mb-3">
-                            {order.items.slice(0, 3).map((item) => (
+                            {order.items.slice(0, 3).map((item: any) => (
                               <div key={item.id} className="flex items-center gap-2">
                                 {item.productImage ? (
                                   <Image
