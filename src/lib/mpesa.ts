@@ -146,6 +146,21 @@ export async function initiateSTKPush(
     throw new Error('Mpesa configuration is incomplete. Please check your environment variables.')
   }
 
+  // Warn about placeholder callback URL
+  if (MPESA_CONFIG.CALLBACK_URL.includes('yourdomain.com') || MPESA_CONFIG.CALLBACK_URL.includes('localhost')) {
+    console.warn('⚠️  WARNING: Callback URL appears to be a placeholder or localhost.')
+    console.warn('   For sandbox testing, use ngrok to expose your localhost.')
+    console.warn('   Current callback URL:', MPESA_CONFIG.CALLBACK_URL)
+  }
+
+  // Warn about sandbox phone numbers
+  if (MPESA_CONFIG.ENVIRONMENT === 'sandbox') {
+    console.warn('⚠️  SANDBOX MODE: You must use a test phone number from the Mpesa Developer Portal.')
+    console.warn('   Test numbers usually start with 254708...')
+    console.warn('   Real phone numbers will NOT receive STK push in sandbox mode.')
+    console.warn('   Phone being used:', formattedPhone)
+  }
+
   const requestBody = {
     BusinessShortCode: MPESA_CONFIG.SHORTCODE,
     Password: password,

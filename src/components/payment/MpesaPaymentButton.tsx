@@ -73,8 +73,15 @@ export default function MpesaPaymentButton({
           checkoutRequestId: data.data?.checkoutRequestId,
           message: data.data?.message,
         })
+        
+        // Check if in sandbox mode and show appropriate message
+        const isSandbox = window.location.hostname === 'localhost' || window.location.hostname.includes('127.0.0.1')
+        const sandboxWarning = isSandbox 
+          ? '\n\n⚠️ SANDBOX MODE: Make sure you are using a TEST phone number from the Mpesa Developer Portal. Real phone numbers will NOT work in sandbox.'
+          : ''
+        
         alert(
-          `Payment request sent to +254${phoneNumber}!\n\n${message}\n\nPlease check your phone and enter your Mpesa PIN.\n\nIf you don't receive the prompt within 30 seconds, please try again.`
+          `Payment request sent to +254${phoneNumber}!\n\n${message}\n\nPlease check your phone and enter your Mpesa PIN.${sandboxWarning}\n\nIf you don't receive the prompt within 30 seconds, please check:\n1. You're using a test number (sandbox mode)\n2. Your phone has network connection\n3. Try again`
         )
         // Refresh the page to show updated payment status
         router.refresh()
