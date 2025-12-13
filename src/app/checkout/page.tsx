@@ -29,6 +29,7 @@ export default function CheckoutPage() {
     customerEmail: user?.primaryEmailAddress?.emailAddress || '',
     customerPhone: '',
     deliveryAddress: '',
+    additionalAddress: '',
     city: 'Mombasa',
     notes: '',
   })
@@ -48,7 +49,7 @@ export default function CheckoutPage() {
 
   const handleLocationSelect = async (location: LocationData) => {
     setSelectedLocation(location)
-    setFormData({ ...formData, deliveryAddress: location.address })
+    setFormData({ ...formData, deliveryAddress: location.address, additionalAddress: '' })
 
     // Use isWithinMombasa from location if provided, otherwise check via API
     if (location.isWithinMombasa !== undefined) {
@@ -108,7 +109,9 @@ export default function CheckoutPage() {
           customerName: formData.customerName,
           customerEmail: formData.customerEmail,
           customerPhone: formData.customerPhone ? `+254${formData.customerPhone}` : formData.customerPhone,
-          deliveryAddress: formData.deliveryAddress,
+          deliveryAddress: formData.additionalAddress
+            ? `${formData.deliveryAddress}, ${formData.additionalAddress}`
+            : formData.deliveryAddress,
           deliveryLatitude: parseFloat(selectedLocation.lat.toFixed(7)),
           deliveryLongitude: parseFloat(selectedLocation.lng.toFixed(7)),
           city: formData.city,
@@ -211,14 +214,11 @@ export default function CheckoutPage() {
                       Additional Address Details (Optional)
                     </label>
                     <textarea
-                      value={formData.deliveryAddress.replace(selectedLocation.address, '').trim()}
+                      value={formData.additionalAddress}
                       onChange={(e) => {
-                        const additional = e.target.value
                         setFormData({
                           ...formData,
-                          deliveryAddress: additional
-                            ? `${selectedLocation.address}, ${additional}`
-                            : selectedLocation.address,
+                          additionalAddress: e.target.value,
                         })
                       }}
                       className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
