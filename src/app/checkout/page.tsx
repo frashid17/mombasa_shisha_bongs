@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useUser } from '@clerk/nextjs'
@@ -33,17 +33,26 @@ export default function CheckoutPage() {
     city: 'Mombasa',
     notes: '',
   })
+  
+  // Track if we've initialized from user data to prevent overwriting manual input
+  const userDataInitialized = useRef(false)
 
   const total = getTotal()
 
-  // Initialize form data from user when user loads (only if fields are empty to preserve manual input)
+  // Initialize form data from user when user loads (only once, and only if fields are empty)
   useEffect(() => {
-    if (user) {
-      setFormData((prev) => ({
-        ...prev,
-        customerName: prev.customerName || user.fullName || '',
-        customerEmail: prev.customerEmail || user.primaryEmailAddress?.emailAddress || '',
-      }))
+    if (user && !userDataInitialized.current) {
+      const userName = user.fullName || ''
+      const userEmail = user.primaryEmailAddress?.emailAddress || ''
+      
+      if (userName || userEmail) {
+        setFormData((prev) => ({
+          ...prev,
+          customerName: prev.customerName || userName,
+          customerEmail: prev.customerEmail || userEmail,
+        }))
+        userDataInitialized.current = true
+      }
     }
   }, [user])
 
