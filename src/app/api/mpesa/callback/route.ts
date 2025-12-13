@@ -21,14 +21,25 @@ interface MpesaCallbackBody {
 
 export async function POST(req: Request) {
   try {
+    console.log('📥 Mpesa Callback Received')
+    console.log('   Method:', req.method)
+    console.log('   Headers:', Object.fromEntries(req.headers.entries()))
+    
     const body: MpesaCallbackBody = await req.json()
+    console.log('   Body:', JSON.stringify(body, null, 2))
 
     const stkCallback = body.Body?.stkCallback
     if (!stkCallback) {
+      console.error('❌ Invalid callback format - missing stkCallback')
       return NextResponse.json({ error: 'Invalid callback format' }, { status: 400 })
     }
 
     const { CheckoutRequestID, ResultCode, ResultDesc, CallbackMetadata } = stkCallback
+    
+    console.log('📋 Callback Details:')
+    console.log('   CheckoutRequestID:', CheckoutRequestID)
+    console.log('   ResultCode:', ResultCode)
+    console.log('   ResultDesc:', ResultDesc)
 
     // Find payment by checkout request ID
     const payment = await prisma.payment.findUnique({
@@ -37,9 +48,16 @@ export async function POST(req: Request) {
     })
 
     if (!payment) {
-      console.error(`Payment not found for CheckoutRequestID: ${CheckoutRequestID}`)
+      console.error(`❌ Payment not found for CheckoutRequestID: ${CheckoutRequestID}`)
       return NextResponse.json({ error: 'Payment not found' }, { status: 404 })
     }
+    
+    console.log('✅ Payment found:', {
+      paymentId: payment.id,
+      orderId: payment.orderId,
+      orderNumber: payment.order.orderNumber,
+      currentStatus: payment.status,
+    })
 
     // Process callback based on result code
     if (ResultCode === 0) {
@@ -93,7 +111,10 @@ export async function POST(req: Request) {
         // Don't fail the callback if notification fails
       })
 
-      console.log(`Payment successful for order ${payment.order.orderNumber}`)
+      console.log(`✅ Payment successful for order ${payment.order.orderNumber}`)
+      console.log('   Receipt Number:', receiptNumber)
+      console.log('   Amount:', amount)
+      console.log('   Transaction Date:', transactionDate)
     } else {
       // Payment failed
       await prisma.payment.update({
@@ -125,7 +146,8 @@ export async function POST(req: Request) {
         // Don't fail the callback if notification fails
       })
 
-      console.error(`Payment failed for order ${payment.order.orderNumber}: ${ResultDesc}`)
+      console.error(`❌ Payment failed for order ${payment.order.orderNumber}: ${ResultDesc}`)
+      console.error('   ResultCode:', ResultCode)
     }
 
     return NextResponse.json({ success: true })
