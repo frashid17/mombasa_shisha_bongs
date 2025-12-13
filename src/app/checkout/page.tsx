@@ -39,22 +39,34 @@ export default function CheckoutPage() {
 
   const total = getTotal()
 
-  // Initialize form data from user when user loads (only once, and only if fields are empty)
+  // Initialize form data from user when user loads (only once on mount)
   useEffect(() => {
     if (user && !userDataInitialized.current) {
       const userName = user.fullName || ''
       const userEmail = user.primaryEmailAddress?.emailAddress || ''
       
+      // Only initialize if we have user data
       if (userName || userEmail) {
-        setFormData((prev) => ({
-          ...prev,
-          customerName: prev.customerName || userName,
-          customerEmail: prev.customerEmail || userEmail,
-        }))
+        setFormData((prev) => {
+          // Only set if fields are empty (preserve any manual input)
+          if (!prev.customerName.trim() && !prev.customerEmail.trim()) {
+            userDataInitialized.current = true
+            return {
+              ...prev,
+              customerName: userName,
+              customerEmail: userEmail,
+            }
+          }
+          // Mark as initialized even if we don't update (to prevent future runs)
+          userDataInitialized.current = true
+          return prev
+        })
+      } else {
+        // Mark as initialized even if no user data (to prevent future runs)
         userDataInitialized.current = true
       }
     }
-  }, [user])
+  }, [user?.id]) // Only depend on user ID, not the properties that might change
 
   // Redirect to cart if empty - use useEffect to avoid render error
   useEffect(() => {
