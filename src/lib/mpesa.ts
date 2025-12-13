@@ -166,7 +166,7 @@ export async function initiateSTKPush(
     Password: password,
     Timestamp: timestamp,
     TransactionType: 'CustomerPayBillOnline',
-    Amount: Math.round(amount), // Mpesa requires integer amount
+    Amount: String(Math.round(amount)), // Mpesa requires amount as string
     PartyA: formattedPhone,
     PartyB: MPESA_CONFIG.SHORTCODE,
     PhoneNumber: formattedPhone,
