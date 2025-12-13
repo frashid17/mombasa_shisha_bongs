@@ -210,7 +210,25 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           )}
 
           {needsPayment && !isCOD && (
-            <div className="mb-6">
+            <div className="mb-6 space-y-4">
+              {/* Paystack Payment Option */}
+              <PaystackPaymentButton
+                orderId={order.id}
+                amount={Number(order.total)}
+                orderNumber={order.orderNumber}
+                customerEmail={order.userEmail}
+              />
+              
+              {/* Mpesa Payment Option (Alternative) */}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-600"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-gray-900 text-gray-400">Or pay with</span>
+                </div>
+              </div>
+              
               <MpesaPaymentButton
                 orderId={order.id}
                 amount={Number(order.total)}
