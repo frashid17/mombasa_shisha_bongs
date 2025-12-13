@@ -41,6 +41,7 @@ const paymentStatusColors: Record<string, string> = {
 }
 
 export default async function OrderPage({ params }: { params: Promise<{ id: string }> }) {
+  const { userId } = await auth()
   const { id } = await params
   const order = await getOrder(id)
 
@@ -48,14 +49,38 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     notFound()
   }
 
+  // Check if user owns this order
+  if (order.userId !== userId) {
+    redirect('/orders')
+  }
+
   const isCOD = order.payment?.method === 'CASH_ON_DELIVERY'
   const needsPayment = (order.paymentStatus === 'PENDING' || order.paymentStatus === 'FAILED') && !isCOD
   const paymentProcessing = order.paymentStatus === 'PROCESSING'
+
+  // Order status timeline
+  const statusTimeline = [
+    { status: 'PENDING', label: 'Order Placed', date: order.createdAt, icon: Clock },
+    { status: 'CONFIRMED', label: 'Order Confirmed', date: order.status === 'CONFIRMED' || order.status === 'PROCESSING' || order.status === 'SHIPPED' || order.status === 'DELIVERED' ? order.updatedAt : null, icon: CheckCircle },
+    { status: 'PROCESSING', label: 'Processing', date: order.status === 'PROCESSING' || order.status === 'SHIPPED' || order.status === 'DELIVERED' ? order.updatedAt : null, icon: Package },
+    { status: 'SHIPPED', label: 'Shipped', date: order.status === 'SHIPPED' || order.status === 'DELIVERED' ? (order.updatedAt || order.createdAt) : null, icon: Truck },
+    { status: 'DELIVERED', label: 'Delivered', date: order.deliveredAt || (order.status === 'DELIVERED' ? order.updatedAt : null), icon: CheckCircle },
+  ]
+
+  const currentStatusIndex = statusTimeline.findIndex((s) => s.status === order.status)
+  const activeTimeline = statusTimeline.slice(0, currentStatusIndex + 1)
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
+          <Link
+            href="/orders"
+            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-6 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Orders
+          </Link>
           <h1 className="text-3xl font-bold text-white mb-8">Order #{order.orderNumber}</h1>
 
           {/* Order Status Card */}
@@ -82,6 +107,87 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                   </span>
                 </div>
               </div>
+            </div>
+
+            {/* Tracking Number */}
+            {order.trackingNumber && (
+              <div className="mt-4 pt-4 border-t border-gray-700">
+                <div className="flex items-center gap-2">
+                  <Truck className="w-5 h-5 text-blue-400" />
+                  <div>
+                    <p className="text-sm text-gray-400">Tracking Number</p>
+                    <p className="text-lg font-semibold text-white font-mono">
+                      {order.trackingNumber}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Estimated Delivery */}
+            {order.estimatedDelivery && (
+              <div className="mt-4 pt-4 border-t border-gray-700">
+                <p className="text-sm text-gray-400">Estimated Delivery</p>
+                <p className="text-white font-semibold">
+                  {format(new Date(order.estimatedDelivery), 'MMMM d, yyyy')}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Order Status Timeline */}
+          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6 mb-6">
+            <h2 className="text-xl font-bold text-white mb-6">Order Tracking</h2>
+            <div className="space-y-4">
+              {statusTimeline.map((step, index) => {
+                const isActive = activeTimeline.some((s) => s.status === step.status)
+                const Icon = step.icon
+                const isLast = index === statusTimeline.length - 1
+
+                return (
+                  <div key={step.status} className="flex items-start gap-4">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                          isActive
+                            ? 'bg-blue-600 border-blue-500 text-white'
+                            : 'bg-gray-700 border-gray-600 text-gray-400'
+                        }`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      {!isLast && (
+                        <div
+                          className={`w-0.5 h-12 ${
+                            isActive ? 'bg-blue-600' : 'bg-gray-700'
+                          }`}
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 pb-8">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p
+                            className={`font-semibold ${
+                              isActive ? 'text-white' : 'text-gray-400'
+                            }`}
+                          >
+                            {step.label}
+                          </p>
+                          {step.date && isActive && (
+                            <p className="text-sm text-gray-400 mt-1">
+                              {format(new Date(step.date), 'MMMM d, yyyy HH:mm')}
+                            </p>
+                          )}
+                        </div>
+                        {isActive && (
+                          <CheckCircle className="w-5 h-5 text-green-400" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
 

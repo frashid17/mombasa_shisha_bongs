@@ -56,14 +56,19 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <Logo width={50} height={50} />
 
-          <div className="hidden md:flex items-center gap-6">
-            <Link href="/products" className="hover:text-blue-400 transition">
-              Products
-            </Link>
-            <Link href="/categories" className="hover:text-blue-400 transition">
-              Categories
-            </Link>
-          </div>
+                  <div className="hidden md:flex items-center gap-6">
+                   <Link href="/products" className="hover:text-blue-400 transition">
+                     Products
+                   </Link>
+                   <Link href="/categories" className="hover:text-blue-400 transition">
+                     Categories
+                   </Link>
+                   {isSignedIn && (
+                     <Link href="/orders" className="hover:text-blue-400 transition">
+                       My Orders
+                     </Link>
+                   )}
+                 </div>
 
           <div className="flex items-center gap-4">
             {isSignedIn ? (
@@ -140,22 +145,31 @@ export default function Navbar() {
           </div>
         </div>
 
-        {mobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-gray-800">
-            <Link
-              href="/products"
-              className="block py-2 hover:text-blue-400 transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Products
-            </Link>
-            <Link
-              href="/categories"
-              className="block py-2 hover:text-blue-400 transition"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Categories
-            </Link>
+               {mobileMenuOpen && (
+                 <div className="md:hidden py-4 border-t border-gray-800">
+                   <Link
+                     href="/products"
+                     className="block py-2 hover:text-blue-400 transition"
+                     onClick={() => setMobileMenuOpen(false)}
+                   >
+                     Products
+                   </Link>
+                   <Link
+                     href="/categories"
+                     className="block py-2 hover:text-blue-400 transition"
+                     onClick={() => setMobileMenuOpen(false)}
+                   >
+                     Categories
+                   </Link>
+                   {isSignedIn && (
+                     <Link
+                       href="/orders"
+                       className="block py-2 hover:text-blue-400 transition"
+                       onClick={() => setMobileMenuOpen(false)}
+                     >
+                       My Orders
+                     </Link>
+                   )}
             {isSignedIn ? (
               <Link
                 href="/profile"
