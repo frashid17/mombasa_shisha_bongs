@@ -25,8 +25,8 @@ export default function CheckoutPage() {
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [isWithinMombasa, setIsWithinMombasa] = useState<boolean | null>(null)
   const [formData, setFormData] = useState({
-    customerName: user?.fullName || '',
-    customerEmail: user?.primaryEmailAddress?.emailAddress || '',
+    customerName: '',
+    customerEmail: '',
     customerPhone: '',
     deliveryAddress: '',
     additionalAddress: '',
@@ -35,6 +35,17 @@ export default function CheckoutPage() {
   })
 
   const total = getTotal()
+
+  // Initialize form data from user when user loads (only if fields are empty to preserve manual input)
+  useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        customerName: prev.customerName || user.fullName || '',
+        customerEmail: prev.customerEmail || user.primaryEmailAddress?.emailAddress || '',
+      }))
+    }
+  }, [user])
 
   // Redirect to cart if empty - use useEffect to avoid render error
   useEffect(() => {
