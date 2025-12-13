@@ -26,6 +26,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
   const markerRef = useRef<any>(null)
+  const mapTypeRef = useRef<'google' | 'leaflet' | null>(null)
 
   // Mombasa boundaries (approximate)
   const MOMBASA_BOUNDS = {
@@ -58,12 +59,24 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         const lng = position.coords.longitude
 
         setLocation({ lat, lng })
-        if (markerRef.current) {
-          markerRef.current.setPosition({ lat, lng })
-          if (mapInstanceRef.current) {
-            mapInstanceRef.current.setCenter({ lat, lng })
+        
+        // Update marker position based on map type
+        if (markerRef.current && mapTypeRef.current) {
+          if (mapTypeRef.current === 'google') {
+            // Google Maps
+            markerRef.current.setPosition({ lat, lng })
+            if (mapInstanceRef.current) {
+              mapInstanceRef.current.setCenter({ lat, lng })
+            }
+          } else if (mapTypeRef.current === 'leaflet') {
+            // Leaflet
+            markerRef.current.setLatLng([lat, lng])
+            if (mapInstanceRef.current) {
+              mapInstanceRef.current.setView([lat, lng], mapInstanceRef.current.getZoom())
+            }
           }
         }
+        
         await checkLocationAndGetAddress(lat, lng)
         setLoading(false)
       },
@@ -184,6 +197,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
 
         mapInstanceRef.current = map
         markerRef.current = marker
+        mapTypeRef.current = 'leaflet'
 
         if (location) {
           checkLocationAndGetAddress(location.lat, location.lng)
@@ -237,6 +251,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       })
 
       markerRef.current = marker
+      mapTypeRef.current = 'google'
 
       // Handle marker drag
       marker.addListener('dragend', async () => {
