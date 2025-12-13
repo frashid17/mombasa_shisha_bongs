@@ -178,10 +178,14 @@ export async function initiateSTKPush(
   try {
     console.log('Initiating STK Push with:', {
       phone: formattedPhone,
-      amount: Math.round(amount),
+      amount: String(Math.round(amount)),
       shortcode: MPESA_CONFIG.SHORTCODE,
       environment: MPESA_CONFIG.ENVIRONMENT,
       callbackUrl: MPESA_CONFIG.CALLBACK_URL,
+      requestBody: {
+        ...requestBody,
+        Password: '[REDACTED]', // Don't log the password
+      },
     })
 
     const response = await fetch(stkPushUrl, {
