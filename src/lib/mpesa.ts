@@ -28,6 +28,11 @@ export async function getMpesaAccessToken(): Promise<string> {
   
   // Validate credentials are not empty
   if (!consumerKey || !consumerSecret) {
+    console.error('Mpesa credentials validation failed:', {
+      hasConsumerKey: !!consumerKey,
+      hasConsumerSecret: !!consumerSecret,
+      environment: MPESA_CONFIG.ENVIRONMENT,
+    })
     throw new Error('Mpesa credentials are missing. Please check your .env.local file.')
   }
   
@@ -131,6 +136,16 @@ export async function initiateSTKPush(
   const password = generateMpesaPassword(MPESA_CONFIG.SHORTCODE, MPESA_CONFIG.PASSKEY)
   const formattedPhone = formatMpesaPhoneNumber(phoneNumber)
 
+  // Validate required config
+  if (!MPESA_CONFIG.SHORTCODE || !MPESA_CONFIG.PASSKEY || !MPESA_CONFIG.CALLBACK_URL) {
+    console.error('Missing Mpesa configuration:', {
+      hasShortcode: !!MPESA_CONFIG.SHORTCODE,
+      hasPasskey: !!MPESA_CONFIG.PASSKEY,
+      hasCallbackUrl: !!MPESA_CONFIG.CALLBACK_URL,
+    })
+    throw new Error('Mpesa configuration is incomplete. Please check your environment variables.')
+  }
+
   const requestBody = {
     BusinessShortCode: MPESA_CONFIG.SHORTCODE,
     Password: password,
@@ -146,6 +161,14 @@ export async function initiateSTKPush(
   }
 
   try {
+    console.log('Initiating STK Push with:', {
+      phone: formattedPhone,
+      amount: Math.round(amount),
+      shortcode: MPESA_CONFIG.SHORTCODE,
+      environment: MPESA_CONFIG.ENVIRONMENT,
+      callbackUrl: MPESA_CONFIG.CALLBACK_URL,
+    })
+
     const response = await fetch(stkPushUrl, {
       method: 'POST',
       headers: {
@@ -155,13 +178,44 @@ export async function initiateSTKPush(
       body: JSON.stringify(requestBody),
     })
 
-    const data = await response.json()
+    const responseText = await response.text()
+    console.log('STK Push response status:', response.status)
+    console.log('STK Push response body:', responseText)
 
-    if (!response.ok || data.ResponseCode !== '0') {
+    let data
+    try {
+      data = JSON.parse(responseText)
+    } catch (parseError) {
+      console.error('Failed to parse STK Push response as JSON:', responseText)
+      throw new Error(`Invalid response from Mpesa API: ${responseText.substring(0, 200)}`)
+    }
+
+    if (!response.ok) {
+      console.error('STK Push HTTP error:', {
+        status: response.status,
+        statusText: response.statusText,
+        data,
+      })
       throw new Error(
-        data.errorMessage || data.ResponseDescription || 'Failed to initiate STK Push'
+        data.errorMessage || data.ResponseDescription || `HTTP ${response.status}: ${response.statusText}`
       )
     }
+
+    if (data.ResponseCode !== '0') {
+      console.error('STK Push API error:', {
+        ResponseCode: data.ResponseCode,
+        ResponseDescription: data.ResponseDescription,
+        errorMessage: data.errorMessage,
+      })
+      throw new Error(
+        data.errorMessage || data.ResponseDescription || `Mpesa API Error: ResponseCode ${data.ResponseCode}`
+      )
+    }
+
+    console.log('STK Push initiated successfully:', {
+      CheckoutRequestID: data.CheckoutRequestID,
+      CustomerMessage: data.CustomerMessage,
+    })
 
     return {
       CheckoutRequestID: data.CheckoutRequestID,

@@ -67,14 +67,24 @@ export default function MpesaPaymentButton({
       const data = await res.json()
 
       if (res.ok && data.success) {
-        // Show success message
+        // Show success message with more details
+        const message = data.data?.message || 'STK Push request sent successfully'
+        console.log('STK Push initiated successfully:', {
+          checkoutRequestId: data.data?.checkoutRequestId,
+          message: data.data?.message,
+        })
         alert(
-          `Payment request sent to +254${phoneNumber}!\n\n${data.data.message}\n\nPlease check your phone and enter your Mpesa PIN.`
+          `Payment request sent to +254${phoneNumber}!\n\n${message}\n\nPlease check your phone and enter your Mpesa PIN.\n\nIf you don't receive the prompt within 30 seconds, please try again.`
         )
         // Refresh the page to show updated payment status
         router.refresh()
       } else {
-        setError(data.error || 'Failed to initiate payment. Please try again.')
+        const errorMsg = data.error || 'Failed to initiate payment. Please try again.'
+        console.error('STK Push initiation failed:', {
+          error: data.error,
+          response: data,
+        })
+        setError(errorMsg)
       }
     } catch (error: any) {
       console.error('Payment error:', error)
