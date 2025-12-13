@@ -81,7 +81,11 @@ export default function CheckoutPage() {
 
   const handleLocationSelect = async (location: LocationData) => {
     setSelectedLocation(location)
-    setFormData({ ...formData, deliveryAddress: location.address, additionalAddress: '' })
+    setFormData((prev) => ({
+      ...prev,
+      deliveryAddress: location.address,
+      additionalAddress: '',
+    }))
 
     // Use isWithinMombasa from location if provided, otherwise check via API
     if (location.isWithinMombasa !== undefined) {
@@ -189,7 +193,7 @@ export default function CheckoutPage() {
                     type="text"
                     required
                     value={formData.customerName}
-                    onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, customerName: e.target.value }))}
                     className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                     placeholder="Enter your full name"
                   />
@@ -200,7 +204,7 @@ export default function CheckoutPage() {
                     type="email"
                     required
                     value={formData.customerEmail}
-                    onChange={(e) => setFormData({ ...formData, customerEmail: e.target.value })}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, customerEmail: e.target.value }))}
                     className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                     placeholder="your.email@example.com"
                   />
@@ -217,7 +221,10 @@ export default function CheckoutPage() {
                       value={formData.customerPhone}
                       onChange={(e) => {
                         const value = e.target.value.replace(/\D/g, '').slice(0, 9)
-                        setFormData({ ...formData, customerPhone: value })
+                        setFormData((prev) => ({
+                          ...prev,
+                          customerPhone: value,
+                        }))
                       }}
                       className="flex-1 bg-gray-900 border border-gray-600 rounded-r-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                       placeholder="708786000"
@@ -248,10 +255,10 @@ export default function CheckoutPage() {
                     <textarea
                       value={formData.additionalAddress}
                       onChange={(e) => {
-                        setFormData({
-                          ...formData,
+                        setFormData((prev) => ({
+                          ...prev,
                           additionalAddress: e.target.value,
-                        })
+                        }))
                       }}
                       className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                       rows={2}
@@ -262,7 +269,7 @@ export default function CheckoutPage() {
                     <label className="block text-sm font-semibold text-white mb-2">Order Notes</label>
                     <textarea
                       value={formData.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
                       className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                       rows={2}
                       placeholder="Any special instructions for delivery..."
