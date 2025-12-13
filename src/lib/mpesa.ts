@@ -146,19 +146,57 @@ export async function initiateSTKPush(
     throw new Error('Mpesa configuration is incomplete. Please check your environment variables.')
   }
 
-  // Warn about placeholder callback URL
-  if (MPESA_CONFIG.CALLBACK_URL.includes('yourdomain.com') || MPESA_CONFIG.CALLBACK_URL.includes('localhost')) {
-    console.warn('⚠️  WARNING: Callback URL appears to be a placeholder or localhost.')
-    console.warn('   For sandbox testing, use ngrok to expose your localhost.')
-    console.warn('   Current callback URL:', MPESA_CONFIG.CALLBACK_URL)
+  // Validate callback URL
+  if (MPESA_CONFIG.CALLBACK_URL.includes('yourdomain.com') || 
+      MPESA_CONFIG.CALLBACK_URL.includes('localhost') ||
+      MPESA_CONFIG.CALLBACK_URL.includes('127.0.0.1')) {
+    console.error('❌ CRITICAL: Callback URL is not publicly accessible!')
+    console.error('   Mpesa cannot send callbacks to localhost.')
+    console.error('   Current callback URL:', MPESA_CONFIG.CALLBACK_URL)
+    console.error('   Solution: Use ngrok to expose your localhost:')
+    console.error('   1. Install ngrok: brew install ngrok')
+    console.error('   2. Run: ngrok http 3000')
+    console.error('   3. Copy the HTTPS URL (e.g., https://abc123.ngrok.io)')
+    console.error('   4. Update MPESA_CALLBACK_URL in .env.local')
+    console.error('   5. Restart your server')
+    throw new Error(
+      `Callback URL ${MPESA_CONFIG.CALLBACK_URL} is not publicly accessible. ` +
+      `Mpesa requires a publicly accessible URL. Use ngrok for local testing.`
+    )
+  }
+  
+  // Validate callback URL is HTTPS (required by Mpesa)
+  if (!MPESA_CONFIG.CALLBACK_URL.startsWith('https://')) {
+    console.error('❌ CRITICAL: Callback URL must use HTTPS!')
+    console.error('   Current callback URL:', MPESA_CONFIG.CALLBACK_URL)
+    throw new Error('MPESA_CALLBACK_URL must use HTTPS protocol')
   }
 
-  // Warn about sandbox phone numbers
+  // Validate and warn about sandbox phone numbers
   if (MPESA_CONFIG.ENVIRONMENT === 'sandbox') {
-    console.warn('⚠️  SANDBOX MODE: You must use a test phone number from the Mpesa Developer Portal.')
-    console.warn('   Test numbers usually start with 254708...')
-    console.warn('   Real phone numbers will NOT receive STK push in sandbox mode.')
-    console.warn('   Phone being used:', formattedPhone)
+    // Common sandbox test numbers (from Mpesa documentation)
+    const sandboxTestNumbers = [
+      '254708374149',
+      '254708786000',
+      '254708786001',
+      '254712345678',
+    ]
+    
+    const isTestNumber = sandboxTestNumbers.includes(formattedPhone) || formattedPhone.startsWith('254708')
+    
+    if (!isTestNumber) {
+      console.error('❌ CRITICAL: You are using a REAL phone number in SANDBOX mode!')
+      console.error('   Sandbox mode ONLY works with test phone numbers from Mpesa Developer Portal.')
+      console.error('   Your phone number:', formattedPhone)
+      console.error('   Test numbers to use:', sandboxTestNumbers.join(', '))
+      console.error('   Get test numbers from: https://developer.safaricom.co.ke/')
+      throw new Error(
+        `Cannot use real phone number ${formattedPhone} in sandbox mode. ` +
+        `Please use a test number from Mpesa Developer Portal (e.g., 254708374149).`
+      )
+    } else {
+      console.log('✅ Using sandbox test number:', formattedPhone)
+    }
   }
 
   const requestBody = {
@@ -176,12 +214,34 @@ export async function initiateSTKPush(
   }
 
   try {
-    console.log('Initiating STK Push with:', {
+    // Validate phone number format
+    if (formattedPhone.length !== 12 || !formattedPhone.startsWith('254')) {
+      throw new Error(
+        `Invalid phone number format: ${formattedPhone}. ` +
+        `Expected format: 254XXXXXXXXX (12 digits starting with 254)`
+      )
+    }
+    
+    // Validate amount (must be positive)
+    const roundedAmount = Math.round(amount)
+    if (roundedAmount <= 0) {
+      throw new Error(`Invalid amount: ${amount}. Amount must be greater than 0`)
+    }
+    
+    // Warn about large amounts in sandbox
+    if (MPESA_CONFIG.ENVIRONMENT === 'sandbox' && roundedAmount > 100) {
+      console.warn('⚠️  WARNING: Amount is greater than KES 100 in sandbox mode.')
+      console.warn('   Sandbox may have issues with large amounts. Try KES 1 for testing.')
+    }
+    
+    console.log('🚀 Initiating STK Push with:', {
       phone: formattedPhone,
-      amount: String(Math.round(amount)),
+      amount: String(roundedAmount),
       shortcode: MPESA_CONFIG.SHORTCODE,
       environment: MPESA_CONFIG.ENVIRONMENT,
       callbackUrl: MPESA_CONFIG.CALLBACK_URL,
+      stkPushUrl: stkPushUrl,
+      timestamp: timestamp,
       requestBody: {
         ...requestBody,
         Password: '[REDACTED]', // Don't log the password
@@ -198,8 +258,10 @@ export async function initiateSTKPush(
     })
 
     const responseText = await response.text()
-    console.log('STK Push response status:', response.status)
-    console.log('STK Push response body:', responseText)
+    console.log('📥 STK Push API Response:')
+    console.log('   Status:', response.status, response.statusText)
+    console.log('   Headers:', Object.fromEntries(response.headers.entries()))
+    console.log('   Body:', responseText)
 
     let data
     try {
@@ -221,20 +283,44 @@ export async function initiateSTKPush(
     }
 
     if (data.ResponseCode !== '0') {
-      console.error('STK Push API error:', {
-        ResponseCode: data.ResponseCode,
-        ResponseDescription: data.ResponseDescription,
-        errorMessage: data.errorMessage,
-      })
+      console.error('❌ STK Push API Error Response:')
+      console.error('   ResponseCode:', data.ResponseCode)
+      console.error('   ResponseDescription:', data.ResponseDescription)
+      console.error('   errorMessage:', data.errorMessage)
+      console.error('   Full response:', JSON.stringify(data, null, 2))
+      
+      // Provide helpful error messages for common error codes
+      const errorMessages: Record<string, string> = {
+        '1032': 'Request cancelled by user',
+        '1037': 'Request timeout - user did not respond',
+        '1031': 'Request cancelled by user',
+        '1014': 'Invalid phone number format',
+        '400.002.02': 'Invalid request',
+        '400.002.08': 'Invalid phone number',
+      }
+      
+      const helpfulMessage = errorMessages[data.ResponseCode] || data.ResponseDescription
+      
       throw new Error(
-        data.errorMessage || data.ResponseDescription || `Mpesa API Error: ResponseCode ${data.ResponseCode}`
+        `Mpesa STK Push failed (Code: ${data.ResponseCode}): ${helpfulMessage}`
       )
     }
 
-    console.log('STK Push initiated successfully:', {
-      CheckoutRequestID: data.CheckoutRequestID,
-      CustomerMessage: data.CustomerMessage,
-    })
+    console.log('✅ STK Push initiated successfully!')
+    console.log('   CheckoutRequestID:', data.CheckoutRequestID)
+    console.log('   CustomerMessage:', data.CustomerMessage)
+    console.log('   ResponseCode:', data.ResponseCode)
+    console.log('   ResponseDescription:', data.ResponseDescription)
+    console.log('')
+    console.log('📱 Next steps:')
+    console.log('   1. Check the phone number:', formattedPhone)
+    console.log('   2. Ensure the phone is ON and has network coverage')
+    console.log('   3. Wait for STK push notification (usually within 10-30 seconds)')
+    console.log('   4. If not received, check:')
+    console.log('      - Phone number is correct')
+    console.log('      - Using test number in sandbox mode')
+    console.log('      - Phone has network signal')
+    console.log('      - Mpesa account is active')
 
     return {
       CheckoutRequestID: data.CheckoutRequestID,
