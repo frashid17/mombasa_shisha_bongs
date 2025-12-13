@@ -87,18 +87,36 @@ async function handlePOST(req: Request) {
     // Initiate STK Push
     let stkResponse
     try {
+      console.log('Initiating STK Push for order:', {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        phoneNumber: validated.phoneNumber,
+        amount: Number(order.total),
+      })
+      
       stkResponse = await initiateSTKPush(
         validated.phoneNumber,
         Number(order.total),
         order.orderNumber,
         `Payment for order ${order.orderNumber}`
       )
+      
+      console.log('STK Push initiated successfully:', {
+        checkoutRequestId: stkResponse.CheckoutRequestID,
+        customerMessage: stkResponse.CustomerMessage,
+        responseCode: stkResponse.ResponseCode,
+      })
     } catch (stkError: any) {
-      console.error('STK Push initiation failed:', stkError)
+      console.error('STK Push initiation failed:', {
+        error: stkError.message,
+        stack: stkError.stack,
+        orderId: order.id,
+        phoneNumber: validated.phoneNumber,
+      })
       return createSecureResponse(
         {
           success: false,
-          error: stkError.message || 'Failed to initiate payment. Please check your Mpesa credentials and try again.',
+          error: stkError.message || 'Failed to initiate payment. Please check your Mpesa credentials and try again. Check the server logs for more details.',
         },
         500
       )
