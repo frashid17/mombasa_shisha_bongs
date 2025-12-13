@@ -47,9 +47,36 @@ vercel
 
 ## Step 4: Set Environment Variables
 
+### Option A: Import via Vercel CLI (Easiest)
+
+If you have a `.env.local` file locally:
+
+```bash
+# 1. Login and link project
+vercel login
+vercel link
+
+# 2. Pull existing vars (creates .env.local if needed)
+vercel env pull .env.local
+
+# 3. Add missing variables one by one
+vercel env add DATABASE_URL
+vercel env add CLERK_SECRET_KEY
+# ... etc (it will prompt for values)
+```
+
+### Option B: Import via Vercel Dashboard (Recommended)
+
+1. Go to your project in Vercel Dashboard
+2. Navigate to **Settings** → **Environment Variables**
+3. Click **"Add"** for each variable
+4. Or use the **"Import"** button if available (some plans)
+
+### Option C: Manual Entry (Most Secure)
+
 Go to your project settings in Vercel Dashboard → **Settings** → **Environment Variables**
 
-Add these variables:
+Add these variables one by one:
 
 ### Required Environment Variables
 
