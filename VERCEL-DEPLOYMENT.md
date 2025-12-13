@@ -4,7 +4,7 @@
 
 1. **Vercel Account**: Sign up at https://vercel.com (free tier available)
 2. **GitHub Repository**: Your code should be pushed to GitHub (already done ✅)
-3. **Database**: You'll need a production MySQL database (PlanetScale, Railway, or AWS RDS)
+3. **Database**: You'll need a Neon PostgreSQL database (free tier available at https://neon.tech)
 
 ## Step 1: Install Vercel CLI
 
@@ -81,8 +81,8 @@ Add these variables one by one:
 ### Required Environment Variables
 
 ```env
-# Database (Production MySQL URL)
-DATABASE_URL=mysql://user:password@host:3306/database_name
+# Database (Neon PostgreSQL - use pooled connection for production)
+DATABASE_URL=postgresql://user:password@ep-xxx-xxx.region.aws.neon.tech/neondb?sslmode=require&pgbouncer=true
 
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_...
@@ -110,9 +110,11 @@ NODE_ENV=production
 
 ### Important Notes:
 
-1. **DATABASE_URL**: Use your production MySQL database (not localhost!)
-   - Options: PlanetScale, Railway, AWS RDS, or DigitalOcean
-   - Format: `mysql://user:password@host:3306/database_name`
+1. **DATABASE_URL**: Use your Neon PostgreSQL connection string
+   - Get it from: https://console.neon.tech
+   - **For production**: Use pooled connection (`?pgbouncer=true`)
+   - **For migrations**: Use direct connection (no `pgbouncer`)
+   - Format: `postgresql://user:password@ep-xxx-xxx.region.aws.neon.tech/neondb?sslmode=require`
 
 2. **NEXT_PUBLIC_APP_URL**: 
    - Initially: `https://your-app.vercel.app`

@@ -7,7 +7,7 @@ A full-stack TypeScript e-commerce system for selling shisha items, vapes, and a
 - **Frontend**: Next.js 16, React 19, TypeScript
 - **Styling**: TailwindCSS 4
 - **Authentication**: Clerk
-- **Database**: MySQL + Prisma ORM
+- **Database**: Neon PostgreSQL + Prisma ORM
 - **Payments**: Mpesa Daraja STK Push
 - **State Management**: Zustand
 - **Data Fetching**: TanStack Query (React Query)
@@ -17,7 +17,7 @@ A full-stack TypeScript e-commerce system for selling shisha items, vapes, and a
 ## 📋 Prerequisites
 
 - Node.js v18.17 or higher
-- MySQL 8.0 or higher
+- Neon PostgreSQL account (free tier available)
 - npm or yarn
 - Git
 
@@ -41,8 +41,8 @@ npm install
 Create a `.env.local` file in the root directory:
 
 ```env
-# Database
-DATABASE_URL="mysql://username:password@localhost:3306/mombasa_shisha_bongs"
+# Database (Neon PostgreSQL)
+DATABASE_URL="postgresql://username:password@ep-xxx-xxx.region.aws.neon.tech/neondb?sslmode=require"
 
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
@@ -76,13 +76,11 @@ ADMIN_EMAIL=admin@mombasashishabongs.com
 
 ### 4. Set up the database
 
-```bash
-# Create MySQL database
-mysql -u root -p
-CREATE DATABASE mombasa_shisha_bongs CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-EXIT;
-
-# Run Prisma migrations (after schema is created in Step 3)
+1. **Create a Neon account**: https://neon.tech
+2. **Create a new project** in Neon dashboard
+3. **Copy the connection string** from Neon dashboard
+4. **Add it to `.env.local`** as `DATABASE_URL`
+5. **Run Prisma migrations**:
 npx prisma migrate dev
 npx prisma generate
 ```
