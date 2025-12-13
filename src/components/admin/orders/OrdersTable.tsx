@@ -31,7 +31,12 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
             {orders.map((order) => (
               <tr key={order.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 font-mono text-sm text-gray-900">#{order.orderNumber}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{order.customerName || 'Guest'}</td>
+                <td className="px-6 py-4 text-sm text-gray-900">
+                  <div>
+                    <div className="font-medium">{order.userName || 'Guest'}</div>
+                    <div className="text-xs text-gray-500">{order.userEmail}</div>
+                  </div>
+                </td>
                 <td className="px-6 py-4 text-sm text-gray-900">{order.items.length} items</td>
                 <td className="px-6 py-4 text-sm font-semibold text-gray-900">KES {order.total.toLocaleString()}</td>
                 <td className="px-6 py-4">

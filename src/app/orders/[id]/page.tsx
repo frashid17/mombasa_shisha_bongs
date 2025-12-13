@@ -6,6 +6,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import MpesaPaymentButton from '@/components/payment/MpesaPaymentButton'
 import PaystackPaymentButton from '@/components/payment/PaystackPaymentButton'
+import ConfirmDeliveryButton from '@/components/orders/ConfirmDeliveryButton'
+import ReviewForm from '@/components/orders/ReviewForm'
 import { CheckCircle, XCircle, Clock, Loader2, Package, Truck, ArrowLeft } from 'lucide-react'
 
 async function getOrder(id: string) {
@@ -25,6 +27,7 @@ async function getOrder(id: string) {
     },
   })
 }
+
 
 const statusColors: Record<string, string> = {
   PENDING: 'bg-yellow-900 text-yellow-300 border-yellow-700',
@@ -52,8 +55,8 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
     notFound()
   }
 
-  // Check if user owns this order
-  if (order.userId !== userId) {
+  // Check if user owns this order (allow guest orders)
+  if (order.userId !== userId && order.userId !== 'guest') {
     redirect('/orders')
   }
 
@@ -282,35 +285,62 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             </div>
           )}
 
+          {/* Confirm Delivery Section */}
+          {(order.status === 'SHIPPED' || order.status === 'DELIVERED') && !order.deliveredAt && (
+            <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-6 mb-6">
+              <h2 className="text-xl font-bold text-white mb-4">Confirm Delivery</h2>
+              <p className="text-gray-300 mb-4">
+                Have you received your order? Please confirm delivery to unlock the ability to review your items.
+              </p>
+              <ConfirmDeliveryButton
+                orderId={order.id}
+                orderStatus={order.status}
+              />
+            </div>
+          )}
+
           {/* Order Items */}
           <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6 mb-6">
             <h2 className="text-xl font-bold text-white mb-4">Order Items</h2>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {order.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center gap-4 bg-gray-700 p-3 rounded-lg border border-gray-600"
-                >
-                  {item.product.images[0] ? (
-                    <Image
-                      src={item.product.images[0].url}
-                      alt={item.product.name}
-                      width={60}
-                      height={60}
-                      className="rounded object-cover"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-gray-600 rounded flex items-center justify-center text-gray-400">
-                      No Image
+                <div key={item.id} className="space-y-4">
+                  <div className="flex items-center gap-4 bg-gray-700 p-3 rounded-lg border border-gray-600">
+                    {item.product.images[0] ? (
+                      <Image
+                        src={item.product.images[0].url}
+                        alt={item.product.name}
+                        width={60}
+                        height={60}
+                        className="rounded object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-gray-600 rounded flex items-center justify-center text-gray-400">
+                        No Image
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <p className="font-semibold text-white">{item.product.name}</p>
+                      <p className="text-sm text-gray-400">Qty: {item.quantity}</p>
+                    </div>
+                    <p className="font-bold text-white">
+                      KES {(Number(item.price) * item.quantity).toLocaleString()}
+                    </p>
+                  </div>
+                  
+                  {/* Review Form - Show if order is delivered */}
+                  {order.status === 'DELIVERED' && order.deliveredAt && (
+                    <div className="bg-gray-700/50 border border-gray-600 rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-white mb-3">
+                        Review {item.product.name}
+                      </h3>
+                      <ReviewForm
+                        productId={item.productId}
+                        productName={item.product.name}
+                        orderId={order.id}
+                      />
                     </div>
                   )}
-                  <div className="flex-1">
-                    <p className="font-semibold text-white">{item.product.name}</p>
-                    <p className="text-sm text-gray-400">Qty: {item.quantity}</p>
-                  </div>
-                  <p className="font-bold text-white">
-                    KES {(Number(item.price) * item.quantity).toLocaleString()}
-                  </p>
                 </div>
               ))}
             </div>

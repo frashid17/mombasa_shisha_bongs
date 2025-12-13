@@ -4,7 +4,8 @@ import Link from 'next/link'
 import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
-import { ShoppingCart, User, Menu, LogOut, Settings } from 'lucide-react'
+import { useWishlistStore } from '@/store/wishlistStore'
+import { ShoppingCart, User, Menu, LogOut, Settings, Heart } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import Logo from './Logo'
 
@@ -15,17 +16,20 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [itemCount, setItemCount] = useState(0)
+  const [wishlistCount, setWishlistCount] = useState(0)
   const [isMounted, setIsMounted] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement>(null)
   
   // Get cart items from store
   const cartItems = useCartStore((state) => state.items)
+  const wishlistItems = useWishlistStore((state) => state.items)
 
   // Only update cart count after component mounts (client-side only)
   useEffect(() => {
     setIsMounted(true)
     setItemCount(cartItems.length)
-  }, [cartItems.length])
+    setWishlistCount(wishlistItems.length)
+  }, [cartItems.length, wishlistItems.length])
 
   // Close profile menu when clicking outside
   useEffect(() => {
@@ -125,6 +129,18 @@ export default function Navbar() {
             )}
 
             <Link
+              href="/wishlist"
+              className="relative flex items-center gap-2 hover:text-red-400 transition"
+            >
+              <Heart className="w-6 h-6" />
+              {isMounted && wishlistCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
               href="/cart"
               className="relative flex items-center gap-2 hover:text-blue-400 transition"
             >
@@ -160,6 +176,13 @@ export default function Navbar() {
                      onClick={() => setMobileMenuOpen(false)}
                    >
                      Categories
+                   </Link>
+                   <Link
+                     href="/wishlist"
+                     className="block py-2 hover:text-red-400 transition"
+                     onClick={() => setMobileMenuOpen(false)}
+                   >
+                     Wishlist {isMounted && wishlistCount > 0 && `(${wishlistCount})`}
                    </Link>
                    {isSignedIn && (
                      <Link

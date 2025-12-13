@@ -25,6 +25,29 @@ async function handlePOST(req: Request) {
 
     const productMap = new Map(products.map(p => [p.id, p]))
 
+    // Check stock availability and validate quantities
+    for (const item of validated.items) {
+      const product = productMap.get(item.productId)
+      if (!product) {
+        return createSecureResponse(
+          { success: false, error: `Product ${item.productId} not found` },
+          404
+        )
+      }
+
+      if (product.trackInventory && !product.allowBackorder) {
+        if (product.stock < item.quantity) {
+          return createSecureResponse(
+            {
+              success: false,
+              error: `Insufficient stock for ${product.name}. Available: ${product.stock}, Requested: ${item.quantity}`,
+            },
+            400
+          )
+        }
+      }
+    }
+
     // Calculate totals
     const subtotal = validated.items.reduce((sum, item) => {
       const product = productMap.get(item.productId)
@@ -90,6 +113,21 @@ async function handlePOST(req: Request) {
       },
       include: { items: { include: { product: true } }, payment: true },
     })
+
+    // Reduce stock for each product in the order
+    for (const item of validated.items) {
+      const product = productMap.get(item.productId)
+      if (product && product.trackInventory) {
+        await prisma.product.update({
+          where: { id: item.productId },
+          data: {
+            stock: {
+              decrement: item.quantity,
+            },
+          },
+        })
+      }
+    }
 
     // Send order confirmation notification (async, don't wait)
     sendOrderConfirmationNotification(order.id, {

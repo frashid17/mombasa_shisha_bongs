@@ -180,7 +180,42 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-900">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-white mb-8">Checkout</h1>
+        <h1 className="text-3xl font-bold text-white mb-4">Checkout</h1>
+        
+        {/* Account Benefits Message */}
+        {!user && (
+          <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-8">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 mt-0.5">
+                <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <p className="text-blue-300 font-semibold mb-1">Creating an account is optional but recommended</p>
+                <p className="text-blue-400 text-sm mb-3">
+                  With an account, you can track your orders, view order history, and get faster checkout next time. 
+                  You can still checkout as a guest, but you'll need your order number to track your delivery.
+                </p>
+                <div className="flex gap-2">
+                  <a
+                    href="/sign-up"
+                    className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Create Account
+                  </a>
+                  <a
+                    href="/sign-in"
+                    className="text-sm bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                  >
+                    Sign In
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Customer Information */}

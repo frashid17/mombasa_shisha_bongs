@@ -23,11 +23,27 @@ export async function PUT(
     // Get current order
     const currentOrder = await prisma.order.findUnique({
       where: { id },
-      include: { items: true },
+      include: { items: { include: { product: true } } },
     })
 
     if (!currentOrder) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+    }
+
+    // Restore stock if order is being cancelled and was previously not cancelled
+    if (validated.status === 'CANCELLED' && currentOrder.status !== 'CANCELLED') {
+      for (const item of currentOrder.items) {
+        if (item.product && item.product.trackInventory) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                increment: item.quantity,
+              },
+            },
+          })
+        }
+      }
     }
 
     // Update order status

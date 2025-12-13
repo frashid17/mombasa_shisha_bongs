@@ -138,12 +138,14 @@ export const initiateMpesaSchema = z.object({
 
 export const createReviewSchema = z.object({
   productId: z.string().cuid('Invalid product ID'),
+  orderId: z.string().cuid('Invalid order ID').optional(),
   rating: z.number().int().min(1, 'Rating must be at least 1').max(5, 'Rating cannot exceed 5'),
   title: z.string().max(255).optional(),
   comment: z
     .string()
     .min(10, 'Comment must be at least 10 characters')
     .max(5000, 'Comment cannot exceed 5000 characters'),
+  isAnonymous: z.boolean().default(false),
 })
 
 export const updateReviewSchema = z.object({

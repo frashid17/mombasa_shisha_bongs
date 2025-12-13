@@ -1,7 +1,8 @@
 import prisma from '@/lib/prisma'
 import { format } from 'date-fns'
 import Link from 'next/link'
-import { Eye, Mail, Phone } from 'lucide-react'
+import { Eye, Mail, Phone, Send } from 'lucide-react'
+import BulkEmailButton from '@/components/admin/customers/BulkEmailButton'
 
 async function getCustomers() {
   // Get unique customers from orders
@@ -67,8 +68,13 @@ export default async function CustomersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
-        <p className="text-gray-700 mt-1">Manage and view customer information</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
+            <p className="text-gray-700 mt-1">Manage and view customer information</p>
+          </div>
+          <BulkEmailButton customerCount={customers.length} />
+        </div>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
