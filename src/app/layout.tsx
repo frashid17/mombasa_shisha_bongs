@@ -8,6 +8,7 @@ import ConditionalNavbar from "@/components/ConditionalNavbar";
 import Footer from "@/components/Footer";
 import AgeVerification from "@/components/AgeVerification";
 import FloatingContactButtons from "@/components/FloatingContactButtons";
+import PageLoader from "@/components/PageLoader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,6 +72,7 @@ export default async function RootLayout({
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-gray-100`}
         >
+          <PageLoader />
           <AgeVerification />
           {!isAdminRoute && <ConditionalNavbar />}
           {children}
