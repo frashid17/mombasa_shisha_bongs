@@ -46,10 +46,11 @@ export async function POST(req: Request) {
 
     // Check if we're in production (Vercel) or development
     const isProduction = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production'
+    const hasBlobToken = !!process.env.BLOB_READ_WRITE_TOKEN
 
     let publicUrl: string
 
-    if (isProduction) {
+    if (isProduction && hasBlobToken) {
       // In production (Vercel), use Vercel Blob Storage
       try {
         const blob = await put(`uploads/${uploadType}/${filename}`, file, {
@@ -59,12 +60,20 @@ export async function POST(req: Request) {
         publicUrl = blob.url
       } catch (blobError: any) {
         console.error('Vercel Blob upload error:', blobError)
-        // Fallback: if Blob Storage fails, return error
-        return NextResponse.json(
-          { error: 'Failed to upload to storage. Please check BLOB_READ_WRITE_TOKEN is set.' },
-          { status: 500 }
-        )
+        // Fallback: if Blob Storage fails, use Base64 (temporary solution)
+        console.warn('Falling back to Base64 encoding (not recommended for production)')
+        const bytes = await file.arrayBuffer()
+        const buffer = Buffer.from(bytes)
+        const base64 = buffer.toString('base64')
+        publicUrl = `data:${file.type};base64,${base64}`
       }
+    } else if (isProduction && !hasBlobToken) {
+      // Production but no Blob token - use Base64 as fallback
+      console.warn('BLOB_READ_WRITE_TOKEN not set. Using Base64 encoding (temporary). Please set up Vercel Blob Storage.')
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      const base64 = buffer.toString('base64')
+      publicUrl = `data:${file.type};base64,${base64}`
     } else {
       // In development, save to local filesystem
       const uploadsDir = join(process.cwd(), 'public', 'uploads', uploadType)
