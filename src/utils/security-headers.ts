@@ -23,22 +23,23 @@ export const SECURITY_HEADERS = {
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   
   // Permissions policy (restrict browser features)
+  // Allow geolocation for location picker
   'Permissions-Policy': [
     'camera=()',
     'microphone=()',
-    'geolocation=()',
+    'geolocation=(self)', // Allow geolocation for location picker
     'interest-cohort=()',
   ].join(', '),
   
   // Content Security Policy
-  // More permissive for Clerk CAPTCHA - allows all necessary domains
+  // More permissive for Clerk CAPTCHA and Leaflet maps - allows all necessary domains
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://*.google.com https://www.google.com https://www.gstatic.com https://www.google-analytics.com https://js.stripe.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://*.google.com https://www.google.com https://www.gstatic.com https://www.google-analytics.com https://js.stripe.com https://unpkg.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://unpkg.com",
     "font-src 'self' https://fonts.gstatic.com data: https://*.clerk.com https://*.clerk.accounts.dev",
-    "img-src 'self' data: https: blob: https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://www.gstatic.com",
-    "connect-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://api.resend.com https://api.twilio.com https://sandbox.safaricom.co.ke https://api.safaricom.co.ke https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://www.gstatic.com wss://*.clerk.com",
+    "img-src 'self' data: https: blob: https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://www.gstatic.com https://*.tile.openstreetmap.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org",
+    "connect-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://api.resend.com https://api.twilio.com https://sandbox.safaricom.co.ke https://api.safaricom.co.ke https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://www.gstatic.com https://*.tile.openstreetmap.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org wss://*.clerk.com",
     "frame-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://js.stripe.com",
     "object-src 'none'",
     "base-uri 'self'",

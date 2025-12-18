@@ -81,26 +81,32 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         setLoading(false)
       },
       (err) => {
-        let errorMessage = 'Unable to get your location. '
-        
-        // Provide more specific error messages
-        switch (err.code) {
-          case err.PERMISSION_DENIED:
-            errorMessage += 'Location permission was denied. Please enable location access in your browser settings or select a location on the map.'
-            break
-          case err.POSITION_UNAVAILABLE:
-            errorMessage += 'Location information is unavailable. Please select a location on the map.'
-            break
-          case err.TIMEOUT:
-            errorMessage += 'Location request timed out. Please try again or select a location on the map.'
-            break
-          default:
-            errorMessage += 'Please select a location on the map.'
-            break
+        // Don't show error for permission denied - map should still work
+        // User can click on map to select location
+        if (err.code === err.PERMISSION_DENIED) {
+          setError(null) // Clear error - map is still usable
+          setLoading(false)
+          // Optionally show a non-blocking info message
+          console.info('Location permission denied. You can still select a location by clicking on the map.')
+        } else {
+          let errorMessage = 'Unable to get your location. '
+          
+          // Provide more specific error messages for other errors
+          switch (err.code) {
+            case err.POSITION_UNAVAILABLE:
+              errorMessage += 'Location information is unavailable. Please click on the map to select a location.'
+              break
+            case err.TIMEOUT:
+              errorMessage += 'Location request timed out. Please click on the map to select a location.'
+              break
+            default:
+              errorMessage += 'Please click on the map to select a location.'
+              break
+          }
+          
+          setError(errorMessage)
+          setLoading(false)
         }
-        
-        setError(errorMessage)
-        setLoading(false)
       },
       options
     )
@@ -177,11 +183,55 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
     // Store cleanup function
     let cleanupResize: (() => void) | null = null
 
-    // If no API key, use Leaflet (free alternative)
-    if (!apiKey) {
+    // Check if Google Maps is already loaded
+    const isGoogleMapsLoaded = () => {
+      return typeof (window as any).google !== 'undefined' && 
+             typeof (window as any).google.maps !== 'undefined'
+    }
+
+    // Check if script is already in the DOM
+    const isScriptLoaded = () => {
+      return document.querySelector('script[src*="maps.googleapis.com"]') !== null
+    }
+
+    // Helper function to initialize Leaflet
+    const initializeLeaflet = () => {
+      if (mapTypeRef.current === 'leaflet' && mapInstanceRef.current) {
+        // Already initialized
+        return
+      }
+
+      // Check if Leaflet is already loaded (not just script tag exists)
+      if (typeof (window as any).L !== 'undefined') {
+        // Leaflet already loaded, just initialize map
+        initLeafletMap()
+        return
+      }
+
+      // Check if Leaflet script is already loading
+      if (document.querySelector('script#leaflet-script')) {
+        // Script is loading, wait for it
+        const checkLeaflet = setInterval(() => {
+          if (typeof (window as any).L !== 'undefined') {
+            clearInterval(checkLeaflet)
+            initLeafletMap()
+          }
+        }, 100)
+        
+        // Timeout after 5 seconds
+        setTimeout(() => {
+          clearInterval(checkLeaflet)
+          if (typeof (window as any).L === 'undefined') {
+            console.error('Leaflet failed to load after timeout')
+          }
+        }, 5000)
+        return
+      }
+
       // Use Leaflet for free map
       const leafletScript = document.createElement('script')
       leafletScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+      leafletScript.id = 'leaflet-script'
       leafletScript.onload = () => {
         // Check if Leaflet CSS is already loaded
         if (!document.querySelector('link[href*="leaflet.css"]')) {
@@ -257,103 +307,297 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       document.head.appendChild(leafletScript)
     }
 
-    // Load Google Maps script
-    const script = document.createElement('script')
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
-    script.async = true
-    script.defer = true
-    script.onload = () => {
+    // Helper function to initialize Leaflet map
+    const initLeafletMap = () => {
       if (!mapRef.current) return
 
-      // Default to Mombasa center if no location
-      const center = location || { lat: -4.0435, lng: 39.6682 }
+      const L = (window as any).L
+      if (!L) {
+        console.error('Leaflet not loaded')
+        return
+      }
 
-      const map = new (window as any).google.maps.Map(mapRef.current, {
-        center,
-        zoom: 13,
-        disableDefaultUI: false,
+      const center = location || [-4.0435, 39.6682]
+
+      const map = L.map(mapRef.current, {
         zoomControl: true,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: true,
-        gestureHandling: 'greedy', // Better touch handling on mobile
-        styles: [
-          {
-            featureType: 'all',
-            elementType: 'geometry',
-            stylers: [{ color: '#1f2937' }],
-          },
-          {
-            featureType: 'all',
-            elementType: 'labels.text.fill',
-            stylers: [{ color: '#9ca3af' }],
-          },
-          {
-            featureType: 'water',
-            elementType: 'geometry',
-            stylers: [{ color: '#1e3a8a' }],
-          },
-        ],
+        attributionControl: true,
+        tap: true,
+        touchZoom: true,
+        doubleClickZoom: true,
+      }).setView(center, 13)
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+      }).addTo(map)
+
+      const marker = L.marker(center, { draggable: true }).addTo(map)
+
+      marker.on('dragend', async () => {
+        const position = marker.getLatLng()
+        const lat = position.lat
+        const lng = position.lng
+        setLocation({ lat, lng })
+        await checkLocationAndGetAddress(lat, lng)
+      })
+
+      map.on('click', async (e: any) => {
+        const lat = e.latlng.lat
+        const lng = e.latlng.lng
+        marker.setLatLng([lat, lng])
+        setLocation({ lat, lng })
+        await checkLocationAndGetAddress(lat, lng)
       })
 
       mapInstanceRef.current = map
-
-      // Ensure map renders properly (multiple attempts for mobile)
-      const triggerResize = () => {
-        const google = (window as any).google
-        if (google && google.maps && google.maps.event) {
-          google.maps.event.trigger(map, 'resize')
-        }
-      }
-      
-      setTimeout(triggerResize, 200)
-      setTimeout(triggerResize, 500)
-      setTimeout(triggerResize, 1000)
-
-      // Add marker
-      const marker = new (window as any).google.maps.Marker({
-        position: center,
-        map,
-        draggable: true,
-        title: 'Drag to select delivery location',
-      })
-
       markerRef.current = marker
-      mapTypeRef.current = 'google'
+      mapTypeRef.current = 'leaflet'
 
-      // Handle marker drag
-      marker.addListener('dragend', async () => {
-        const position = marker.getPosition()
-        const lat = position.lat()
-        const lng = position.lng()
-        setLocation({ lat, lng })
-        await checkLocationAndGetAddress(lat, lng)
-      })
+      setTimeout(() => map.invalidateSize(), 200)
+      setTimeout(() => map.invalidateSize(), 500)
+      setTimeout(() => map.invalidateSize(), 1000)
 
-      // Handle map click
-      map.addListener('click', async (e: any) => {
-        const lat = e.latLng.lat()
-        const lng = e.latLng.lng()
-        marker.setPosition({ lat, lng })
-        setLocation({ lat, lng })
-        await checkLocationAndGetAddress(lat, lng)
-      })
-
-      // Get initial location if available
       if (location) {
         checkLocationAndGetAddress(location.lat, location.lng)
       }
     }
 
-    document.head.appendChild(script)
+    // Helper function to initialize Google Map (when already loaded)
+    const initializeGoogleMap = () => {
+      if (!mapRef.current || !isGoogleMapsLoaded()) return
+
+      try {
+        const center = location || { lat: -4.0435, lng: 39.6682 }
+
+        const map = new (window as any).google.maps.Map(mapRef.current, {
+          center,
+          zoom: 13,
+          disableDefaultUI: false,
+          zoomControl: true,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true,
+          gestureHandling: 'greedy',
+          styles: [
+            {
+              featureType: 'all',
+              elementType: 'geometry',
+              stylers: [{ color: '#1f2937' }],
+            },
+            {
+              featureType: 'all',
+              elementType: 'labels.text.fill',
+              stylers: [{ color: '#9ca3af' }],
+            },
+            {
+              featureType: 'water',
+              elementType: 'geometry',
+              stylers: [{ color: '#1e3a8a' }],
+            },
+          ],
+        })
+
+        mapInstanceRef.current = map
+
+        const triggerResize = () => {
+          const google = (window as any).google
+          if (google && google.maps && google.maps.event) {
+            google.maps.event.trigger(map, 'resize')
+          }
+        }
+        
+        setTimeout(triggerResize, 200)
+        setTimeout(triggerResize, 500)
+        setTimeout(triggerResize, 1000)
+
+        const marker = new (window as any).google.maps.Marker({
+          position: center,
+          map,
+          draggable: true,
+          title: 'Drag to select delivery location',
+        })
+
+        markerRef.current = marker
+        mapTypeRef.current = 'google'
+
+        marker.addListener('dragend', async () => {
+          const position = marker.getPosition()
+          const lat = position.lat()
+          const lng = position.lng()
+          setLocation({ lat, lng })
+          await checkLocationAndGetAddress(lat, lng)
+        })
+
+        map.addListener('click', async (e: any) => {
+          const lat = e.latLng.lat()
+          const lng = e.latLng.lng()
+          marker.setPosition({ lat, lng })
+          setLocation({ lat, lng })
+          await checkLocationAndGetAddress(lat, lng)
+        })
+
+        if (location) {
+          checkLocationAndGetAddress(location.lat, location.lng)
+        }
+      } catch (error: any) {
+        console.error('Google Maps initialization error:', error)
+        if (error.message?.includes('InvalidKey') || error.message?.includes('InvalidKeyMapError')) {
+          console.warn('Invalid Google Maps API key. Falling back to Leaflet.')
+          initializeLeaflet()
+        }
+      }
+    }
+
+    // If no API key, use Leaflet (free alternative)
+    if (!apiKey) {
+      initializeLeaflet()
+    } else if (isGoogleMapsLoaded()) {
+      // Google Maps already loaded, just initialize
+      initializeGoogleMap()
+    } else if (!isScriptLoaded()) {
+      // Load Google Maps script (only if not already loaded)
+      const script = document.createElement('script')
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`
+      script.async = true
+      script.defer = true
+      script.id = 'google-maps-script' // Prevent duplicates
+      
+      script.onload = () => {
+        if (!mapRef.current) return
+
+        // Check if Google Maps loaded successfully
+        if (!isGoogleMapsLoaded()) {
+          console.warn('Google Maps failed to load. Falling back to Leaflet.')
+          initializeLeaflet()
+          return
+        }
+
+        try {
+          // Default to Mombasa center if no location
+          const center = location || { lat: -4.0435, lng: 39.6682 }
+
+          const map = new (window as any).google.maps.Map(mapRef.current, {
+            center,
+            zoom: 13,
+            disableDefaultUI: false,
+            zoomControl: true,
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: true,
+            gestureHandling: 'greedy', // Better touch handling on mobile
+            styles: [
+              {
+                featureType: 'all',
+                elementType: 'geometry',
+                stylers: [{ color: '#1f2937' }],
+              },
+              {
+                featureType: 'all',
+                elementType: 'labels.text.fill',
+                stylers: [{ color: '#9ca3af' }],
+              },
+              {
+                featureType: 'water',
+                elementType: 'geometry',
+                stylers: [{ color: '#1e3a8a' }],
+              },
+            ],
+          })
+
+          mapInstanceRef.current = map
+
+          // Ensure map renders properly (multiple attempts for mobile)
+          const triggerResize = () => {
+            const google = (window as any).google
+            if (google && google.maps && google.maps.event) {
+              google.maps.event.trigger(map, 'resize')
+            }
+          }
+          
+          setTimeout(triggerResize, 200)
+          setTimeout(triggerResize, 500)
+          setTimeout(triggerResize, 1000)
+
+          // Add marker
+          const marker = new (window as any).google.maps.Marker({
+            position: center,
+            map,
+            draggable: true,
+            title: 'Drag to select delivery location',
+          })
+
+          markerRef.current = marker
+          mapTypeRef.current = 'google'
+
+          // Handle marker drag
+          marker.addListener('dragend', async () => {
+            const position = marker.getPosition()
+            const lat = position.lat()
+            const lng = position.lng()
+            setLocation({ lat, lng })
+            await checkLocationAndGetAddress(lat, lng)
+          })
+
+          // Handle map click
+          map.addListener('click', async (e: any) => {
+            const lat = e.latLng.lat()
+            const lng = e.latLng.lng()
+            marker.setPosition({ lat, lng })
+            setLocation({ lat, lng })
+            await checkLocationAndGetAddress(lat, lng)
+          })
+
+          // Get initial location if available
+          if (location) {
+            checkLocationAndGetAddress(location.lat, location.lng)
+          }
+        } catch (error: any) {
+          console.error('Google Maps initialization error:', error)
+          // If there's an error (e.g., invalid key), fallback to Leaflet
+          if (error.message?.includes('InvalidKey') || error.message?.includes('InvalidKeyMapError')) {
+            console.warn('Invalid Google Maps API key. Falling back to Leaflet.')
+            initializeLeaflet()
+          } else {
+            // Other errors, also fallback
+            console.warn('Google Maps error. Falling back to Leaflet.')
+            initializeLeaflet()
+          }
+        }
+      }
+
+      script.onerror = () => {
+        console.warn('Failed to load Google Maps script. Falling back to Leaflet.')
+        initializeLeaflet()
+      }
+
+      // Add global error handler for Google Maps errors
+      const originalError = window.onerror
+      window.onerror = (message, source, lineno, colno, error) => {
+        if (typeof message === 'string' && (message.includes('InvalidKey') || message.includes('InvalidKeyMapError'))) {
+          console.warn('Google Maps API key error detected. Falling back to Leaflet.')
+          initializeLeaflet()
+          // Restore original error handler
+          window.onerror = originalError
+          return true
+        }
+        // Call original error handler if it exists
+        if (originalError) {
+          return originalError(message, source, lineno, colno, error)
+        }
+        return false
+      }
+
+      document.head.appendChild(script)
+    } else if (isGoogleMapsLoaded()) {
+      // Google Maps already loaded, just initialize the map
+      initializeGoogleMap()
+    }
 
     return () => {
       // Cleanup
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('orientationchange', handleResize)
-      if (script.parentNode) {
-        script.parentNode.removeChild(script)
-      }
     }
   }, [])
 
@@ -387,9 +631,12 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
             touchAction: 'pan-x pan-y', // Enable touch gestures
           }}
         />
-        {!location && (
+        {!location && !error && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-800/80 rounded-lg pointer-events-none z-10">
-            <p className="text-gray-400 text-sm">Click on map or use "Use My Location" to select</p>
+            <div className="text-center">
+              <p className="text-gray-400 text-sm mb-2">Loading map...</p>
+              <p className="text-gray-500 text-xs">Click on map or use "Use My Location" to select</p>
+            </div>
           </div>
         )}
       </div>
