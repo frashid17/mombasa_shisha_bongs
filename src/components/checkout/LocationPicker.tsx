@@ -161,47 +161,66 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       const leafletScript = document.createElement('script')
       leafletScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
       leafletScript.onload = () => {
-        const leafletCss = document.createElement('link')
-        leafletCss.rel = 'stylesheet'
-        leafletCss.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
-        document.head.appendChild(leafletCss)
-
-        if (!mapRef.current) return
-
-        const L = (window as any).L
-        const center = location || [-4.0435, 39.6682]
-
-        const map = L.map(mapRef.current).setView(center, 13)
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-        }).addTo(map)
-
-        const marker = L.marker(center, { draggable: true }).addTo(map)
-
-        marker.on('dragend', async () => {
-          const position = marker.getLatLng()
-          const lat = position.lat
-          const lng = position.lng
-          setLocation({ lat, lng })
-          await checkLocationAndGetAddress(lat, lng)
-        })
-
-        map.on('click', async (e: any) => {
-          const lat = e.latlng.lat
-          const lng = e.latlng.lng
-          marker.setLatLng([lat, lng])
-          setLocation({ lat, lng })
-          await checkLocationAndGetAddress(lat, lng)
-        })
-
-        mapInstanceRef.current = map
-        markerRef.current = marker
-        mapTypeRef.current = 'leaflet'
-
-        if (location) {
-          checkLocationAndGetAddress(location.lat, location.lng)
+        // Check if Leaflet CSS is already loaded
+        if (!document.querySelector('link[href*="leaflet.css"]')) {
+          const leafletCss = document.createElement('link')
+          leafletCss.rel = 'stylesheet'
+          leafletCss.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+          document.head.appendChild(leafletCss)
         }
+
+        // Wait a bit for CSS to load
+        setTimeout(() => {
+          if (!mapRef.current) return
+
+          const L = (window as any).L
+          if (!L) {
+            console.error('Leaflet not loaded')
+            return
+          }
+
+          const center = location || [-4.0435, 39.6682]
+
+          const map = L.map(mapRef.current, {
+            zoomControl: true,
+            attributionControl: true,
+          }).setView(center, 13)
+
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+          }).addTo(map)
+
+          const marker = L.marker(center, { draggable: true }).addTo(map)
+
+          marker.on('dragend', async () => {
+            const position = marker.getLatLng()
+            const lat = position.lat
+            const lng = position.lng
+            setLocation({ lat, lng })
+            await checkLocationAndGetAddress(lat, lng)
+          })
+
+          map.on('click', async (e: any) => {
+            const lat = e.latlng.lat
+            const lng = e.latlng.lng
+            marker.setLatLng([lat, lng])
+            setLocation({ lat, lng })
+            await checkLocationAndGetAddress(lat, lng)
+          })
+
+          mapInstanceRef.current = map
+          markerRef.current = marker
+          mapTypeRef.current = 'leaflet'
+
+          // Force map to resize and render
+          setTimeout(() => {
+            map.invalidateSize()
+          }, 100)
+
+          if (location) {
+            checkLocationAndGetAddress(location.lat, location.lng)
+          }
+        }, 100)
       }
       document.head.appendChild(leafletScript)
       return
@@ -221,6 +240,11 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       const map = new (window as any).google.maps.Map(mapRef.current, {
         center,
         zoom: 13,
+        disableDefaultUI: false,
+        zoomControl: true,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true,
         styles: [
           {
             featureType: 'all',
@@ -239,6 +263,16 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
           },
         ],
       })
+
+      // Ensure map renders properly
+      setTimeout(() => {
+        if (map) {
+          const google = (window as any).google
+          if (google && google.maps && google.maps.event) {
+            google.maps.event.trigger(map, 'resize')
+          }
+        }
+      }, 100)
 
       mapInstanceRef.current = map
 
@@ -305,9 +339,13 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       </div>
 
       <div className="relative">
-        <div ref={mapRef} className="w-full h-64 rounded-lg border border-gray-600" />
+        <div 
+          ref={mapRef} 
+          className="w-full h-64 rounded-lg border border-gray-600 bg-gray-800"
+          style={{ minHeight: '256px', position: 'relative', zIndex: 0 }}
+        />
         {!location && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-800/80 rounded-lg">
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-800/80 rounded-lg pointer-events-none z-10">
             <p className="text-gray-400 text-sm">Click on map or use "Use My Location" to select</p>
           </div>
         )}

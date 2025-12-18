@@ -3,26 +3,32 @@ import { NextResponse } from 'next/server'
 import { addSecurityHeaders } from '@/utils/security-headers'
 
 export default clerkMiddleware(async (auth, req) => {
+  // Always return a response, even if something fails
+  const response = NextResponse.next()
+  
   try {
-    // Get response
-    const response = NextResponse.next()
-
     // Add pathname to headers for conditional rendering in layout
-    const pathname = req.nextUrl.pathname
+    const pathname = req.nextUrl.pathname || '/'
     response.headers.set('x-pathname', pathname)
 
     // Only add security headers in production
     // In development, CSP might be too restrictive for Clerk CAPTCHA
-    if (process.env.NODE_ENV === 'production') {
-      addSecurityHeaders(response)
-    } else {
-      // In development, only add non-CSP headers
-      response.headers.set('X-Content-Type-Options', 'nosniff')
-      response.headers.set('X-Frame-Options', 'DENY')
-      response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+    try {
+      if (process.env.NODE_ENV === 'production') {
+        addSecurityHeaders(response)
+      } else {
+        // In development, only add non-CSP headers
+        response.headers.set('X-Content-Type-Options', 'nosniff')
+        response.headers.set('X-Frame-Options', 'DENY')
+        response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+      }
+    } catch (headerError) {
+      // Security headers are non-critical - continue
+      console.error('Security headers error:', headerError)
     }
 
     // Add user ID to headers for rate limiting (if authenticated)
+    // This is optional and should never fail the request
     try {
       const authResult = await auth()
       if (authResult?.userId) {
@@ -30,17 +36,18 @@ export default clerkMiddleware(async (auth, req) => {
       }
     } catch (authError) {
       // Auth errors are non-fatal - continue without user ID
-      console.error('Auth error in middleware:', authError)
+      // This is expected if Clerk keys are missing or invalid
     }
-
-    return response
   } catch (error) {
-    // If middleware fails, return a basic response
-    console.error('Middleware error:', error)
-    const response = NextResponse.next()
-    response.headers.set('x-pathname', req.nextUrl.pathname)
-    return response
+    // If anything fails, still return a response
+    // Log error but don't break the request
+    console.error('Middleware error (non-fatal):', error)
+    // Ensure pathname is set even on error
+    const pathname = req.nextUrl.pathname || '/'
+    response.headers.set('x-pathname', pathname)
   }
+
+  return response
 })
 
 export const config = {

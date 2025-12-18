@@ -2,6 +2,9 @@ import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import AdminLayoutClient from '@/components/admin/AdminLayoutClient'
 
+// Mark admin layout as dynamic since it uses auth()
+export const dynamic = 'force-dynamic'
+
 export default async function AdminLayout({
   children,
 }: {
