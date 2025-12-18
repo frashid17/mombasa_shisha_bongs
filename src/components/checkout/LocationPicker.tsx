@@ -155,6 +155,28 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
 
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
+    // Helper function to invalidate map size (for mobile)
+    const invalidateMapSize = () => {
+      if (mapInstanceRef.current && mapTypeRef.current) {
+        if (mapTypeRef.current === 'leaflet') {
+          mapInstanceRef.current.invalidateSize()
+        } else if (mapTypeRef.current === 'google') {
+          const google = (window as any).google
+          if (google && google.maps && google.maps.event) {
+            google.maps.event.trigger(mapInstanceRef.current, 'resize')
+          }
+        }
+      }
+    }
+
+    // Add resize listener for mobile orientation changes
+    const handleResize = () => {
+      setTimeout(invalidateMapSize, 100)
+    }
+    
+    // Store cleanup function
+    let cleanupResize: (() => void) | null = null
+
     // If no API key, use Leaflet (free alternative)
     if (!apiKey) {
       // Use Leaflet for free map
@@ -169,7 +191,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
           document.head.appendChild(leafletCss)
         }
 
-        // Wait a bit for CSS to load
+        // Wait for CSS and ensure container is ready (longer delay for mobile)
         setTimeout(() => {
           if (!mapRef.current) return
 
@@ -184,10 +206,14 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
           const map = L.map(mapRef.current, {
             zoomControl: true,
             attributionControl: true,
+            tap: true, // Enable touch events
+            touchZoom: true,
+            doubleClickZoom: true,
           }).setView(center, 13)
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors',
+            maxZoom: 19,
           }).addTo(map)
 
           const marker = L.marker(center, { draggable: true }).addTo(map)
@@ -212,18 +238,23 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
           markerRef.current = marker
           mapTypeRef.current = 'leaflet'
 
-          // Force map to resize and render
+          // Force map to resize and render (multiple attempts for mobile)
           setTimeout(() => {
             map.invalidateSize()
-          }, 100)
+          }, 200)
+          setTimeout(() => {
+            map.invalidateSize()
+          }, 500)
+          setTimeout(() => {
+            map.invalidateSize()
+          }, 1000)
 
           if (location) {
             checkLocationAndGetAddress(location.lat, location.lng)
           }
-        }, 100)
+        }, 300) // Longer delay for mobile
       }
       document.head.appendChild(leafletScript)
-      return
     }
 
     // Load Google Maps script
@@ -245,6 +276,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: true,
+        gestureHandling: 'greedy', // Better touch handling on mobile
         styles: [
           {
             featureType: 'all',
@@ -264,17 +296,19 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         ],
       })
 
-      // Ensure map renders properly
-      setTimeout(() => {
-        if (map) {
-          const google = (window as any).google
-          if (google && google.maps && google.maps.event) {
-            google.maps.event.trigger(map, 'resize')
-          }
-        }
-      }, 100)
-
       mapInstanceRef.current = map
+
+      // Ensure map renders properly (multiple attempts for mobile)
+      const triggerResize = () => {
+        const google = (window as any).google
+        if (google && google.maps && google.maps.event) {
+          google.maps.event.trigger(map, 'resize')
+        }
+      }
+      
+      setTimeout(triggerResize, 200)
+      setTimeout(triggerResize, 500)
+      setTimeout(triggerResize, 1000)
 
       // Add marker
       const marker = new (window as any).google.maps.Marker({
@@ -315,6 +349,8 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
 
     return () => {
       // Cleanup
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('orientationchange', handleResize)
       if (script.parentNode) {
         script.parentNode.removeChild(script)
       }
@@ -342,7 +378,14 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
         <div 
           ref={mapRef} 
           className="w-full h-64 rounded-lg border border-gray-600 bg-gray-800"
-          style={{ minHeight: '256px', position: 'relative', zIndex: 0 }}
+          style={{ 
+            minHeight: '256px', 
+            height: '256px',
+            width: '100%',
+            position: 'relative', 
+            zIndex: 0,
+            touchAction: 'pan-x pan-y', // Enable touch gestures
+          }}
         />
         {!location && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-800/80 rounded-lg pointer-events-none z-10">
