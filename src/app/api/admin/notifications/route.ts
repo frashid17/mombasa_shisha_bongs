@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import prisma from '@/lib/prisma'
 import { requireAdmin } from '@/utils/auth'
+import { NotificationStatus } from '@/generated/prisma'
 
 export async function GET(req: Request) {
   try {
@@ -17,7 +18,7 @@ export async function GET(req: Request) {
     // Get recent notifications
     const where = unreadOnly
       ? {
-          status: { in: ['PENDING', 'FAILED'] },
+          status: { in: [NotificationStatus.PENDING, NotificationStatus.FAILED] },
         }
       : {}
 
@@ -37,7 +38,7 @@ export async function GET(req: Request) {
     // Get unread count (PENDING or FAILED notifications)
     const unreadCount = await prisma.notification.count({
       where: {
-        status: { in: ['PENDING', 'FAILED'] },
+        status: { in: [NotificationStatus.PENDING, NotificationStatus.FAILED] },
       },
     })
 

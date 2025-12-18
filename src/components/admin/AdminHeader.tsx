@@ -2,9 +2,13 @@
 
 import Link from 'next/link'
 import { UserButton } from '@clerk/nextjs'
-import { Bell, Store, Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Bell, Store, Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock, Menu } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { format } from 'date-fns'
+
+interface AdminHeaderProps {
+  onMenuClick: () => void
+}
 
 interface Notification {
   id: string
@@ -18,7 +22,7 @@ interface Notification {
   orderNumber: string | null
 }
 
-export default function AdminHeader() {
+export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
@@ -86,29 +90,40 @@ export default function AdminHeader() {
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-      <div className="flex items-center justify-between h-16 px-8">
-        {/* Logo & Title */}
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between h-16 px-4 lg:px-8">
+        {/* Mobile Menu Button & Logo */}
+        <div className="flex items-center gap-3 lg:gap-4">
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+            aria-label="Open menu"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
           <Link href="/admin" className="flex items-center gap-2">
-            <Store className="w-8 h-8 text-primary-600" />
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">
+            <Store className="w-6 h-6 lg:w-8 lg:h-8 text-primary-600" />
+            <div className="hidden sm:block">
+              <h1 className="text-base lg:text-lg font-bold text-gray-900">
                 Mombasa Shisha Bongs
               </h1>
               <p className="text-xs text-gray-500">Admin Dashboard</p>
+            </div>
+            <div className="sm:hidden">
+              <h1 className="text-sm font-bold text-gray-900">MSB Admin</h1>
             </div>
           </Link>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-4">
-          {/* View Store */}
+        <div className="flex items-center gap-2 lg:gap-4">
+          {/* View Store Button */}
           <Link
             href="/"
             target="_blank"
-            className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
-            View Store →
+            <Store className="w-4 h-4" />
+            <span className="hidden sm:inline">View Store</span>
           </Link>
 
           {/* Notifications */}
@@ -128,7 +143,7 @@ export default function AdminHeader() {
 
             {/* Notifications Dropdown */}
             {isOpen && (
-              <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 max-h-[600px] overflow-hidden flex flex-col">
+              <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-lg shadow-xl border border-gray-200 max-h-[600px] overflow-hidden flex flex-col">
                 <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                   <h3 className="font-semibold text-gray-900">Notifications</h3>
                   <Link

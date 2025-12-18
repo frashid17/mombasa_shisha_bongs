@@ -6,6 +6,10 @@ import BuyNowButton from '@/components/cart/BuyNowButton'
 import AddToWishlistButton from '@/components/wishlist/AddToWishlistButton'
 import ProductRecommendations from '@/components/products/ProductRecommendations'
 import ProductReviews from '@/components/products/ProductReviews'
+import FrequentlyBoughtTogether from '@/components/products/FrequentlyBoughtTogether'
+import StockNotificationButton from '@/components/products/StockNotificationButton'
+import SocialShareButtons from '@/components/products/SocialShareButtons'
+import TrackProductView from '@/components/products/TrackProductView'
 import { getRecommendedProducts } from '@/lib/recommendations'
 import { serializeProduct, serializeProducts } from '@/lib/prisma-serialize'
 
@@ -39,6 +43,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-gray-900">
+      <TrackProductView productId={id} />
       <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Images */}
@@ -82,11 +87,25 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <AddToWishlistButton product={serializedProduct} />
           </div>
 
+          <SocialShareButtons
+            productName={product.name}
+            productUrl={`/products/${product.id}`}
+            productImage={product.images[0]?.url}
+          />
+
           {product.stock > 0 && (
             <div className="flex flex-col sm:flex-row gap-3">
               <AddToCartButton product={serializedProduct} />
               <BuyNowButton product={serializedProduct} />
             </div>
+          )}
+
+          {product.stock === 0 && (
+            <StockNotificationButton
+              productId={product.id}
+              productName={product.name}
+              isInStock={false}
+            />
           )}
         </div>
       </div>
@@ -96,6 +115,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         ...review,
         title: review.title ?? undefined,
       }))} />
+
+      {/* Frequently Bought Together */}
+      <FrequentlyBoughtTogether productId={id} />
 
       {/* Recommendations */}
       <ProductRecommendations products={serializedRecommendations} />

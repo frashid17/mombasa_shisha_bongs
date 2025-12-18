@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { headers } from "next/headers";
+import { Suspense } from "react";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
+import Footer from "@/components/Footer";
 import AgeVerification from "@/components/AgeVerification";
 import FloatingContactButtons from "@/components/FloatingContactButtons";
-import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,11 +25,12 @@ export const metadata: Metadata = {
   keywords: ["shisha", "hookah", "vape", "tobacco", "mombasa", "kenya"],
   icons: {
     icon: [
+      { url: '/uploads/hookah.svg', type: 'image/svg+xml' },
       { url: '/logo.png', type: 'image/png' },
       { url: '/favicon.ico', type: 'image/x-icon' },
     ],
-    apple: '/logo.png',
-    shortcut: '/favicon.ico',
+    apple: '/uploads/hookah.svg',
+    shortcut: '/uploads/hookah.svg',
   },
   openGraph: {
     title: "Mombasa Shisha Bongs - Premium Shisha & Vapes",
@@ -36,26 +39,34 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers()
+  const pathname = headersList.get('x-pathname') || ''
+  const isAdminRoute = pathname.startsWith('/admin')
+
   return (
     <ClerkProvider>
       <html lang="en">
         <head>
-          <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+          <link rel="icon" href="/uploads/hookah.svg" type="image/svg+xml" />
           <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
-          <link rel="apple-touch-icon" href="/logo.png" />
+          <link rel="apple-touch-icon" href="/uploads/hookah.svg" />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-gray-100`}
         >
           <AgeVerification />
-          <Navbar />
+          {!isAdminRoute && <ConditionalNavbar />}
           {children}
-          <Footer />
+          {!isAdminRoute && (
+            <Suspense fallback={<div className="h-64 bg-gray-900" />}>
+              <Footer />
+            </Suspense>
+          )}
           <FloatingContactButtons />
         </body>
       </html>

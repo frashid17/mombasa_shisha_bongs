@@ -1,7 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import AdminSidebar from '@/components/admin/AdminSidebar'
-import AdminHeader from '@/components/admin/AdminHeader'
+import AdminLayoutClient from '@/components/admin/AdminLayoutClient'
 
 export default async function AdminLayout({
   children,
@@ -50,51 +49,11 @@ export default async function AdminLayout({
       )
     }
   } catch (error: any) {
-    // Handle Clerk API errors gracefully
+    // Handle Clerk API errors - redirect to sign in
     console.error('Admin layout error:', error)
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Authentication Error</h1>
-          <p className="text-gray-600 mb-6">
-            There was an error checking your authentication. Please try signing out and signing back in.
-          </p>
-          <div className="space-y-3">
-            <a
-              href="/sign-out"
-              className="inline-block bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors mr-3"
-            >
-              Sign Out
-            </a>
-            <a
-              href="/"
-              className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Go to Home
-            </a>
-          </div>
-        </div>
-      </div>
-    )
+    redirect('/sign-in?redirect_url=/admin')
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Admin Header */}
-      <AdminHeader />
-
-      <div className="flex">
-        {/* Sidebar */}
-        <AdminSidebar />
-
-        {/* Main Content */}
-        <main className="flex-1 p-8">
-          <div className="max-w-7xl mx-auto">
-            {children}
-          </div>
-        </main>
-      </div>
-    </div>
-  )
+  return <AdminLayoutClient>{children}</AdminLayoutClient>
 }
 

@@ -62,7 +62,17 @@ export const createCategorySchema = z.object({
     .max(100)
     .regex(/^[a-z0-9-]+$/, 'Slug must contain only lowercase letters, numbers, and hyphens'),
   description: z.string().max(1000).optional(),
-  image: z.string().url('Invalid image URL').optional(),
+  image: z
+    .string()
+    .refine(
+      (val) => {
+        if (!val) return true // Optional field
+        // Accept full URLs (http://, https://) or relative paths starting with /
+        return val.startsWith('http://') || val.startsWith('https://') || val.startsWith('/')
+      },
+      { message: 'Invalid image URL. Must be a full URL (https://...) or a relative path (/uploads/...)' }
+    )
+    .optional(),
   parentId: z.string().cuid().optional(),
   isActive: z.boolean().default(true),
 })
@@ -102,7 +112,7 @@ export const createOrderSchema = z.object({
   deliveryLongitude: z.coerce.number().min(-180).max(180).optional(),
   city: z.string().min(2).max(100),
   notes: z.string().max(1000).optional(),
-  paymentMethod: z.enum(['MPESA', 'CASH_ON_DELIVERY']).default('MPESA'),
+  paymentMethod: z.enum(['PAYSTACK', 'CASH_ON_DELIVERY']).default('PAYSTACK'),
 })
 
 export const updateOrderStatusSchema = z.object({

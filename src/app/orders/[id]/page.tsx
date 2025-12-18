@@ -4,7 +4,6 @@ import prisma from '@/lib/prisma'
 import { format } from 'date-fns'
 import Image from 'next/image'
 import Link from 'next/link'
-import MpesaPaymentButton from '@/components/payment/MpesaPaymentButton'
 import PaystackPaymentButton from '@/components/payment/PaystackPaymentButton'
 import ConfirmDeliveryButton from '@/components/orders/ConfirmDeliveryButton'
 import ReviewForm from '@/components/orders/ReviewForm'
@@ -213,30 +212,13 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
           )}
 
           {needsPayment && !isCOD && (
-            <div className="mb-6 space-y-4">
+            <div className="mb-6">
               {/* Paystack Payment Option */}
               <PaystackPaymentButton
                 orderId={order.id}
                 amount={Number(order.total)}
                 orderNumber={order.orderNumber}
                 customerEmail={order.userEmail}
-              />
-              
-              {/* Mpesa Payment Option (Alternative) */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-600"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-gray-900 text-gray-400">Or pay with</span>
-                </div>
-              </div>
-              
-              <MpesaPaymentButton
-                orderId={order.id}
-                amount={Number(order.total)}
-                orderNumber={order.orderNumber}
-                phoneNumber={order.userPhone}
               />
             </div>
           )}
@@ -248,7 +230,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                 <div>
                   <h3 className="text-lg font-semibold text-white mb-1">Payment Processing</h3>
                   <p className="text-blue-300">
-                    Please check your phone and enter your Mpesa PIN to complete the payment.
+                    Your payment is being processed. Please complete the payment on the Paystack page.
                   </p>
                 </div>
               </div>

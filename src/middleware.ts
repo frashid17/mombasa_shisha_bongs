@@ -6,6 +6,10 @@ export default clerkMiddleware(async (auth, req) => {
   // Get response
   const response = NextResponse.next()
 
+  // Add pathname to headers for conditional rendering in layout
+  const pathname = req.nextUrl.pathname
+  response.headers.set('x-pathname', pathname)
+
   // Only add security headers in production
   // In development, CSP might be too restrictive for Clerk CAPTCHA
   if (process.env.NODE_ENV === 'production') {

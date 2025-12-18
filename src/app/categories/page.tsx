@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import prisma from '@/lib/prisma'
+import CategoryImage from '@/components/categories/CategoryImage'
 
 async function getCategories() {
   return prisma.category.findMany({
@@ -12,6 +12,30 @@ async function getCategories() {
     },
     orderBy: { name: 'asc' },
   })
+}
+
+// Helper function to get placeholder image based on category name
+function getCategoryPlaceholderImage(name: string): string {
+  const nameLower = name.toLowerCase()
+  if (nameLower.includes('shisha') || nameLower.includes('hookah')) {
+    // Shisha hookah image
+    return 'https://images.unsplash.com/photo-1621264448270-9ef00e88a935?w=600&h=400&fit=crop&q=80'
+  }
+  if (nameLower.includes('vape')) {
+    // Vape device image - red and black box mod
+    // Source: https://unsplash.com/photos/red-and-black-box-mod-M8CrCzlS78Y
+    return 'https://images.unsplash.com/photo-1555697863-80a30c6e4bc1?w=600&h=400&fit=crop&q=80'
+  }
+  if (nameLower.includes('tobacco')) {
+    // Nicotine pouch image
+    return 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=600&h=400&fit=crop&q=80'
+  }
+  if (nameLower.includes('accessor')) {
+    // Vape coil/accessories image
+    return 'https://images.unsplash.com/photo-1591522810163-d1e3cbf1c888?w=600&h=400&fit=crop&q=80'
+  }
+  // Default placeholder
+  return 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=600&h=400&fit=crop&q=80'
 }
 
 export default async function CategoriesPage() {
@@ -45,23 +69,15 @@ export default async function CategoriesPage() {
                 href={`/categories/${category.id}`}
                 className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all hover:scale-105 group relative"
               >
-                {category.image ? (
-                  <div className="relative h-48 bg-gray-800">
-                    <Image
-                      src={category.image}
-                      alt={category.name}
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
-                  </div>
-                ) : (
-                  <div className="h-48 bg-gradient-to-br from-gray-700 via-purple-900/30 to-blue-900/30 flex items-center justify-center">
-                    <div className="w-24 h-24 bg-white/10 rounded-full backdrop-blur-sm border border-white/20 flex items-center justify-center">
-                      <span className="text-4xl">🪔</span>
-                    </div>
-                  </div>
-                )}
+                <div className="relative h-48 bg-gray-800">
+                  <CategoryImage
+                    src={category.image || getCategoryPlaceholderImage(category.name)}
+                    alt={category.name}
+                    className={`object-cover group-hover:scale-110 transition-transform duration-300 ${!category.image ? 'opacity-80' : ''}`}
+                    unoptimized={category.image ? (category.image.startsWith('http') && !category.image.includes('localhost')) : true}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
+                </div>
                 <div className="p-6 relative z-10">
                   <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
                     {category.name}

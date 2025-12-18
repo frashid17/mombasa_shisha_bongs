@@ -35,7 +35,7 @@ export default function AgeVerification() {
           </div>
           <h2 className="text-3xl font-bold text-white mb-3">Age Verification</h2>
           <p className="text-gray-300 text-lg mb-2">
-            You must be 18 years or older to access this website.
+            You must be 21 years or older to access this website.
           </p>
           <p className="text-gray-400 text-sm">
             This website contains products intended for adults only.
@@ -47,13 +47,13 @@ export default function AgeVerification() {
             onClick={handleConfirm}
             className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
           >
-            I am 18 years or older
+            I am 21 years or older
           </button>
           <button
             onClick={handleDecline}
             className="w-full bg-gray-700 text-gray-300 px-6 py-4 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
           >
-            I am under 18
+            I am under 21
           </button>
         </div>
 

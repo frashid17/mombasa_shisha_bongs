@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useUser } from '@clerk/nextjs'
 import LocationPicker from '@/components/checkout/LocationPicker'
-import { MapPin, CreditCard, Smartphone, Wallet, Loader2 } from 'lucide-react'
+import { MapPin, CreditCard, Wallet, Loader2 } from 'lucide-react'
 
-type PaymentMethod = 'MPESA' | 'CASH_ON_DELIVERY'
+type PaymentMethod = 'PAYSTACK' | 'CASH_ON_DELIVERY'
 
 interface LocationData {
   lat: number
@@ -21,7 +21,7 @@ export default function CheckoutPage() {
   const { user } = useUser()
   const { items, getTotal, clearCart } = useCartStore()
   const [loading, setLoading] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('MPESA')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('PAYSTACK')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [isWithinMombasa, setIsWithinMombasa] = useState<boolean | null>(null)
   const [formData, setFormData] = useState({
@@ -94,7 +94,7 @@ export default function CheckoutPage() {
       if (location.isWithinMombasa) {
         setPaymentMethod('CASH_ON_DELIVERY')
       } else {
-        setPaymentMethod('MPESA')
+        setPaymentMethod('PAYSTACK')
       }
     } else {
       // Fallback: Check if location is within Mombasa via API
@@ -111,13 +111,13 @@ export default function CheckoutPage() {
         if (data.isWithinMombasa) {
           setPaymentMethod('CASH_ON_DELIVERY')
         } else {
-          setPaymentMethod('MPESA')
+          setPaymentMethod('PAYSTACK')
         }
       } catch (error) {
         console.error('Error checking location:', error)
-        // Default to Mpesa if check fails
+        // Default to Paystack if check fails
         setIsWithinMombasa(false)
-        setPaymentMethod('MPESA')
+        setPaymentMethod('PAYSTACK')
       }
     }
   }
@@ -163,7 +163,7 @@ export default function CheckoutPage() {
           clearCart()
           router.push(`/orders/${data.order.id}?cod=true`)
         } else {
-          // For Mpesa, redirect to payment page
+          // For Paystack, redirect to order page where payment button will be shown
           router.push(`/orders/${data.order.id}`)
         }
       } else {
@@ -363,39 +363,39 @@ export default function CheckoutPage() {
                         </div>
                         <p className="text-sm text-gray-400">
                           {isWithinMombasa === true
-                            ? 'Pay with cash when your order is delivered. Only available within Mombasa.'
+                            ? 'Pay with cash when your order is delivered. Delivery fees will be collected separately in cash by the delivery person based on your area (CBD/town areas may have different fees).'
                             : isWithinMombasa === false
-                              ? 'Pay on Delivery is only available for locations within Mombasa. Please use Mpesa payment.'
+                              ? 'Pay on Delivery is only available for locations within Mombasa. Please use Paystack payment.'
                               : 'Checking if location is within Mombasa...'}
                         </p>
                       </div>
                     </label>
                   )}
 
-                  {/* Mpesa Payment - Always available */}
+                  {/* Paystack Payment - Always available */}
                   <label
                     className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors ${
-                      paymentMethod === 'MPESA' ? 'border-blue-500' : 'border-gray-600'
+                      paymentMethod === 'PAYSTACK' ? 'border-blue-500' : 'border-gray-600'
                     }`}
                   >
                     <input
                       type="radio"
                       name="paymentMethod"
-                      value="MPESA"
-                      checked={paymentMethod === 'MPESA'}
-                      onChange={() => setPaymentMethod('MPESA')}
+                      value="PAYSTACK"
+                      checked={paymentMethod === 'PAYSTACK'}
+                      onChange={() => setPaymentMethod('PAYSTACK')}
                       className="mt-1"
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Smartphone className="w-5 h-5 text-blue-400" />
-                        <span className="font-semibold text-white">Mpesa Payment</span>
+                        <CreditCard className="w-5 h-5 text-blue-400" />
+                        <span className="font-semibold text-white">Paystack Payment</span>
                         <span className="text-xs bg-blue-900 text-blue-400 px-2 py-0.5 rounded-full">
                           Always Available
                         </span>
                       </div>
                       <p className="text-sm text-gray-400">
-                        Pay instantly via Mpesa STK Push. You'll receive a payment prompt on your phone.
+                        Pay securely with cards, bank transfer, or mobile money via Paystack. Supports Visa, Mastercard, and Mpesa.
                       </p>
                     </div>
                   </label>
@@ -432,9 +432,17 @@ export default function CheckoutPage() {
                 <span>KES {total.toLocaleString()}</span>
               </div>
               {paymentMethod === 'CASH_ON_DELIVERY' && (
-                <p className="text-sm text-green-400 mt-2">
-                  ✓ Pay this amount when your order is delivered
-                </p>
+                <div className="mt-3 space-y-2">
+                  <p className="text-sm text-green-400">
+                    ✓ Pay this amount when your order is delivered
+                  </p>
+                  <div className="bg-yellow-900/30 border border-yellow-700 rounded-lg p-3">
+                    <p className="text-xs text-yellow-300 font-semibold mb-1">📦 Delivery Fee Notice</p>
+                    <p className="text-xs text-yellow-400">
+                      Delivery fees are not included in this total. The delivery person will collect the delivery fee separately in cash based on your area (CBD/town areas may have different fees).
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
           </div>

@@ -28,39 +28,42 @@ model Category {
 }
 
 model Product {
-  id                String         @id @default(cuid())
-  name              String
-  slug              String         @unique
-  description       String         @db.Text
-  shortDescription  String?        @db.VarChar(500)
-  sku               String?        @unique
-  price             Decimal        @db.Decimal(10, 2)
-  compareAtPrice    Decimal?       @db.Decimal(10, 2)
-  costPrice         Decimal?       @db.Decimal(10, 2)
-  stock             Int            @default(0)
-  lowStockThreshold Int            @default(10)
-  trackInventory    Boolean        @default(true)
-  allowBackorder    Boolean        @default(false)
-  categoryId        String
-  brand             String?
-  tags              String?        @db.VarChar(1000)
-  featuredImage     String?
-  weight            Decimal?       @db.Decimal(10, 2)
-  length            Decimal?       @db.Decimal(10, 2)
-  width             Decimal?       @db.Decimal(10, 2)
-  height            Decimal?       @db.Decimal(10, 2)
-  metaTitle         String?        @db.VarChar(255)
-  metaDescription   String?        @db.VarChar(500)
-  isActive          Boolean        @default(true)
-  isFeatured        Boolean        @default(false)
-  isNewArrival      Boolean        @default(false)
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  publishedAt       DateTime?
-  orderItems        OrderItem[]
-  images            ProductImage[]
-  category          Category       @relation(fields: [categoryId], references: [id])
-  reviews           Review[]
+  id                 String              @id @default(cuid())
+  name               String
+  slug               String              @unique
+  description        String              @db.Text
+  shortDescription   String?             @db.VarChar(500)
+  sku                String?             @unique
+  price              Decimal             @db.Decimal(10, 2)
+  compareAtPrice     Decimal?            @db.Decimal(10, 2)
+  costPrice          Decimal?            @db.Decimal(10, 2)
+  stock              Int                 @default(0)
+  lowStockThreshold  Int                 @default(10)
+  trackInventory     Boolean             @default(true)
+  allowBackorder     Boolean             @default(false)
+  categoryId         String
+  brand              String?
+  tags               String?             @db.VarChar(1000)
+  featuredImage      String?
+  weight             Decimal?            @db.Decimal(10, 2)
+  length             Decimal?            @db.Decimal(10, 2)
+  width              Decimal?            @db.Decimal(10, 2)
+  height             Decimal?            @db.Decimal(10, 2)
+  metaTitle          String?             @db.VarChar(255)
+  metaDescription    String?             @db.VarChar(500)
+  isActive           Boolean             @default(true)
+  isFeatured         Boolean             @default(false)
+  isNewArrival       Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  publishedAt        DateTime?
+  orderItems         OrderItem[]
+  images             ProductImage[]
+  category           Category            @relation(fields: [categoryId], references: [id])
+  reviews            Review[]
+  stockNotifications StockNotification[]
+  recentlyViewed     RecentlyViewed[]
+  savedCartItems     SavedCartItem[]
 
   @@index([categoryId])
   @@index([slug])
@@ -109,9 +112,11 @@ model Order {
   paymentStatus      PaymentStatus  @default(PENDING)
   trackingNumber     String?
   estimatedDelivery  DateTime?
+  scheduledDelivery  DateTime? // For scheduled deliveries
   deliveredAt        DateTime?
   adminNotes         String?        @db.Text
   cancellationReason String?        @db.Text
+  deliveryAddressId  String? // Reference to saved address
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
   cancelledAt        DateTime?
@@ -124,6 +129,7 @@ model Order {
   @@index([status])
   @@index([paymentStatus])
   @@index([createdAt])
+  @@index([scheduledDelivery])
   @@map("orders")
 }
 
@@ -310,4 +316,135 @@ enum NotificationStatus {
   SENT
   FAILED
   DELIVERED
+}
+
+model StockNotification {
+  id         String    @id @default(cuid())
+  productId  String
+  userId     String? // null for guest users
+  email      String
+  phone      String?
+  notified   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  notifiedAt DateTime?
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, email])
+  @@index([productId])
+  @@index([userId])
+  @@index([notified])
+  @@map("stock_notifications")
+}
+
+model SavedSearch {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String?
+  searchQuery String   @db.Text
+  filters     String?  @db.Text // JSON string of filters
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@map("saved_searches")
+}
+
+model DeliveryAddress {
+  id            String   @id @default(cuid())
+  userId        String
+  label         String // e.g., "Home", "Work"
+  fullName      String
+  phone         String
+  address       String   @db.Text
+  city          String
+  latitude      Float?
+  longitude     Float?
+  isDefault     Boolean  @default(false)
+  deliveryNotes String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@map("delivery_addresses")
+}
+
+model RecentlyViewed {
+  id        String   @id @default(cuid())
+  userId    String? // null for guest (stored in session)
+  sessionId String? // for guest users
+  productId String
+  viewedAt  DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@unique([sessionId, productId])
+  @@index([userId])
+  @@index([sessionId])
+  @@index([viewedAt])
+  @@map("recently_viewed")
+}
+
+model SavedCartItem {
+  id        String   @id @default(cuid())
+  userId    String? // null for guest
+  sessionId String? // for guest users
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@unique([sessionId, productId])
+  @@index([userId])
+  @@index([sessionId])
+  @@map("saved_cart_items")
+}
+
+model AbandonedCart {
+  id             String    @id @default(cuid())
+  userId         String? // null for guest
+  sessionId      String? // for guest users
+  email          String?
+  phone          String?
+  cartData       String    @db.Text // JSON string of cart items
+  reminderSent   Int       @default(0)
+  lastReminderAt DateTime?
+  converted      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([email])
+  @@index([converted])
+  @@map("abandoned_carts")
+}
+
+model FlashSale {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?  @db.Text
+  productIds      String   @db.Text // JSON array of product IDs
+  discountPercent Decimal  @db.Decimal(5, 2)
+  startDate       DateTime
+  endDate         DateTime
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@map("flash_sales")
+}
+
+model WishlistShare {
+  id         String   @id @default(cuid())
+  wishlistId String // userId or sessionId
+  shareToken String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([shareToken])
+  @@map("wishlist_shares")
 }

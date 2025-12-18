@@ -14,40 +14,41 @@ const statusColors: Record<string, string> = {
 export default function OrdersTable({ orders }: { orders: any[] }) {
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Order #</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Customer</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Items</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Total</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Date</th>
-              <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 font-mono text-sm text-gray-900">#{order.orderNumber}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">
-                  <div>
-                    <div className="font-medium">{order.userName || 'Guest'}</div>
-                    <div className="text-xs text-gray-500">{order.userEmail}</div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-900">{order.items.length} items</td>
-                <td className="px-6 py-4 text-sm font-semibold text-gray-900">KES {order.total.toLocaleString()}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 text-xs rounded-full ${statusColors[order.status] || 'bg-gray-100'}`}>
-                    {order.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-700">
-                  {format(new Date(order.createdAt), 'MMM d, yyyy')}
-                </td>
-                <td className="px-6 py-4 text-right">
+      <div className="overflow-x-auto -mx-4 sm:mx-0">
+        <div className="inline-block min-w-full align-middle">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Order #</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Customer</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase hidden sm:table-cell">Items</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Total</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Status</th>
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase hidden md:table-cell">Date</th>
+                <th className="px-3 sm:px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {orders.map((order) => (
+                <tr key={order.id} className="hover:bg-gray-50">
+                  <td className="px-3 sm:px-6 py-4 font-mono text-xs sm:text-sm text-gray-900 whitespace-nowrap">#{order.orderNumber}</td>
+                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900">
+                    <div>
+                      <div className="font-medium">{order.userName || 'Guest'}</div>
+                      <div className="text-xs text-gray-500 truncate max-w-[150px] sm:max-w-none">{order.userEmail}</div>
+                    </div>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 hidden sm:table-cell">{order.items.length} items</td>
+                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">KES {order.total.toLocaleString()}</td>
+                  <td className="px-3 sm:px-6 py-4">
+                    <span className={`px-2 py-1 text-xs rounded-full ${statusColors[order.status] || 'bg-gray-100'}`}>
+                      {order.status}
+                    </span>
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-700 hidden md:table-cell whitespace-nowrap">
+                    {format(new Date(order.createdAt), 'MMM d, yyyy')}
+                  </td>
+                  <td className="px-3 sm:px-6 py-4 text-right whitespace-nowrap">
                   <Link
                     href={`/admin/orders/${order.id}`}
                     className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"
@@ -60,6 +61,7 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
       {orders.length === 0 && (
         <div className="text-center py-12 text-gray-500">No orders found</div>

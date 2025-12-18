@@ -1,12 +1,13 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import prisma from '@/lib/prisma'
 import { Shield, Star, TrendingUp, Truck, Sparkles, Zap, Award, MessageSquare } from 'lucide-react'
 import SearchBar from '@/components/SearchBar'
 import ProductCard from '@/components/home/ProductCard'
 import AnimatedSection from '@/components/home/AnimatedSection'
 import ReviewCard from '@/components/home/ReviewCard'
+import RecentlyViewed from '@/components/home/RecentlyViewed'
 import { serializeProducts } from '@/lib/prisma-serialize'
+import CategoryImage from '@/components/categories/CategoryImage'
 
 async function getFeaturedData() {
   const [categories, featuredProducts, newArrivals, stats, reviewsCount, customerReviews] = await Promise.all([
@@ -58,7 +59,7 @@ export default async function HomePage() {
           <div className="text-center mb-12">
             <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               Mombasa Shisha Bongs
-            </h1>
+          </h1>
             <p className="text-xl mb-8 text-gray-300">Premium Shisha, Vapes & Accessories in Kenya</p>
             <SearchBar />
           </div>
@@ -117,16 +118,53 @@ export default async function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/categories/${category.id}`}
-                className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg p-6 text-center hover:border-blue-500 hover:shadow-blue-500/20 transition-all hover:scale-105 group relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <h3 className="text-lg font-semibold text-white relative z-10 group-hover:text-blue-400 transition-colors">{category.name}</h3>
-              </Link>
-            ))}
+            {categories.map((category) => {
+              // Get placeholder image based on category name
+              const getCategoryImage = (name: string) => {
+                const nameLower = name.toLowerCase()
+                if (nameLower.includes('shisha') || nameLower.includes('hookah')) {
+                  // Shisha hookah image
+                  return 'https://images.unsplash.com/photo-1761839257287-3030c9300ece?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
+                }
+                if (nameLower.includes('vape')) {
+                  // Vape device image - red and black box mod
+                  // Source: https://unsplash.com/photos/red-and-black-box-mod-M8CrCzlS78Y
+                  return 'https://images.unsplash.com/photo-1555697863-80a30c6e4bc1?w=400&h=300&fit=crop&q=80'
+                }
+                if (nameLower.includes('tobacco')) {
+                  // Nicotine pouch image - using a nicotine pouch/snus image
+                  return 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=400&h=300&fit=crop&q=80'
+                }
+                if (nameLower.includes('accessor')) {
+                  // Vape coil image - using a vape coil/accessories close-up
+                  return 'https://images.unsplash.com/photo-1591522810163-d1e3cbf1c888?w=400&h=300&fit=crop&q=80'
+                }
+                // Default placeholder
+                return 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=400&h=300&fit=crop&q=80'
+              }
+
+              return (
+                <Link
+                  key={category.id}
+                  href={`/categories/${category.id}`}
+                  className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all hover:scale-105 group relative"
+                >
+                  <div className="relative h-32 bg-gray-800">
+                    <CategoryImage
+                      src={category.image || getCategoryImage(category.name)}
+                      alt={category.name}
+                      className={`object-cover group-hover:scale-110 transition-transform duration-300 ${!category.image ? 'opacity-80' : ''}`}
+                      unoptimized={category.image ? (category.image.startsWith('http') && !category.image.includes('localhost')) : true}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
+                  </div>
+                  <div className="p-4 text-center relative z-10">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 className="text-sm font-semibold text-white relative z-10 group-hover:text-blue-400 transition-colors line-clamp-2">{category.name}</h3>
+                  </div>
+                </Link>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -280,6 +318,9 @@ export default async function HomePage() {
           </div>
         </section>
       </AnimatedSection>
+
+      {/* Recently Viewed Section */}
+      <RecentlyViewed />
     </div>
   )
 }

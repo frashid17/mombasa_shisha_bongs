@@ -34,8 +34,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'public', 'uploads', 'products')
+    // Determine upload directory based on type (default to products)
+    const uploadType = (formData.get('type') as string) || 'products'
+    const uploadsDir = join(process.cwd(), 'public', 'uploads', uploadType)
     if (!existsSync(uploadsDir)) {
       await mkdir(uploadsDir, { recursive: true })
     }
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
     await writeFile(filepath, buffer)
 
     // Return public URL
-    const publicUrl = `/uploads/products/${filename}`
+    const publicUrl = `/uploads/${uploadType}/${filename}`
 
     return NextResponse.json({ success: true, url: publicUrl })
   } catch (error: any) {

@@ -64,7 +64,7 @@ export default function SearchBar() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search for shisha, vapes, accessories..."
-              className="w-full px-4 py-3 pl-12 pr-4 md:px-6 md:py-4 md:pl-14 md:pr-32 rounded-full bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700 focus:border-blue-500 focus:outline-none text-white text-base md:text-lg placeholder-gray-400"
+              className="w-full px-4 py-3 pl-12 pr-4 md:px-6 md:py-4 md:pl-14 md:pr-32 rounded-full bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700 focus:border-purple-500 focus:outline-none text-white text-base md:text-lg placeholder-gray-400"
             />
             <Search className="absolute left-3 md:left-5 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
           </div>
@@ -79,7 +79,7 @@ export default function SearchBar() {
             </button>
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 md:px-6 md:py-2.5 rounded-full hover:bg-blue-700 font-semibold text-sm md:text-base transition whitespace-nowrap"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 md:px-6 md:py-2.5 rounded-full hover:from-purple-700 hover:to-pink-700 font-semibold text-sm md:text-base transition whitespace-nowrap"
             >
               <span className="hidden sm:inline">Search</span>
               <Search className="w-4 h-4 sm:hidden" />
@@ -106,7 +106,7 @@ export default function SearchBar() {
               <select
                 value={filters.category}
                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -124,7 +124,7 @@ export default function SearchBar() {
                 onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
                 placeholder="0"
                 min="0"
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
               />
             </div>
             <div>
@@ -135,14 +135,14 @@ export default function SearchBar() {
                 onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
                 placeholder="100000"
                 min="0"
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
               />
             </div>
           </div>
           <div className="flex gap-2 mt-4">
             <button
               onClick={handleSubmit}
-              className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-semibold"
+              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 font-semibold"
             >
               Apply Filters
             </button>

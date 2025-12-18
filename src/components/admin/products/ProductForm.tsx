@@ -2,7 +2,8 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, X, Image as ImageIcon, Upload, Link as LinkIcon } from 'lucide-react'
+import { Plus, X, Image as ImageIcon, Upload, Link as LinkIcon, Crop } from 'lucide-react'
+import ImageEditor from '../ImageEditor'
 
 type Category = {
   id: string
@@ -25,6 +26,9 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState<number | null>(null)
+  const [showEditor, setShowEditor] = useState(false)
+  const [editorImageSrc, setEditorImageSrc] = useState('')
+  const [editorImageIndex, setEditorImageIndex] = useState<number | null>(null)
   const fileInputRefs = useRef<{ [key: number]: HTMLInputElement | null }>({})
   const [images, setImages] = useState<ImageInput[]>(
     product?.images?.map((img: any) => ({
@@ -62,7 +66,54 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
   const handleFileSelect = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      handleFileUpload(index, file)
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif']
+      if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Only images are allowed (JPEG, PNG, WebP, GIF).')
+        return
+      }
+      // Validate file size (max 5MB)
+      const maxSize = 5 * 1024 * 1024
+      if (file.size > maxSize) {
+        alert('File size exceeds 5MB limit')
+        return
+      }
+      // Show image editor
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setEditorImageSrc(e.target?.result as string)
+        setEditorImageIndex(index)
+        setShowEditor(true)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleEditorSave = async (croppedBlob: Blob) => {
+    if (editorImageIndex === null) return
+    
+    setShowEditor(false)
+    setUploading(editorImageIndex)
+    try {
+      // Convert blob to file
+      const file = new File([croppedBlob], `product-image-${editorImageIndex}.jpg`, { type: 'image/jpeg' })
+      await handleFileUpload(editorImageIndex, file)
+    } catch (error) {
+      console.error('Error processing image:', error)
+      alert('Failed to process image')
+    } finally {
+      setUploading(null)
+      setEditorImageSrc('')
+      setEditorImageIndex(null)
+    }
+  }
+
+  const handleEditorCancel = () => {
+    setShowEditor(false)
+    setEditorImageSrc('')
+    setEditorImageIndex(null)
+    if (editorImageIndex !== null && fileInputRefs.current[editorImageIndex]) {
+      fileInputRefs.current[editorImageIndex]!.value = ''
     }
   }
 
@@ -283,8 +334,17 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                         htmlFor={`file-${index}`}
                         className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-700 text-sm font-medium cursor-pointer hover:bg-gray-50 transition"
                       >
-                        <Upload className="w-4 h-4" />
-                        {uploading === index ? 'Uploading...' : 'Upload File'}
+                        {uploading === index ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Crop className="w-4 h-4" />
+                            Upload & Edit
+                          </>
+                        )}
                       </label>
                       <div className="flex-1 flex items-center gap-2">
                         <LinkIcon className="w-4 h-4 text-gray-400" />
@@ -372,6 +432,16 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           Cancel
         </button>
       </div>
+
+      {/* Image Editor Modal */}
+      {showEditor && editorImageSrc && (
+        <ImageEditor
+          imageSrc={editorImageSrc}
+          onSave={handleEditorSave}
+          onCancel={handleEditorCancel}
+          aspectRatio={1}
+        />
+      )}
     </form>
   )
 }

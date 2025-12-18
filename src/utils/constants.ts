@@ -130,9 +130,9 @@ export const REVIEW_RATING = {
 // ============================================
 
 export const DELIVERY_CONFIG = {
-  FREE_DELIVERY_CITIES: ['Mombasa'],
-  STANDARD_FEE: 500, // KES
-  FREE_THRESHOLD: 0, // Free for orders above this amount
+  FREE_DELIVERY_CITIES: [], // No free delivery - fees collected by delivery person
+  STANDARD_FEE: 500, // KES (collected separately by delivery person)
+  FREE_THRESHOLD: 0, // Not applicable
   ESTIMATED_DAYS: {
     MOMBASA: 1,
     OTHER: 3,

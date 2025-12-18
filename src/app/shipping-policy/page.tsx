@@ -36,9 +36,20 @@ export default function ShippingPolicyPage() {
 
             <section>
               <h2 className="text-2xl font-bold text-white mb-4">Delivery Fees</h2>
-              <p>
-                Delivery fees are calculated based on your location and will be displayed at checkout. 
-                Free delivery may be available for orders above a certain amount within Mombasa.
+              <p className="mb-3">
+                Delivery fees are <strong className="text-white">not included</strong> in the checkout total. 
+                The delivery person will collect the delivery fee separately in cash when your order is delivered.
+              </p>
+              <p className="mb-3">
+                Delivery fees vary based on your area within Mombasa:
+              </p>
+              <ul className="list-disc list-inside space-y-2 ml-4">
+                <li><strong className="text-white">CBD/Town areas:</strong> Delivery fees may vary</li>
+                <li><strong className="text-white">Other Mombasa areas:</strong> Delivery fees may vary</li>
+                <li>The delivery person will inform you of the exact fee upon delivery</li>
+              </ul>
+              <p className="mt-3 text-yellow-300">
+                <strong>Note:</strong> Please have cash ready for both the order payment (if paying on delivery) and the delivery fee.
               </p>
             </section>
 
@@ -55,7 +66,7 @@ export default function ShippingPolicyPage() {
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Someone must be available to receive the order at the delivery address</li>
                 <li>Valid ID may be required for age verification</li>
-                <li>For cash on delivery, please have exact change ready</li>
+                <li>For cash on delivery, please have exact change ready for both the order total and delivery fee</li>
                 <li>We are not responsible for delays caused by incorrect address information</li>
               </ul>
             </section>
