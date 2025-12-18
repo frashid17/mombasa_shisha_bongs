@@ -39,14 +39,26 @@ export const metadata: Metadata = {
   },
 };
 
+// Mark layout as dynamic since it uses headers()
+export const dynamic = 'force-dynamic'
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headersList = await headers()
-  const pathname = headersList.get('x-pathname') || ''
-  const isAdminRoute = pathname.startsWith('/admin')
+  let pathname = ''
+  let isAdminRoute = false
+  
+  try {
+    const headersList = await headers()
+    pathname = headersList.get('x-pathname') || ''
+    isAdminRoute = pathname.startsWith('/admin')
+  } catch (error) {
+    // Fallback if headers() fails - assume not admin route
+    console.error('Error reading headers:', error)
+    isAdminRoute = false
+  }
 
   return (
     <ClerkProvider>
