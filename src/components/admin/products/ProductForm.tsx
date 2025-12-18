@@ -152,11 +152,12 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
     const imageUrls = images
       .map(img => img.url.trim())
       .filter(url => {
-        // Accept both full URLs and relative paths
+        // Accept full URLs, relative paths, and data URLs (Base64)
         return url.length > 0 && (
           url.startsWith('http://') || 
           url.startsWith('https://') || 
-          url.startsWith('/')
+          url.startsWith('/') ||
+          url.startsWith('data:image/') // Base64 data URLs
         )
       })
 
