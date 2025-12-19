@@ -135,8 +135,9 @@ export async function GET(req: Request) {
       console.log(`✅ Payment already marked as PAID for order ${payment.order.orderNumber}`)
     }
 
-    // Redirect to order page
-    return NextResponse.redirect(new URL(`/orders/${payment.orderId}`, req.url))
+    // Redirect to order page with payment success parameter
+    const baseUrl = new URL(req.url).origin
+    return NextResponse.redirect(new URL(`/orders/${payment.orderId}?payment=success`, baseUrl))
   } catch (error: any) {
     console.error('❌ Paystack callback error:', error)
     console.error('   Error type:', error?.constructor?.name)

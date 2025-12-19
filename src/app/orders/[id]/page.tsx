@@ -7,6 +7,7 @@ import Link from 'next/link'
 import PaystackPaymentButton from '@/components/payment/PaystackPaymentButton'
 import ConfirmDeliveryButton from '@/components/orders/ConfirmDeliveryButton'
 import ReviewForm from '@/components/orders/ReviewForm'
+import CartClearer from '@/components/orders/CartClearer'
 import { CheckCircle, XCircle, Clock, Loader2, Package, Truck, ArrowLeft } from 'lucide-react'
 
 async function getOrder(id: string) {
@@ -77,6 +78,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
+      <CartClearer 
+        paymentStatus={order.paymentStatus} 
+        paymentMethod={order.payment?.method}
+      />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <Link
