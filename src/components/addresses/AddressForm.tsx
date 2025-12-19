@@ -175,7 +175,7 @@ export default function AddressForm({ address, onSuccess, onCancel }: AddressFor
               setLocation(loc)
               setFormData({ ...formData, address: loc.address })
             }}
-            initialLocation={location}
+            initialLocation={location ? { lat: location.lat, lng: location.lng } : undefined}
           />
         </div>
         {location && (

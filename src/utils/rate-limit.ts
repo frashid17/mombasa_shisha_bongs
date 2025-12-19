@@ -43,7 +43,7 @@ function getClientId(request: Request): string {
   const ip = forwarded?.split(',')[0] || realIp || cfConnectingIp || 'unknown'
   
   // For authenticated users, use user ID for better rate limiting
-  // This will be set by the middleware
+  // This will be set by the proxy
   const userId = request.headers.get('x-user-id')
   
   return userId ? `user:${userId}` : `ip:${ip}`

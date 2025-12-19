@@ -41,7 +41,7 @@ export default clerkMiddleware(async (auth, req) => {
   } catch (error) {
     // If anything fails, still return a response
     // Log error but don't break the request
-    console.error('Middleware error (non-fatal):', error)
+    console.error('Proxy error (non-fatal):', error)
     // Ensure pathname is set even on error
     const pathname = req.nextUrl.pathname || '/'
     response.headers.set('x-pathname', pathname)
