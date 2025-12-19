@@ -2,8 +2,11 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
-import { Sparkles } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Sparkles, ShoppingCart, Heart } from 'lucide-react'
+import { useCurrency } from '@/contexts/CurrencyContext'
+import { useCartStore } from '@/store/cartStore'
+import { useWishlistStore } from '@/store/wishlistStore'
 
 interface ProductCardProps {
   product: {
@@ -16,16 +19,59 @@ interface ProductCardProps {
     stock: number
     isFeatured?: boolean
     isNewArrival?: boolean
+    slug?: string
   }
   index?: number
 }
 
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  
+  const addToCart = useCartStore((state) => state.addItem)
+  const { toggleItem, isInWishlist } = useWishlistStore()
+  const [wishlistActive, setWishlistActive] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    setWishlistActive(isInWishlist(product.id))
+  }, [product.id, isInWishlist])
+  
+  // Use currency hook - it should always be available from CurrencyProvider in layout
+  const { format } = useCurrency()
+  
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price
   const discountPercent = hasDiscount
     ? Math.round(((Number(product.compareAtPrice) - product.price) / Number(product.compareAtPrice)) * 100)
     : 0
+
+  const handleQuickAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (product.stock === 0) return
+
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0]?.url,
+    })
+  }
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    toggleItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0]?.url,
+      slug: product.slug,
+    })
+    setWishlistActive(isInWishlist(product.id))
+  }
 
   return (
     <Link
@@ -84,7 +130,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {/* Stock Badge */}
-        <div className="absolute bottom-3 right-3 z-20">
+        <div className="absolute bottom-3 right-3 z-20 flex flex-col items-end gap-2">
           {product.stock > 0 ? (
             <span className="bg-green-900/90 text-green-400 text-xs font-semibold px-2 py-1 rounded-full border border-green-700 backdrop-blur-sm">
               In Stock
@@ -103,15 +149,38 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         <h3 className="font-semibold text-white mb-3 line-clamp-2 group-hover:text-blue-400 transition-colors">
           {product.name}
         </h3>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex flex-col">
-            <p className="text-blue-400 font-bold text-xl">KES {product.price.toLocaleString()}</p>
+            <p className="text-blue-400 font-bold text-xl">{format(product.price)}</p>
             {hasDiscount && (
               <p className="text-gray-500 text-sm line-through">
-                KES {Number(product.compareAtPrice).toLocaleString()}
+                {format(Number(product.compareAtPrice))}
               </p>
             )}
           </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex items-center gap-2 mt-2">
+          <button
+            onClick={handleQuickAddToCart}
+            disabled={product.stock === 0}
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            <span>Add to Cart</span>
+          </button>
+          <button
+            onClick={handleToggleWishlist}
+            className={`inline-flex items-center justify-center px-3 py-2 rounded-lg border text-sm ${
+              wishlistActive
+                ? 'bg-red-600 border-red-500 text-white hover:bg-red-700'
+                : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
+            } transition-colors`}
+            aria-label={wishlistActive ? 'Remove from wishlist' : 'Add to wishlist'}
+          >
+            <Heart className={`w-4 h-4 ${wishlistActive ? 'fill-current' : ''}`} />
+          </button>
         </div>
       </div>
     </Link>

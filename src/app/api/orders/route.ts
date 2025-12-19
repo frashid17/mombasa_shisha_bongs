@@ -25,6 +25,29 @@ async function handlePOST(req: Request) {
 
     const productMap = new Map(products.map(p => [p.id, p]))
 
+    // Fetch active flash sales and build a product -> discountPercent map
+    const now = new Date()
+    const activeFlashSales = await prisma.flashSale.findMany({
+      where: {
+        isActive: true,
+        startDate: { lte: now },
+        endDate: { gte: now },
+      },
+    })
+
+    const flashDiscountMap = new Map<string, number>()
+
+    for (const sale of activeFlashSales) {
+      const parsedProductIds = JSON.parse(sale.productIds) as string[]
+      const discountPercent = Number(sale.discountPercent)
+
+      for (const pid of parsedProductIds) {
+        const current = flashDiscountMap.get(pid) ?? 0
+        // If multiple flash sales target same product, use the highest discount
+        flashDiscountMap.set(pid, Math.max(current, discountPercent))
+      }
+    }
+
     // Check stock availability and validate quantities
     for (const item of validated.items) {
       const product = productMap.get(item.productId)
@@ -48,15 +71,29 @@ async function handlePOST(req: Request) {
       }
     }
 
-    // Calculate totals
-    const subtotal = validated.items.reduce((sum, item) => {
+    // Calculate totals with flash sale discounts applied (if any)
+    let subtotal = 0
+    let discountTotal = 0
+
+    for (const item of validated.items) {
       const product = productMap.get(item.productId)
-      const price = product ? Number(product.price) : item.price
-      return sum + price * item.quantity
-    }, 0)
+      const basePrice = product ? Number(product.price) : item.price
+      const discountPercent = flashDiscountMap.get(item.productId) ?? 0
+      const effectivePrice =
+        discountPercent > 0 ? basePrice * (1 - discountPercent / 100) : basePrice
+
+      subtotal += effectivePrice * item.quantity
+      discountTotal += (basePrice - effectivePrice) * item.quantity
+    }
+
+    // Ensure discount is not negative (shouldn't be, but defensive)
+    if (discountTotal < 0) {
+      discountTotal = 0
+    }
+
     const deliveryFee = 0
     const tax = 0
-    const discount = 0
+    const discount = discountTotal
     const total = subtotal + deliveryFee + tax - discount
 
     // Generate order number
@@ -80,6 +117,8 @@ async function handlePOST(req: Request) {
         deliveryNotes: validated.notes || null,
         deliveryLatitude: validated.deliveryLatitude != null ? parseFloat(validated.deliveryLatitude.toFixed(7)) : null,
         deliveryLongitude: validated.deliveryLongitude != null ? parseFloat(validated.deliveryLongitude.toFixed(7)) : null,
+        deliveryAddressId: validated.deliveryAddressId || null,
+        scheduledDelivery: validated.scheduledDelivery || null,
         subtotal: new Decimal(subtotal),
         deliveryFee: new Decimal(deliveryFee),
         tax: new Decimal(tax),
@@ -90,14 +129,19 @@ async function handlePOST(req: Request) {
         items: {
           create: validated.items.map((item) => {
             const product = productMap.get(item.productId)
+            const basePrice = product ? Number(product.price) : item.price
+            const discountPercent = flashDiscountMap.get(item.productId) ?? 0
+            const effectivePrice =
+              discountPercent > 0 ? basePrice * (1 - discountPercent / 100) : basePrice
+
             return {
               productId: item.productId,
               productName: product?.name || '',
               productSku: product?.sku || null,
               productImage: product?.images[0]?.url || null,
-              price: product ? product.price : new Decimal(item.price),
+              price: new Decimal(effectivePrice),
               quantity: item.quantity,
-              subtotal: new Decimal((product ? Number(product.price) : item.price) * item.quantity),
+              subtotal: new Decimal(effectivePrice * item.quantity),
             }
           }),
         },
@@ -127,6 +171,24 @@ async function handlePOST(req: Request) {
           },
         })
       }
+    }
+
+    // Mark abandoned carts as converted (async, don't wait)
+    if (userId || validated.customerEmail) {
+      prisma.abandonedCart
+        .updateMany({
+          where: {
+            OR: [
+              userId ? { userId, converted: false } : undefined,
+              validated.customerEmail ? { email: validated.customerEmail, converted: false } : undefined,
+            ].filter(Boolean) as any[],
+          },
+          data: { converted: true },
+        })
+        .catch((error) => {
+          console.error('Failed to mark abandoned carts as converted:', error)
+          // Don't fail the order creation if this fails
+        })
     }
 
     // Send order confirmation notification (async, don't wait)

@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useUser } from '@clerk/nextjs'
 import LocationPicker from '@/components/checkout/LocationPicker'
-import { MapPin, CreditCard, Wallet, Loader2 } from 'lucide-react'
+import { MapPin, CreditCard, Wallet, Loader2, Star, Home, Building2, Briefcase, Plus, Calendar } from 'lucide-react'
+import { useCurrency } from '@/contexts/CurrencyContext'
+import Link from 'next/link'
 
 type PaymentMethod = 'PAYSTACK' | 'CASH_ON_DELIVERY'
 
@@ -20,10 +22,14 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { user } = useUser()
   const { items, getTotal, clearCart } = useCartStore()
+  const { format } = useCurrency()
   const [loading, setLoading] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('PAYSTACK')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [isWithinMombasa, setIsWithinMombasa] = useState<boolean | null>(null)
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([])
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null)
+  const [useSavedAddress, setUseSavedAddress] = useState(false)
   const [formData, setFormData] = useState({
     customerName: '',
     customerEmail: '',
@@ -32,6 +38,7 @@ export default function CheckoutPage() {
     additionalAddress: '',
     city: 'Mombasa',
     notes: '',
+    scheduledDelivery: '',
   })
   
   // Track if we've initialized from user data to prevent overwriting manual input
@@ -68,6 +75,25 @@ export default function CheckoutPage() {
     }
   }, [user?.id]) // Only depend on user ID, not the properties that might change
 
+  // Fetch saved addresses if user is logged in
+  useEffect(() => {
+    if (user) {
+      fetch('/api/delivery-addresses')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.data.length > 0) {
+            setSavedAddresses(data.data)
+            // Auto-select default address if available
+            const defaultAddress = data.data.find((addr: any) => addr.isDefault)
+            if (defaultAddress) {
+              handleSelectSavedAddress(defaultAddress)
+            }
+          }
+        })
+        .catch((err) => console.error('Error fetching addresses:', err))
+    }
+  }, [user])
+
   // Redirect to cart if empty - use useEffect to avoid render error
   useEffect(() => {
     if (items.length === 0) {
@@ -79,7 +105,32 @@ export default function CheckoutPage() {
     return null
   }
 
+  const handleSelectSavedAddress = (address: any) => {
+    setSelectedAddressId(address.id)
+    setUseSavedAddress(true)
+    setSelectedLocation({
+      lat: address.latitude || 0,
+      lng: address.longitude || 0,
+      address: address.address,
+      isWithinMombasa: address.city.toLowerCase() === 'mombasa',
+    })
+    setFormData((prev) => ({
+      ...prev,
+      customerName: address.fullName,
+      customerPhone: address.phone.replace('+254', ''),
+      deliveryAddress: address.address,
+      city: address.city,
+      notes: address.deliveryNotes || '',
+    }))
+    setIsWithinMombasa(address.city.toLowerCase() === 'mombasa')
+    if (address.city.toLowerCase() === 'mombasa') {
+      setPaymentMethod('CASH_ON_DELIVERY')
+    }
+  }
+
   const handleLocationSelect = async (location: LocationData) => {
+    setUseSavedAddress(false)
+    setSelectedAddressId(null)
     setSelectedLocation(location)
     setFormData((prev) => ({
       ...prev,
@@ -148,11 +199,13 @@ export default function CheckoutPage() {
           deliveryAddress: formData.additionalAddress
             ? `${formData.deliveryAddress}, ${formData.additionalAddress}`
             : formData.deliveryAddress,
-          deliveryLatitude: parseFloat(selectedLocation.lat.toFixed(7)),
-          deliveryLongitude: parseFloat(selectedLocation.lng.toFixed(7)),
+          deliveryLatitude: selectedLocation ? parseFloat(selectedLocation.lat.toFixed(7)) : null,
+          deliveryLongitude: selectedLocation ? parseFloat(selectedLocation.lng.toFixed(7)) : null,
           city: formData.city,
+          deliveryAddressId: selectedAddressId || undefined,
           notes: formData.notes,
           paymentMethod: paymentMethod,
+          scheduledDelivery: formData.scheduledDelivery || undefined,
         }),
       })
 
@@ -272,11 +325,87 @@ export default function CheckoutPage() {
               </div>
             </div>
 
+            {/* Saved Addresses */}
+            {user && savedAddresses.length > 0 && (
+              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-white">Saved Addresses</h2>
+                  <Link
+                    href="/profile/addresses"
+                    className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Manage
+                  </Link>
+                </div>
+                <div className="space-y-2">
+                  {savedAddresses.map((address) => {
+                    const getIcon = (label: string) => {
+                      const lower = label.toLowerCase()
+                      if (lower.includes('home')) return <Home className="w-4 h-4" />
+                      if (lower.includes('work') || lower.includes('office')) return <Briefcase className="w-4 h-4" />
+                      return <Building2 className="w-4 h-4" />
+                    }
+                    return (
+                      <button
+                        key={address.id}
+                        onClick={() => handleSelectSavedAddress(address)}
+                        className={`w-full text-left p-4 rounded-lg border transition-colors ${
+                          selectedAddressId === address.id
+                            ? 'border-blue-500 bg-blue-900/20'
+                            : 'border-gray-600 bg-gray-900 hover:border-gray-500'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3 flex-1">
+                            {getIcon(address.label)}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-semibold text-white">{address.label}</span>
+                                {address.isDefault && (
+                                  <span className="flex items-center gap-1 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
+                                    <Star className="w-3 h-3 fill-current" />
+                                    Default
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-300">{address.fullName}</p>
+                              <p className="text-sm text-gray-400">{address.address}</p>
+                              <p className="text-sm text-gray-400">{address.city}</p>
+                            </div>
+                          </div>
+                          {selectedAddressId === address.id && (
+                            <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                              <div className="w-2 h-2 rounded-full bg-white" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+                <button
+                  onClick={() => {
+                    setUseSavedAddress(false)
+                    setSelectedAddressId(null)
+                  }}
+                  className="mt-4 w-full text-center text-blue-400 hover:text-blue-300 text-sm"
+                >
+                  Use different address
+                </button>
+              </div>
+            )}
+
             {/* Location Picker */}
-            <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-bold text-white mb-4">Delivery Location</h2>
-              <LocationPicker onLocationSelect={handleLocationSelect} />
-            </div>
+            {(!useSavedAddress || !selectedAddressId) && (
+              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-bold text-white mb-4">Delivery Location</h2>
+                <LocationPicker 
+                  onLocationSelect={handleLocationSelect}
+                  initialLocation={selectedLocation || undefined}
+                />
+              </div>
+            )}
 
             {/* Additional Address Details */}
             {selectedLocation && (
@@ -314,6 +443,66 @@ export default function CheckoutPage() {
               </div>
             )}
 
+            {/* Schedule Delivery */}
+            {selectedLocation && (
+              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <Calendar className="w-5 h-5" />
+                  Schedule Delivery (Optional)
+                </h2>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">
+                      Preferred Delivery Date & Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={formData.scheduledDelivery}
+                      onChange={(e) => {
+                        const selectedDate = new Date(e.target.value)
+                        const now = new Date()
+                        const maxDate = new Date()
+                        maxDate.setDate(maxDate.getDate() + 30) // Max 30 days ahead
+                        
+                        if (selectedDate < now) {
+                          alert('Please select a future date')
+                          return
+                        }
+                        if (selectedDate > maxDate) {
+                          alert('Delivery can only be scheduled up to 30 days in advance')
+                          return
+                        }
+                        setFormData((prev) => ({ ...prev, scheduledDelivery: e.target.value }))
+                      }}
+                      min={new Date().toISOString().slice(0, 16)}
+                      max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                      className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
+                    />
+                    <p className="text-xs text-gray-400 mt-2">
+                      Leave empty for immediate delivery. You can schedule up to 30 days in advance.
+                    </p>
+                  </div>
+                  {formData.scheduledDelivery && (
+                    <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-3">
+                      <p className="text-sm text-blue-300">
+                        ✓ Delivery scheduled for:{' '}
+                        <span className="font-semibold">
+                          {new Date(formData.scheduledDelivery).toLocaleString('en-US', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Payment Method Selection */}
             {selectedLocation && (
               <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
@@ -322,29 +511,57 @@ export default function CheckoutPage() {
                   {/* Pay on Delivery - Show if within Mombasa or if checking */}
                   {(isWithinMombasa === true || isWithinMombasa === null) && (
                     <label
-                      className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                        isWithinMombasa === true
-                          ? 'border-green-500 hover:bg-gray-700/50'
-                          : 'border-gray-600 opacity-50 cursor-not-allowed'
+                      className={`flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-all ${
+                        paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true
+                          ? 'bg-green-900/30 border-2 border-green-500 ring-2 ring-green-500/50'
+                          : isWithinMombasa === true
+                          ? 'bg-gray-900/50 border-2 border-gray-600 hover:border-gray-500'
+                          : 'bg-gray-900/30 border-2 border-gray-600 opacity-50 cursor-not-allowed'
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="paymentMethod"
-                        value="CASH_ON_DELIVERY"
-                        checked={paymentMethod === 'CASH_ON_DELIVERY'}
-                        onChange={() => {
-                          if (isWithinMombasa === true) {
-                            setPaymentMethod('CASH_ON_DELIVERY')
-                          }
-                        }}
-                        disabled={isWithinMombasa !== true}
-                        className="mt-1"
-                      />
+                      <div className="relative mt-1">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="CASH_ON_DELIVERY"
+                          checked={paymentMethod === 'CASH_ON_DELIVERY'}
+                          onChange={() => {
+                            if (isWithinMombasa === true) {
+                              setPaymentMethod('CASH_ON_DELIVERY')
+                            }
+                          }}
+                          disabled={isWithinMombasa !== true}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                            paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true
+                              ? 'border-green-500 bg-green-500'
+                              : 'border-gray-500 bg-transparent'
+                          }`}
+                        >
+                          {paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                          )}
+                        </div>
+                      </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <Wallet className="w-5 h-5 text-green-400" />
-                          <span className="font-semibold text-white">Pay on Delivery</span>
+                          <Wallet className={`w-5 h-5 ${
+                            paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true
+                              ? 'text-green-400'
+                              : 'text-gray-500'
+                          }`} />
+                          <span className={`font-semibold ${
+                            paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true
+                              ? 'text-white'
+                              : 'text-gray-400'
+                          }`}>
+                            Pay on Delivery
+                            {paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true && (
+                              <span className="ml-2 text-green-400">✓ Selected</span>
+                            )}
+                          </span>
                           {isWithinMombasa === true && (
                             <span className="text-xs bg-green-900 text-green-400 px-2 py-0.5 rounded-full">
                               Available
@@ -361,7 +578,11 @@ export default function CheckoutPage() {
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-400">
+                        <p className={`text-sm ${
+                          paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true
+                            ? 'text-gray-300'
+                            : 'text-gray-500'
+                        }`}>
                           {isWithinMombasa === true
                             ? 'Pay with cash when your order is delivered. Delivery fees will be collected separately in cash by the delivery person based on your area (CBD/town areas may have different fees).'
                             : isWithinMombasa === false
@@ -374,27 +595,59 @@ export default function CheckoutPage() {
 
                   {/* Paystack Payment - Always available */}
                   <label
-                    className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer hover:bg-gray-700/50 transition-colors ${
-                      paymentMethod === 'PAYSTACK' ? 'border-blue-500' : 'border-gray-600'
+                    className={`flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-all ${
+                      paymentMethod === 'PAYSTACK'
+                        ? 'bg-blue-900/30 border-2 border-blue-500 ring-2 ring-blue-500/50'
+                        : 'bg-gray-900/50 border-2 border-gray-600 hover:border-gray-500'
                     }`}
                   >
-                    <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="PAYSTACK"
-                      checked={paymentMethod === 'PAYSTACK'}
-                      onChange={() => setPaymentMethod('PAYSTACK')}
-                      className="mt-1"
-                    />
+                    <div className="relative mt-1">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="PAYSTACK"
+                        checked={paymentMethod === 'PAYSTACK'}
+                        onChange={() => setPaymentMethod('PAYSTACK')}
+                        className="sr-only"
+                      />
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          paymentMethod === 'PAYSTACK'
+                            ? 'border-blue-500 bg-blue-500'
+                            : 'border-gray-500 bg-transparent'
+                        }`}
+                      >
+                        {paymentMethod === 'PAYSTACK' && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                        )}
+                      </div>
+                    </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <CreditCard className="w-5 h-5 text-blue-400" />
-                        <span className="font-semibold text-white">Paystack Payment</span>
+                        <CreditCard className={`w-5 h-5 ${
+                          paymentMethod === 'PAYSTACK'
+                            ? 'text-blue-400'
+                            : 'text-gray-500'
+                        }`} />
+                        <span className={`font-semibold ${
+                          paymentMethod === 'PAYSTACK'
+                            ? 'text-white'
+                            : 'text-gray-400'
+                        }`}>
+                          Paystack Payment
+                          {paymentMethod === 'PAYSTACK' && (
+                            <span className="ml-2 text-blue-400">✓ Selected</span>
+                          )}
+                        </span>
                         <span className="text-xs bg-blue-900 text-blue-400 px-2 py-0.5 rounded-full">
                           Always Available
                         </span>
                       </div>
-                      <p className="text-sm text-gray-400">
+                      <p className={`text-sm ${
+                        paymentMethod === 'PAYSTACK'
+                          ? 'text-gray-300'
+                          : 'text-gray-500'
+                      }`}>
                         Pay securely with cards, bank transfer, or mobile money via Paystack. Supports Visa, Mastercard, and Mpesa.
                       </p>
                     </div>
@@ -422,14 +675,14 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span className="text-gray-300">{item.name} x{item.quantity}</span>
-                  <span className="text-white">KES {(item.price * item.quantity).toLocaleString()}</span>
+                  <span className="text-white">{format(item.price * item.quantity)}</span>
                 </div>
               ))}
             </div>
             <div className="border-t border-gray-700 pt-4">
               <div className="flex justify-between text-lg font-bold text-white">
                 <span>Total</span>
-                <span>KES {total.toLocaleString()}</span>
+                <span>{format(total)}</span>
               </div>
               {paymentMethod === 'CASH_ON_DELIVERY' && (
                 <div className="mt-3 space-y-2">

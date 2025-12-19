@@ -11,10 +11,15 @@ type CartItem = {
 
 type CartStore = {
   items: CartItem[]
+  savedItems: CartItem[]
   addItem: (item: Omit<CartItem, 'quantity'>) => void
   removeItem: (id: string) => void
+  saveForLater: (id: string) => void
+  moveToCart: (id: string) => void
+  removeSavedItem: (id: string) => void
   updateQuantity: (id: string, quantity: number) => void
   clearCart: () => void
+  clearSaved: () => void
   getTotal: () => number
   getItemCount: () => number
 }
@@ -23,6 +28,7 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      savedItems: [],
       addItem: (item) => {
         const existing = get().items.find((i) => i.id === item.id)
         if (existing) {
@@ -38,6 +44,35 @@ export const useCartStore = create<CartStore>()(
       removeItem: (id) => {
         set({ items: get().items.filter((i) => i.id !== id) })
       },
+      saveForLater: (id) => {
+        const item = get().items.find((i) => i.id === id)
+        if (!item) return
+
+        const alreadySaved = get().savedItems.find((i) => i.id === id)
+        set({
+          items: get().items.filter((i) => i.id !== id),
+          savedItems: alreadySaved
+            ? get().savedItems
+            : [...get().savedItems, { ...item }],
+        })
+      },
+      moveToCart: (id) => {
+        const item = get().savedItems.find((i) => i.id === id)
+        if (!item) return
+
+        const existingInCart = get().items.find((i) => i.id === id)
+        set({
+          savedItems: get().savedItems.filter((i) => i.id !== id),
+          items: existingInCart
+            ? get().items.map((i) =>
+                i.id === id ? { ...i, quantity: i.quantity + item.quantity } : i
+              )
+            : [...get().items, { ...item }],
+        })
+      },
+      removeSavedItem: (id) => {
+        set({ savedItems: get().savedItems.filter((i) => i.id !== id) })
+      },
       updateQuantity: (id, quantity) => {
         if (quantity <= 0) {
           get().removeItem(id)
@@ -48,6 +83,7 @@ export const useCartStore = create<CartStore>()(
         }
       },
       clearCart: () => set({ items: [] }),
+      clearSaved: () => set({ savedItems: [] }),
       getTotal: () => {
         return get().items.reduce((sum, item) => sum + item.price * item.quantity, 0)
       },

@@ -6,10 +6,12 @@ import Image from 'next/image'
 import { useWishlistStore } from '@/store/wishlistStore'
 import { Heart, ShoppingCart, Trash2, ArrowLeft } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
+import { useCurrency } from '@/contexts/CurrencyContext'
 
 export default function WishlistPage() {
   const { items, removeItem, clearWishlist } = useWishlistStore()
   const { addItem } = useCartStore()
+  const { format } = useCurrency()
   const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
@@ -105,7 +107,7 @@ export default function WishlistPage() {
                       </h3>
                     </Link>
                     <p className="text-blue-400 font-bold text-xl mb-4">
-                      KES {item.price.toLocaleString()}
+                      {format(item.price)}
                     </p>
                     <div className="flex gap-2">
                       <button

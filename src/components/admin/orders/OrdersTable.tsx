@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { format } from 'date-fns'
-import { Eye, Package } from 'lucide-react'
+import { Eye, Package, Calendar } from 'lucide-react'
 
 const statusColors: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
@@ -41,12 +41,27 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
                   <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 hidden sm:table-cell">{order.items.length} items</td>
                   <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">KES {order.total.toLocaleString()}</td>
                   <td className="px-3 sm:px-6 py-4">
-                    <span className={`px-2 py-1 text-xs rounded-full ${statusColors[order.status] || 'bg-gray-100'}`}>
-                      {order.status}
-                    </span>
+                    <div className="flex flex-col gap-1">
+                      <span className={`px-2 py-1 text-xs rounded-full ${statusColors[order.status] || 'bg-gray-100'}`}>
+                        {order.status}
+                      </span>
+                      {order.scheduledDelivery && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
+                          <Calendar className="w-3 h-3" />
+                          Scheduled
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-700 hidden md:table-cell whitespace-nowrap">
-                    {format(new Date(order.createdAt), 'MMM d, yyyy')}
+                    <div>
+                      <div>{format(new Date(order.createdAt), 'MMM d, yyyy')}</div>
+                      {order.scheduledDelivery && (
+                        <div className="text-purple-600 font-medium mt-1">
+                          {format(new Date(order.scheduledDelivery), 'MMM d, yyyy HH:mm')}
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="px-3 sm:px-6 py-4 text-right whitespace-nowrap">
                   <Link

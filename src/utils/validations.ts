@@ -113,6 +113,19 @@ export const createOrderSchema = z.object({
   city: z.string().min(2).max(100),
   notes: z.string().max(1000).optional(),
   paymentMethod: z.enum(['PAYSTACK', 'CASH_ON_DELIVERY']).default('PAYSTACK'),
+  deliveryAddressId: z.string().optional(), // Reference to saved delivery address
+  scheduledDelivery: z.coerce.date().optional().refine(
+    (date) => {
+      if (!date) return true // Optional field
+      const now = new Date()
+      const maxDate = new Date()
+      maxDate.setDate(maxDate.getDate() + 30)
+      return date >= now && date <= maxDate
+    },
+    {
+      message: 'Scheduled delivery must be between now and 30 days in the future',
+    }
+  ),
 })
 
 export const updateOrderStatusSchema = z.object({

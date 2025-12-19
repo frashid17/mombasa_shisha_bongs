@@ -8,6 +8,7 @@ import ReviewCard from '@/components/home/ReviewCard'
 import RecentlyViewed from '@/components/home/RecentlyViewed'
 import { serializeProducts } from '@/lib/prisma-serialize'
 import CategoryImage from '@/components/categories/CategoryImage'
+import CountdownTimer from '@/components/flash-sales/CountdownTimer'
 
 async function getFeaturedData() {
   const [categories, featuredProducts, newArrivals, stats, reviewsCount, customerReviews] = await Promise.all([
@@ -42,10 +43,60 @@ async function getFeaturedData() {
   return { categories, featuredProducts, newArrivals, stats, reviews: reviewsCount, customerReviews }
 }
 
+async function getActiveFlashSales() {
+  const now = new Date()
+
+  const flashSales = await prisma.flashSale.findMany({
+    where: {
+      isActive: true,
+      startDate: { lte: now },
+      endDate: { gte: now },
+    },
+    orderBy: { endDate: 'asc' },
+  })
+
+  if (flashSales.length === 0) return []
+
+  const flashSalesWithProducts = await Promise.all(
+    flashSales.map(async (sale) => {
+      const productIds = JSON.parse(sale.productIds) as string[]
+      const products = await prisma.product.findMany({
+        where: { id: { in: productIds }, isActive: true },
+        include: {
+          images: { take: 1 },
+          category: true,
+        },
+      })
+
+      return {
+        id: sale.id,
+        title: sale.title,
+        description: sale.description,
+        discountPercent: Number(sale.discountPercent),
+        startDate: sale.startDate,
+        endDate: sale.endDate,
+        products: products.map((p) => ({
+          id: p.id,
+          name: p.name,
+          price: Number(p.price),
+          compareAtPrice: p.compareAtPrice ? Number(p.compareAtPrice) : null,
+          images: p.images,
+          category: p.category,
+          stock: p.stock,
+        })),
+      }
+    })
+  )
+
+  return flashSalesWithProducts
+}
+
 export default async function HomePage() {
   const { categories, featuredProducts, newArrivals, stats, reviews, customerReviews } = await getFeaturedData()
   const serializedFeatured = serializeProducts(featuredProducts)
   const serializedNewArrivals = serializeProducts(newArrivals)
+  const activeFlashSales = await getActiveFlashSales()
+  const primaryFlashSale = activeFlashSales[0]
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -77,6 +128,54 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Flash Sale Section */}
+      {primaryFlashSale && primaryFlashSale.products.length > 0 && (
+        <section className="py-10 bg-gradient-to-r from-red-900 via-purple-900 to-gray-900 border-y border-red-700/50">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg shadow-red-500/40">
+                  <Zap className="w-7 h-7 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-3xl font-bold text-white mb-1">
+                    {primaryFlashSale.title || 'Flash Sale'}
+                  </h2>
+                  <p className="text-red-300 font-semibold">
+                    Up to {primaryFlashSale.discountPercent}% OFF • Limited Time Only
+                  </p>
+                  {primaryFlashSale.description && (
+                    <p className="text-gray-200 mt-2 max-w-xl">
+                      {primaryFlashSale.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex-shrink-0">
+                <CountdownTimer endDate={primaryFlashSale.endDate} />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {primaryFlashSale.products.slice(0, 4).map((product, index) => {
+                const discountedPrice =
+                  Math.round(product.price * (1 - primaryFlashSale.discountPercent / 100))
+
+                const productForCard = {
+                  ...product,
+                  compareAtPrice: product.compareAtPrice ?? product.price,
+                  price: discountedPrice,
+                }
+
+                return (
+                  <ProductCard key={product.id} product={productForCard} index={index} />
+                )
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Quick Stats */}
       <section className="py-12 bg-gray-800 border-y border-gray-700">

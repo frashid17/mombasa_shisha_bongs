@@ -1,25 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Globe } from 'lucide-react'
-
-type Currency = 'KES' | 'USD'
+import { useCurrency } from '@/contexts/CurrencyContext'
+import type { Currency } from '@/lib/currency'
 
 export default function CurrencySelector() {
-  const [currency, setCurrency] = useState<Currency>('KES')
-
-  useEffect(() => {
-    const saved = localStorage.getItem('currency') as Currency
-    if (saved && (saved === 'KES' || saved === 'USD')) {
-      setCurrency(saved)
-    }
-  }, [])
-
-  useEffect(() => {
-    localStorage.setItem('currency', currency)
-    // Dispatch event for other components to listen
-    window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currency }))
-  }, [currency])
+  const { currency, setCurrency } = useCurrency()
 
   return (
     <div className="flex items-center gap-2">

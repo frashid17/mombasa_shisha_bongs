@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Clock } from 'lucide-react'
+import { useCurrency } from '@/contexts/CurrencyContext'
 
 export default function RecentlyViewed() {
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const { format } = useCurrency()
 
   useEffect(() => {
     // Get session ID from localStorage or generate one
@@ -56,7 +58,7 @@ export default function RecentlyViewed() {
               )}
               <div className="p-2">
                 <p className="text-xs text-gray-400 line-clamp-1">{product.name}</p>
-                <p className="text-sm font-bold text-blue-400">KES {product.price.toLocaleString()}</p>
+                <p className="text-sm font-bold text-blue-400">{format(product.price)}</p>
               </div>
             </Link>
           ))}

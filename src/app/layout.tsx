@@ -9,6 +9,11 @@ import Footer from "@/components/Footer";
 import AgeVerification from "@/components/AgeVerification";
 import FloatingContactButtons from "@/components/FloatingContactButtons";
 import PageLoader from "@/components/PageLoader";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import AbandonedCartTracker from "@/components/AbandonedCartTracker";
+import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
+import InstallPrompt from "@/components/pwa/InstallPrompt";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -68,20 +73,50 @@ export default async function RootLayout({
           <link rel="icon" href="/uploads/hookah.svg" type="image/svg+xml" />
           <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
           <link rel="apple-touch-icon" href="/uploads/hookah.svg" />
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="theme-color" content="#111827" />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-gray-100`}
         >
-          <PageLoader />
-          <AgeVerification />
-          {!isAdminRoute && <ConditionalNavbar />}
-          {children}
-          {!isAdminRoute && (
-            <Suspense fallback={<div className="h-64 bg-gray-900" />}>
-              <Footer />
-            </Suspense>
-          )}
-          <FloatingContactButtons />
+          <CurrencyProvider>
+            <ServiceWorkerRegistration />
+            <PageLoader />
+            <AgeVerification />
+            {!isAdminRoute && <AbandonedCartTracker />}
+            {!isAdminRoute && <ConditionalNavbar />}
+            {children}
+            {!isAdminRoute && (
+              <Suspense fallback={<div className="h-64 bg-gray-900" />}>
+                <Footer />
+              </Suspense>
+            )}
+            {!isAdminRoute && <InstallPrompt />}
+            <FloatingContactButtons />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
+                style: {
+                  background: '#1f2937',
+                  color: '#f3f4f6',
+                  border: '1px solid #374151',
+                },
+                success: {
+                  iconTheme: {
+                    primary: '#10b981',
+                    secondary: '#f3f4f6',
+                  },
+                },
+                error: {
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#f3f4f6',
+                  },
+                },
+              }}
+            />
+          </CurrencyProvider>
         </body>
       </html>
     </ClerkProvider>

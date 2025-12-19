@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma'
 import { format } from 'date-fns'
 import Image from 'next/image'
 import OrderStatusUpdate from '@/components/admin/orders/OrderStatusUpdate'
-import { Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Package, Truck, CheckCircle, XCircle, Clock, Calendar } from 'lucide-react'
 import { serializeOrder } from '@/lib/prisma-serialize'
 
 async function getOrder(id: string) {
@@ -148,6 +148,15 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               )}
               {order.estimatedDelivery && (
                 <p><strong>Estimated Delivery:</strong> {format(new Date(order.estimatedDelivery), 'MMMM d, yyyy')}</p>
+              )}
+              {order.scheduledDelivery && (
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                  <div className="flex items-center gap-2 text-purple-700">
+                    <Calendar className="w-5 h-5" />
+                    <p><strong>Scheduled Delivery:</strong> {format(new Date(order.scheduledDelivery), 'MMMM d, yyyy HH:mm')}</p>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1 ml-7">This order is scheduled for delivery at the requested time.</p>
+                </div>
               )}
             </div>
           </div>

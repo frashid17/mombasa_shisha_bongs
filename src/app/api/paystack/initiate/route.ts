@@ -73,6 +73,15 @@ async function handlePOST(req: Request) {
     // Generate unique reference
     const reference = `ORD-${order.orderNumber}-${Date.now()}`
 
+    // Get the origin from the request to build callback URL dynamically
+    // Try multiple methods to get the origin (works in both dev and production)
+    const url = new URL(req.url)
+    const origin = 
+      process.env.NEXT_PUBLIC_APP_URL || // Use env var if set
+      (req.headers.get('x-forwarded-proto') && req.headers.get('host')
+        ? `${req.headers.get('x-forwarded-proto')}://${req.headers.get('host')}`
+        : url.origin) // Fallback to request URL origin
+
     // Initialize Paystack payment
     let paystackResponse
     try {
@@ -82,6 +91,7 @@ async function handlePOST(req: Request) {
         email: validated.email,
         amount: Number(order.total),
         reference,
+        callbackUrl: `${origin}/api/paystack/callback`,
       })
 
       paystackResponse = await initializePaystackPayment(
@@ -93,7 +103,8 @@ async function handlePOST(req: Request) {
           orderNumber: order.orderNumber,
           customerName: order.userName,
           customerPhone: order.userPhone,
-        }
+        },
+        origin // Pass origin as callback URL
       )
 
       console.log('Paystack payment initialized:', {

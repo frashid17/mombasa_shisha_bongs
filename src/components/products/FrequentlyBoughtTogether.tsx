@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingCart } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
+import { useCurrency } from '@/contexts/CurrencyContext'
 
 interface Product {
   id: string
@@ -18,6 +19,7 @@ export default function FrequentlyBoughtTogether({ productId }: { productId: str
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const addToCart = useCartStore((state) => state.addItem)
+  const { format } = useCurrency()
 
   useEffect(() => {
     fetch(`/api/products/${productId}/frequently-bought-together`)
@@ -62,7 +64,7 @@ export default function FrequentlyBoughtTogether({ productId }: { productId: str
                 </h3>
               </Link>
               <div className="flex items-center justify-between">
-                <p className="text-blue-400 font-bold">KES {product.price.toLocaleString()}</p>
+                <p className="text-blue-400 font-bold">{format(product.price)}</p>
                 <button
                   onClick={() => addToCart(product)}
                   className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

@@ -88,12 +88,12 @@ export async function POST(req: Request) {
           },
         })
 
-        // Update order
+        // Update order - set to CONFIRMED after payment is received
         const updatedOrder = await prisma.order.update({
           where: { id: payment.orderId },
           data: {
             paymentStatus: 'PAID',
-            status: 'PROCESSING',
+            status: 'CONFIRMED', // Changed from PROCESSING to CONFIRMED to indicate payment received
           },
           include: { items: true },
         })

@@ -10,6 +10,7 @@ import FrequentlyBoughtTogether from '@/components/products/FrequentlyBoughtToge
 import StockNotificationButton from '@/components/products/StockNotificationButton'
 import SocialShareButtons from '@/components/products/SocialShareButtons'
 import TrackProductView from '@/components/products/TrackProductView'
+import PriceDisplay from '@/components/products/PriceDisplay'
 import { getRecommendedProducts } from '@/lib/recommendations'
 import { serializeProduct, serializeProducts } from '@/lib/prisma-serialize'
 
@@ -65,7 +66,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         <div>
           <p className="text-blue-400 mb-2">{product.category.name}</p>
           <h1 className="text-4xl font-bold text-white mb-4">{product.name}</h1>
-          <p className="text-3xl font-bold text-blue-400 mb-6">KES {product.price.toLocaleString()}</p>
+          <div className="mb-6">
+            <PriceDisplay 
+              price={Number(product.price)} 
+              compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
+              size="xl"
+            />
+          </div>
 
           {product.description && (
             <div className="mb-6">

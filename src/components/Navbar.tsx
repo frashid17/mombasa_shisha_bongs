@@ -5,9 +5,10 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
-import { ShoppingCart, User, Menu, LogOut, Settings, Heart } from 'lucide-react'
+import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import Logo from './Logo'
+import CurrencySelector from './CurrencySelector'
 
 export default function Navbar() {
   const { user, isSignedIn } = useUser()
@@ -75,6 +76,11 @@ export default function Navbar() {
                  </div>
 
           <div className="flex items-center gap-4">
+            {/* Currency Selector */}
+            <div className="hidden md:block">
+              <CurrencySelector />
+            </div>
+
             {isSignedIn ? (
               <div className="hidden md:block relative" ref={profileMenuRef}>
                 <button
@@ -106,6 +112,14 @@ export default function Navbar() {
                       >
                         <Settings className="w-4 h-4" />
                         <span>View Profile</span>
+                      </Link>
+                      <Link
+                        href="/profile/addresses"
+                        onClick={() => setProfileMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                      >
+                        <MapPin className="w-4 h-4" />
+                        <span>Delivery Addresses</span>
                       </Link>
                       <button
                         onClick={handleSignOut}
@@ -163,6 +177,10 @@ export default function Navbar() {
 
                {mobileMenuOpen && (
                  <div className="md:hidden py-4 border-t border-gray-800">
+                   {/* Currency Selector for Mobile */}
+                   <div className="mb-4 pb-4 border-b border-gray-800">
+                     <CurrencySelector />
+                   </div>
                    <Link
                      href="/products"
                      className="block py-2 hover:text-blue-400 transition"

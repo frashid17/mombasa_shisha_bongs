@@ -13,13 +13,17 @@ import {
   BarChart3,
   Bell,
   X,
+  Zap,
+  Calendar,
 } from 'lucide-react'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Products', href: '/admin/products', icon: Package },
   { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+  { name: 'Scheduled Deliveries', href: '/admin/orders/scheduled', icon: Calendar },
   { name: 'Categories', href: '/admin/categories', icon: FolderTree },
+  { name: 'Flash Sales', href: '/admin/flash-sales', icon: Zap },
   { name: 'Customers', href: '/admin/customers', icon: Users },
   { name: 'Notifications', href: '/admin/notifications', icon: Bell },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },

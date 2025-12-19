@@ -90,11 +90,17 @@ export async function initializePaystackPayment(
   email: string,
   amount: number, // in Kobo (KES * 100)
   reference: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>,
+  callbackUrl?: string // Optional callback URL, will use NEXT_PUBLIC_APP_URL or request origin if not provided
 ): Promise<PaystackInitializeResponse> {
   if (!PAYSTACK_SECRET_KEY) {
     throw new Error('PAYSTACK_SECRET_KEY is not configured')
   }
+
+  // Determine callback URL
+  // Priority: 1. Provided callbackUrl, 2. NEXT_PUBLIC_APP_URL, 3. Fallback to localhost (dev only)
+  const baseUrl = callbackUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const callback_url = `${baseUrl.replace(/\/$/, '')}/api/paystack/callback`
 
   const url = `${PAYSTACK_BASE_URL}/transaction/initialize`
   
@@ -110,7 +116,7 @@ export async function initializePaystackPayment(
       reference,
       currency: 'KES',
       metadata: metadata || {},
-      callback_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/paystack/callback`,
+      callback_url,
     }),
   })
 

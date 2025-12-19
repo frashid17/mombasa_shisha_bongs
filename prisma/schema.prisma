@@ -302,6 +302,7 @@ enum NotificationType {
   PAYMENT_FAILED
   LOW_STOCK_ALERT
   ADMIN_ALERT
+  ABANDONED_CART_REMINDER
 }
 
 enum NotificationChannel {
@@ -439,11 +440,12 @@ model FlashSale {
 }
 
 model WishlistShare {
-  id         String   @id @default(cuid())
-  wishlistId String // userId or sessionId
-  shareToken String   @unique
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
+  id          String   @id @default(cuid())
+  wishlistId  String // userId or sessionId
+  shareToken  String   @unique
+  wishlistData String  @db.Text // JSON string of wishlist items
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
 
   @@index([shareToken])
   @@map("wishlist_shares")
