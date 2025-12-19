@@ -30,7 +30,10 @@ export default function SignUpPage() {
               footerActionLink: 'text-primary-600 hover:text-primary-700',
             },
           }}
+          routing="path"
+          path="/sign-up"
           redirectUrl="/"
+          signInUrl="/sign-in"
         />
 
         {/* Additional Info */}

@@ -66,7 +66,13 @@ export default async function RootLayout({
   }
 
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      afterSignInUrl="/"
+      afterSignUpUrl="/"
+    >
       <html lang="en">
         <head>
           <link rel="icon" href="/uploads/hookah.svg" type="image/svg+xml" />
