@@ -47,24 +47,37 @@ export async function sendEmail({
     const gmailPassword = EMAIL_CONFIG.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD
     
     if (!gmailUser || !gmailPassword) {
+      const errorMsg = 'Gmail credentials not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables.'
+      
       if (process.env.NODE_ENV === 'development') {
         console.log('📧 Email (Development Mode - No Gmail Credentials):')
         console.log('To:', to)
         console.log('Subject:', subject)
         console.log('Body:', text || html)
         console.log('---')
+        console.warn('⚠️', errorMsg)
+      } else {
+        // In production, log error but don't mark as sent
+        console.error('❌ Email sending failed:', errorMsg)
+        console.error('   GMAIL_USER:', gmailUser ? 'Set' : 'NOT SET')
+        console.error('   GMAIL_APP_PASSWORD:', gmailPassword ? 'Set' : 'NOT SET')
       }
 
-      // Mark as sent in development
+      // Mark as failed if in production, sent if in development
       await prisma.notification.update({
         where: { id: notification.id },
         data: {
-          status: NotificationStatus.SENT,
-          sentAt: new Date(),
+          status: process.env.NODE_ENV === 'development' ? NotificationStatus.SENT : NotificationStatus.FAILED,
+          sentAt: process.env.NODE_ENV === 'development' ? new Date() : null,
+          errorMessage: process.env.NODE_ENV === 'production' ? errorMsg : null,
         },
       })
 
-      return { success: true, notificationId: notification.id }
+      return { 
+        success: process.env.NODE_ENV === 'development', 
+        notificationId: notification.id,
+        error: process.env.NODE_ENV === 'production' ? errorMsg : undefined
+      }
     }
 
     // Create Gmail SMTP transporter with specific settings

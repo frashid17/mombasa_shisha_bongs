@@ -74,13 +74,31 @@ async function handlePOST(req: Request) {
     const reference = `ORD-${order.orderNumber}-${Date.now()}`
 
     // Get the origin from the request to build callback URL dynamically
-    // Try multiple methods to get the origin (works in both dev and production)
+    // Priority: 1. NEXT_PUBLIC_APP_URL (production), 2. Request headers, 3. Request URL
     const url = new URL(req.url)
-    const origin = 
-      process.env.NEXT_PUBLIC_APP_URL || // Use env var if set
-      (req.headers.get('x-forwarded-proto') && req.headers.get('host')
-        ? `${req.headers.get('x-forwarded-proto')}://${req.headers.get('host')}`
-        : url.origin) // Fallback to request URL origin
+    let origin = process.env.NEXT_PUBLIC_APP_URL
+    
+    // If NEXT_PUBLIC_APP_URL is not set, try to get from headers (Vercel provides these)
+    if (!origin) {
+      const protocol = req.headers.get('x-forwarded-proto') || (url.protocol === 'https:' ? 'https' : 'http')
+      const host = req.headers.get('host') || url.host
+      origin = `${protocol}://${host}`
+    }
+    
+    // Remove trailing slash
+    origin = origin.replace(/\/$/, '')
+    
+    // Log the callback URL being used for debugging
+    console.log('🔗 Paystack Callback URL Configuration:', {
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'NOT SET',
+      origin,
+      callbackUrl: `${origin}/api/paystack/callback`,
+      requestUrl: req.url,
+      headers: {
+        'x-forwarded-proto': req.headers.get('x-forwarded-proto'),
+        'host': req.headers.get('host'),
+      },
+    })
 
     // Initialize Paystack payment
     let paystackResponse
