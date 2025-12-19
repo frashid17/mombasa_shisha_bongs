@@ -51,11 +51,22 @@ export default function PaystackPaymentButton({
 
       const data = await res.json()
 
+      console.log('Paystack initiation response:', {
+        ok: res.ok,
+        success: data.success,
+        hasAuthorizationUrl: !!data.data?.authorizationUrl,
+        authorizationUrl: data.data?.authorizationUrl,
+        error: data.error,
+      })
+
       if (res.ok && data.success) {
         // Redirect to Paystack payment page
         if (data.data?.authorizationUrl) {
+          console.log('Redirecting to Paystack:', data.data.authorizationUrl)
+          // Use window.location.href for full page redirect
           window.location.href = data.data.authorizationUrl
         } else {
+          console.error('No authorization URL in response:', data)
           setError('Payment URL not received. Please try again.')
           setLoading(false)
         }
@@ -63,6 +74,7 @@ export default function PaystackPaymentButton({
         const errorMsg = data.error || 'Failed to initiate payment. Please try again.'
         setError(errorMsg)
         console.error('Paystack initiation failed:', {
+          status: res.status,
           error: data.error,
           response: data,
         })
