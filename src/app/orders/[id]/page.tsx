@@ -81,6 +81,7 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
       <CartClearer 
         paymentStatus={order.paymentStatus} 
         paymentMethod={order.payment?.method}
+        orderId={order.id}
       />
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">

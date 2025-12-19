@@ -211,9 +211,11 @@ export default function CheckoutPage() {
 
       const data = await res.json()
       if (res.ok) {
+        // Clear cart when order is created (items are now committed to an order)
+        clearCart()
+        
         if (paymentMethod === 'CASH_ON_DELIVERY') {
-          // For COD, clear cart and redirect to success page
-          clearCart()
+          // For COD, redirect to success page
           router.push(`/orders/${data.order.id}?cod=true`)
         } else {
           // For Paystack, redirect to order page where payment button will be shown
