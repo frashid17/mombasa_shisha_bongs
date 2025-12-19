@@ -302,7 +302,6 @@ enum NotificationType {
   PAYMENT_FAILED
   LOW_STOCK_ALERT
   ADMIN_ALERT
-  ABANDONED_CART_REMINDER
 }
 
 enum NotificationChannel {
@@ -400,26 +399,6 @@ model SavedCartItem {
   @@index([userId])
   @@index([sessionId])
   @@map("saved_cart_items")
-}
-
-model AbandonedCart {
-  id             String    @id @default(cuid())
-  userId         String? // null for guest
-  sessionId      String? // for guest users
-  email          String?
-  phone          String?
-  cartData       String    @db.Text // JSON string of cart items
-  reminderSent   Int       @default(0)
-  lastReminderAt DateTime?
-  converted      Boolean   @default(false)
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-
-  @@index([userId])
-  @@index([sessionId])
-  @@index([email])
-  @@index([converted])
-  @@map("abandoned_carts")
 }
 
 model FlashSale {
