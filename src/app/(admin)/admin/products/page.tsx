@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Plus } from 'lucide-react'
 import prisma from '@/lib/prisma'
 import ProductsTable from '@/components/admin/products/ProductsTable'
+import CleanupButton from '@/components/admin/products/CleanupButton'
 import { serializeProducts } from '@/lib/prisma-serialize'
 
 async function getProducts() {
@@ -29,13 +30,16 @@ export default async function ProductsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
           <p className="text-gray-700 mt-1">Manage your product catalog</p>
         </div>
-        <Link
-          href="/admin/products/new"
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-5 h-5" />
-          Add Product
-        </Link>
+        <div className="flex items-center gap-3">
+          <CleanupButton />
+          <Link
+            href="/admin/products/new"
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            <Plus className="w-5 h-5" />
+            Add Product
+          </Link>
+        </div>
       </div>
 
       <Suspense fallback={<div className="text-center py-8">Loading products...</div>}>
