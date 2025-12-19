@@ -9,6 +9,8 @@ import RecentlyViewed from '@/components/home/RecentlyViewed'
 import { serializeProducts } from '@/lib/prisma-serialize'
 import CategoryImage from '@/components/categories/CategoryImage'
 import CountdownTimer from '@/components/flash-sales/CountdownTimer'
+import AdminButton from '@/components/admin/AdminButton'
+import { isAdmin } from '@/utils/auth'
 
 async function getFeaturedData() {
   const [categories, featuredProducts, newArrivals, stats, reviewsCount, customerReviews] = await Promise.all([
@@ -97,9 +99,11 @@ export default async function HomePage() {
   const serializedNewArrivals = serializeProducts(newArrivals)
   const activeFlashSales = await getActiveFlashSales()
   const primaryFlashSale = activeFlashSales[0]
+  const userIsAdmin = await isAdmin()
 
   return (
     <div className="min-h-screen bg-gray-900">
+      {userIsAdmin && <AdminButton />}
 
       {/* Hero Section - Nightlife Theme */}
       <section className="bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 text-white py-20 relative overflow-hidden">
