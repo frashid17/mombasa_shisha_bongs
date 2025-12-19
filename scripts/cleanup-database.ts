@@ -11,6 +11,7 @@
  *   npx ts-node scripts/cleanup-database.ts
  */
 
+// @ts-ignore - Prisma client is generated during build, types available at runtime
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -40,6 +41,7 @@ async function cleanup() {
     }
 
     // Delete in transaction
+    // @ts-ignore - Transaction client type is available after Prisma generates
     await prisma.$transaction(async (tx) => {
       console.log('🗑️  Deleting orders...')
       await tx.order.deleteMany({})
