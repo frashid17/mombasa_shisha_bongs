@@ -10,7 +10,6 @@ import AgeVerification from "@/components/AgeVerification";
 import FloatingContactButtons from "@/components/FloatingContactButtons";
 import PageLoader from "@/components/PageLoader";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
-import AbandonedCartTracker from "@/components/AbandonedCartTracker";
 import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
 import InstallPrompt from "@/components/pwa/InstallPrompt";
 import { Toaster } from "react-hot-toast";
@@ -83,7 +82,6 @@ export default async function RootLayout({
             <ServiceWorkerRegistration />
             <PageLoader />
             <AgeVerification />
-            {!isAdminRoute && <AbandonedCartTracker />}
             {!isAdminRoute && <ConditionalNavbar />}
             {children}
             {!isAdminRoute && (

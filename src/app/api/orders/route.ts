@@ -173,24 +173,6 @@ async function handlePOST(req: Request) {
       }
     }
 
-    // Mark abandoned carts as converted (async, don't wait)
-    if (userId || validated.customerEmail) {
-      prisma.abandonedCart
-        .updateMany({
-          where: {
-            OR: [
-              userId ? { userId, converted: false } : undefined,
-              validated.customerEmail ? { email: validated.customerEmail, converted: false } : undefined,
-            ].filter(Boolean) as any[],
-          },
-          data: { converted: true },
-        })
-        .catch((error) => {
-          console.error('Failed to mark abandoned carts as converted:', error)
-          // Don't fail the order creation if this fails
-        })
-    }
-
     // Send order confirmation notification (async, don't wait)
     sendOrderConfirmationNotification(order.id, {
       orderNumber: order.orderNumber,
