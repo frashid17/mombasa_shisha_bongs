@@ -24,6 +24,8 @@ interface OrderNotificationData {
   deliveryCity: string
   estimatedDelivery?: string
   trackingNumber?: string
+  paymentMethod?: string
+  paymentStatus?: string
 }
 
 interface PaymentNotificationData {
@@ -59,23 +61,173 @@ export async function sendOrderConfirmationNotification(
   // Send email to admin
   const adminEmail = ADMIN_CONFIG.EMAIL
   if (adminEmail) {
+    // Format payment method for display
+    const paymentMethodDisplay = data.paymentMethod === 'CASH_ON_DELIVERY' 
+      ? 'Payment on Delivery' 
+      : data.paymentMethod === 'MPESA' 
+      ? 'M-Pesa' 
+      : data.paymentMethod === 'PAYSTACK' 
+      ? 'M-Pesa / Paystack' 
+      : data.paymentMethod || 'Not specified'
+    
+    // Format payment status for display
+    const paymentStatusDisplay = data.paymentStatus === 'PENDING' 
+      ? 'Pending' 
+      : data.paymentStatus === 'PAID' 
+      ? 'Paid' 
+      : data.paymentStatus === 'FAILED' 
+      ? 'Failed' 
+      : data.paymentStatus || 'Unknown'
+    
+    // Calculate item totals
+    const itemsTotal = data.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    
     const adminTemplate = {
-      subject: `New Order Received - #${data.orderNumber}`,
+      subject: `🛒 New Order Received - #${data.orderNumber}`,
       html: `
-        <h1>New Order Received</h1>
-        <p><strong>Order Number:</strong> #${data.orderNumber}</p>
-        <p><strong>Customer:</strong> ${data.customerName}</p>
-        <p><strong>Email:</strong> ${data.customerEmail}</p>
-        <p><strong>Phone:</strong> ${data.customerPhone}</p>
-        <p><strong>Delivery Address:</strong> ${data.deliveryAddress}, ${data.deliveryCity}</p>
-        <p><strong>Total:</strong> KES ${data.total.toLocaleString()}</p>
-        <h2>Order Items:</h2>
-        <ul>
-          ${data.items.map(item => `<li>${item.name} x${item.quantity} - KES ${item.price.toLocaleString()}</li>`).join('')}
-        </ul>
-        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/orders/${orderId}">View Order in Admin Panel</a></p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+            .section { background: white; padding: 15px; margin-bottom: 15px; border-radius: 5px; border-left: 4px solid #667eea; }
+            .section h2 { margin-top: 0; color: #667eea; font-size: 18px; }
+            .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+            .info-row:last-child { border-bottom: none; }
+            .info-label { font-weight: bold; color: #555; }
+            .info-value { color: #333; }
+            .items-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            .items-table th { background: #667eea; color: white; padding: 10px; text-align: left; }
+            .items-table td { padding: 10px; border-bottom: 1px solid #eee; }
+            .items-table tr:last-child td { border-bottom: none; }
+            .total-row { background: #f0f0f0; font-weight: bold; }
+            .button { display: inline-block; background: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+            .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+            .status-pending { background: #ffc107; color: #000; }
+            .status-paid { background: #28a745; color: white; }
+            .status-failed { background: #dc3545; color: white; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>🛒 New Order Received</h1>
+              <p style="margin: 0; font-size: 18px;">Order #${data.orderNumber}</p>
+            </div>
+            
+            <div class="content">
+              <!-- Customer Information -->
+              <div class="section">
+                <h2>👤 Customer Information</h2>
+                <div class="info-row">
+                  <span class="info-label">Name:</span>
+                  <span class="info-value">${data.customerName}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Email:</span>
+                  <span class="info-value">${data.customerEmail}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Phone:</span>
+                  <span class="info-value">${data.customerPhone}</span>
+                </div>
+              </div>
+              
+              <!-- Delivery Information -->
+              <div class="section">
+                <h2>📍 Delivery Location</h2>
+                <div class="info-row">
+                  <span class="info-label">Address:</span>
+                  <span class="info-value">${data.deliveryAddress}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">City:</span>
+                  <span class="info-value">${data.deliveryCity}</span>
+                </div>
+              </div>
+              
+              <!-- Payment Information -->
+              <div class="section">
+                <h2>💳 Payment Information</h2>
+                <div class="info-row">
+                  <span class="info-label">Payment Method:</span>
+                  <span class="info-value">${paymentMethodDisplay}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Payment Status:</span>
+                  <span class="info-value">
+                    <span class="status-badge status-${data.paymentStatus?.toLowerCase() || 'pending'}">${paymentStatusDisplay}</span>
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Order Items -->
+              <div class="section">
+                <h2>📦 Order Items</h2>
+                <table class="items-table">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                      <th>Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${data.items.map(item => `
+                      <tr>
+                        <td>${item.name}</td>
+                        <td>${item.quantity}</td>
+                        <td>KES ${item.price.toLocaleString()}</td>
+                        <td>KES ${(item.price * item.quantity).toLocaleString()}</td>
+                      </tr>
+                    `).join('')}
+                    <tr class="total-row">
+                      <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
+                      <td><strong>KES ${data.total.toLocaleString()}</strong></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- Action Button -->
+              <div style="text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/admin/orders/${orderId}" class="button">
+                  View Order in Admin Panel
+                </a>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
       `,
-      text: `New Order #${data.orderNumber} from ${data.customerName}. Total: KES ${data.total.toLocaleString()}. View in admin panel.`,
+      text: `New Order Received
+
+Order Number: #${data.orderNumber}
+
+Customer Information:
+- Name: ${data.customerName}
+- Email: ${data.customerEmail}
+- Phone: ${data.customerPhone}
+
+Delivery Location:
+- Address: ${data.deliveryAddress}
+- City: ${data.deliveryCity}
+
+Payment Information:
+- Payment Method: ${paymentMethodDisplay}
+- Payment Status: ${paymentStatusDisplay}
+
+Order Items:
+${data.items.map(item => `- ${item.name} x${item.quantity} - KES ${item.price.toLocaleString()} each = KES ${(item.price * item.quantity).toLocaleString()}`).join('\n')}
+
+Total: KES ${data.total.toLocaleString()}
+
+View order: ${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/admin/orders/${orderId}`,
     }
 
     await sendEmail({

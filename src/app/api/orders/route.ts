@@ -187,6 +187,8 @@ async function handlePOST(req: Request) {
       })),
       deliveryAddress: order.deliveryAddress,
       deliveryCity: order.deliveryCity,
+      paymentMethod: validated.paymentMethod,
+      paymentStatus: order.paymentStatus,
     }).catch((error) => {
       console.error('Failed to send order confirmation notification:', error)
       // Don't fail the order creation if notification fails
