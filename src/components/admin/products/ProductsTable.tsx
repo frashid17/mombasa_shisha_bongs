@@ -1,6 +1,11 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { Edit, Trash2, Eye } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 type Product = {
   id: string
@@ -18,6 +23,34 @@ type ProductWithRelations = Product & {
 }
 
 export default function ProductsTable({ products }: { products: ProductWithRelations[] }) {
+  const router = useRouter()
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const handleDelete = async (productId: string, productName: string) => {
+    if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
+      return
+    }
+
+    setDeletingId(productId)
+    try {
+      const response = await fetch(`/api/admin/products/${productId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete product')
+      }
+
+      toast.success('Product deleted successfully')
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete product')
+      console.error('Delete error:', error)
+    } finally {
+      setDeletingId(null)
+    }
+  }
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto -mx-4 sm:mx-0">
@@ -88,10 +121,12 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
                         <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Link>
                       <button 
-                        className="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded"
+                        onClick={() => handleDelete(product.id, product.name)}
+                        disabled={deletingId === product.id}
+                        className="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Delete product"
                       >
-                        <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <Trash2 className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${deletingId === product.id ? 'animate-pulse' : ''}`} />
                       </button>
                     </div>
                   </td>
