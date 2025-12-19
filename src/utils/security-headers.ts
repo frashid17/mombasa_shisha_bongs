@@ -35,15 +35,15 @@ export const SECURITY_HEADERS = {
   // More permissive for Clerk CAPTCHA and Leaflet maps - allows all necessary domains
   'Content-Security-Policy': [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://*.google.com https://www.google.com https://www.gstatic.com https://www.google-analytics.com https://js.stripe.com https://unpkg.com",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://unpkg.com",
-    "font-src 'self' https://fonts.gstatic.com data: https://*.clerk.com https://*.clerk.accounts.dev",
-    "img-src 'self' data: https: blob: https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://www.gstatic.com https://*.tile.openstreetmap.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org",
-    "connect-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://api.resend.com https://api.twilio.com https://sandbox.safaricom.co.ke https://api.safaricom.co.ke https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://www.gstatic.com https://*.tile.openstreetmap.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org wss://*.clerk.com",
-    "frame-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://js.stripe.com",
+    "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://clerk.mombasashishabongs.com https://*.hcaptcha.com https://hcaptcha.com https://*.google.com https://www.google.com https://www.gstatic.com https://www.google-analytics.com https://js.stripe.com https://unpkg.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://clerk.mombasashishabongs.com https://*.hcaptcha.com https://hcaptcha.com https://unpkg.com",
+    "font-src 'self' https://fonts.gstatic.com data: https://*.clerk.com https://*.clerk.accounts.dev https://clerk.mombasashishabongs.com",
+    "img-src 'self' data: https: blob: https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://clerk.mombasashishabongs.com https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://www.gstatic.com https://*.tile.openstreetmap.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org",
+    "connect-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://clerk.mombasashishabongs.com https://api.resend.com https://api.twilio.com https://sandbox.safaricom.co.ke https://api.safaricom.co.ke https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://www.gstatic.com https://*.tile.openstreetmap.org https://a.tile.openstreetmap.org https://b.tile.openstreetmap.org https://c.tile.openstreetmap.org wss://*.clerk.com wss://clerk.mombasashishabongs.com",
+    "frame-src 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://clerk.mombasashishabongs.com https://*.hcaptcha.com https://hcaptcha.com https://www.google.com https://js.stripe.com",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev",
+    "form-action 'self' https://*.clerk.com https://*.clerk.accounts.dev https://*.clerk.dev https://clerk.mombasashishabongs.com",
     "frame-ancestors 'none'",
     // Only upgrade insecure requests in production
     ...(process.env.NODE_ENV === 'production' ? ["upgrade-insecure-requests"] : []),
