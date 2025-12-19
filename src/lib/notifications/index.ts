@@ -252,10 +252,18 @@ export async function sendPaymentReceivedNotification(
 ): Promise<void> {
   const template = getNotificationTemplate('PAYMENT_RECEIVED', data)
 
-  // Get order details for admin notification
+  // Get order details for admin notification (including delivery address)
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    select: { userName: true },
+    select: { 
+      userName: true,
+      userEmail: true,
+      userPhone: true,
+      deliveryAddress: true,
+      deliveryCity: true,
+      deliveryLatitude: true,
+      deliveryLongitude: true,
+    },
   })
 
   // Send email to customer
@@ -276,18 +284,38 @@ export async function sendPaymentReceivedNotification(
   // Send email to admin
   const adminEmail = ADMIN_CONFIG.EMAIL
   if (adminEmail) {
+    // Build delivery location info
+    const deliveryInfo = []
+    if (order?.deliveryAddress) {
+      deliveryInfo.push(order.deliveryAddress)
+    }
+    if (order?.deliveryCity) {
+      deliveryInfo.push(order.deliveryCity)
+    }
+    if (order?.deliveryLatitude && order?.deliveryLongitude) {
+      deliveryInfo.push(`Coordinates: ${order.deliveryLatitude}, ${order.deliveryLongitude}`)
+      deliveryInfo.push(`<a href="https://www.google.com/maps?q=${order.deliveryLatitude},${order.deliveryLongitude}" target="_blank">View on Google Maps</a>`)
+    }
+    const deliveryLocation = deliveryInfo.length > 0 ? deliveryInfo.join('<br>') : 'Not specified'
+
     const adminTemplate = {
       subject: `Payment Received - Order #${data.orderNumber}`,
       html: `
         <h1>Payment Received</h1>
         <p><strong>Order Number:</strong> #${data.orderNumber}</p>
         <p><strong>Customer:</strong> ${order?.userName || 'Customer'}</p>
+        <p><strong>Customer Email:</strong> ${order?.userEmail || data.customerEmail}</p>
+        <p><strong>Customer Phone:</strong> ${order?.userPhone || data.customerPhone || 'Not provided'}</p>
         <p><strong>Amount:</strong> KES ${data.amount.toLocaleString()}</p>
         ${data.receiptNumber ? `<p><strong>Mpesa Receipt:</strong> ${data.receiptNumber}</p>` : ''}
         ${data.transactionId ? `<p><strong>Transaction ID:</strong> ${data.transactionId}</p>` : ''}
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+        <h2>Delivery Location</h2>
+        <p>${deliveryLocation}</p>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
         <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/orders/${orderId}">View Order in Admin Panel</a></p>
       `,
-      text: `Payment received for Order #${data.orderNumber}. Amount: KES ${data.amount.toLocaleString()}. ${data.receiptNumber ? `Receipt: ${data.receiptNumber}` : ''}`,
+      text: `Payment received for Order #${data.orderNumber}. Amount: KES ${data.amount.toLocaleString()}. ${data.receiptNumber ? `Receipt: ${data.receiptNumber}` : ''}\n\nCustomer: ${order?.userName || 'Customer'}\nEmail: ${order?.userEmail || data.customerEmail}\nPhone: ${order?.userPhone || data.customerPhone || 'Not provided'}\n\nDelivery Location:\n${order?.deliveryAddress || 'Not specified'}${order?.deliveryCity ? `, ${order.deliveryCity}` : ''}${order?.deliveryLatitude && order?.deliveryLongitude ? `\nCoordinates: ${order.deliveryLatitude}, ${order.deliveryLongitude}\nView on Google Maps: https://www.google.com/maps?q=${order.deliveryLatitude},${order.deliveryLongitude}` : ''}`,
     }
 
     await sendEmail({
