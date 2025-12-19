@@ -5,7 +5,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
-import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin } from 'lucide-react'
+import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import Logo from './Logo'
 import CurrencySelector from './CurrencySelector'
@@ -55,6 +55,9 @@ export default function Navbar() {
     setProfileMenuOpen(false)
   }
 
+  // Check if user is admin
+  const isAdmin = user?.publicMetadata?.role === 'admin'
+
   return (
     <nav className="bg-gray-900 text-white border-b border-gray-800 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -80,6 +83,18 @@ export default function Navbar() {
             <div className="hidden md:block">
               <CurrencySelector />
             </div>
+
+            {/* Admin Button - Only show for admin users */}
+            {isSignedIn && isAdmin && (
+              <Link
+                href="/admin"
+                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
+                title="Admin Dashboard"
+              >
+                <Shield className="w-4 h-4" />
+                <span className="text-sm font-semibold">Admin</span>
+              </Link>
+            )}
 
             {isSignedIn ? (
               <div className="hidden md:block relative" ref={profileMenuRef}>
@@ -209,6 +224,18 @@ export default function Navbar() {
                        onClick={() => setMobileMenuOpen(false)}
                      >
                        My Orders
+                     </Link>
+                   )}
+                   {isSignedIn && isAdmin && (
+                     <Link
+                       href="/admin"
+                       className="block py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
+                       onClick={() => setMobileMenuOpen(false)}
+                     >
+                       <span className="flex items-center gap-2">
+                         <Shield className="w-4 h-4" />
+                         Admin Dashboard
+                       </span>
                      </Link>
                    )}
             {isSignedIn ? (
