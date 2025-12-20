@@ -75,7 +75,7 @@ export default function TermsPage() {
               <h2 className="text-2xl font-bold text-white mb-4">7. Contact</h2>
               <p>
                 For questions about these terms, please contact us at{' '}
-                <a href="tel://+254719541660" className="text-blue-400 hover:text-blue-300">
+                <a href="tel://+254117037140" className="text-blue-400 hover:text-blue-300">
                   +254 719 541 660
                 </a>
                 .

@@ -21,14 +21,14 @@ export default async function Footer() {
             <h3 className="text-xl font-bold text-white mb-4">Contact Us</h3>
             <div className="space-y-3">
               <a
-                href="tel://+254719541660"
+                href="tel://+254117037140"
                 className="flex items-center gap-3 text-gray-400 hover:text-blue-400 transition-colors"
               >
                 <Phone className="w-5 h-5" />
                 <span>+254 719 541 660</span>
               </a>
               <a
-                href="https://wa.me/254719541660"
+                href="https://wa.me/254117037140"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-gray-400 hover:text-green-400 transition-colors"

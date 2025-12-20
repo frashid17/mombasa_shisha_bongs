@@ -75,12 +75,12 @@ export default function ShippingPolicyPage() {
               <h2 className="text-2xl font-bold text-white mb-4">Contact</h2>
               <p>
                 For questions about shipping, please contact us at{' '}
-                <a href="tel://+254719541660" className="text-blue-400 hover:text-blue-300">
+                <a href="tel://+254117037140" className="text-blue-400 hover:text-blue-300">
                   +254 719 541 660
                 </a>{' '}
                 or via{' '}
                 <a
-                  href="https://wa.me/254719541660"
+                  href="https://wa.me/254117037140"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-green-400 hover:text-green-300"

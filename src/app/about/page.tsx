@@ -53,14 +53,14 @@ export default function AboutPage() {
               <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
                 <p className="mb-2">
                   <strong className="text-white">Phone:</strong>{' '}
-                  <a href="tel://+254719541660" className="text-blue-400 hover:text-blue-300">
+                  <a href="tel://+254117037140" className="text-blue-400 hover:text-blue-300">
                     +254 719 541 660
                   </a>
                 </p>
                 <p className="mb-2">
                   <strong className="text-white">WhatsApp:</strong>{' '}
                   <a
-                    href="https://wa.me/254719541660"
+                    href="https://wa.me/254117037140"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-green-400 hover:text-green-300"
