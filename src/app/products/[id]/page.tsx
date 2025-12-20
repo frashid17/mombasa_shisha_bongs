@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import prisma from '@/lib/prisma'
 import AddToCartButton from '@/components/cart/AddToCartButton'
@@ -11,6 +10,7 @@ import StockNotificationButton from '@/components/products/StockNotificationButt
 import SocialShareButtons from '@/components/products/SocialShareButtons'
 import TrackProductView from '@/components/products/TrackProductView'
 import PriceDisplay from '@/components/products/PriceDisplay'
+import ProductImageCarousel from '@/components/products/ProductImageCarousel'
 import { getRecommendedProducts } from '@/lib/recommendations'
 import { serializeProduct, serializeProducts } from '@/lib/prisma-serialize'
 
@@ -49,17 +49,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Images */}
         <div>
-          {product.images[0] ? (
-            <Image
-              src={product.images[0].url}
-              alt={product.name}
-              width={600}
-              height={600}
-              className="w-full rounded-lg"
-            />
-          ) : (
-            <div className="w-full h-96 bg-gray-800 rounded-lg" />
-          )}
+          <ProductImageCarousel
+            images={product.images}
+            productName={product.name}
+          />
         </div>
 
         {/* Product Info */}

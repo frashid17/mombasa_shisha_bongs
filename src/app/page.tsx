@@ -268,6 +268,38 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Featured Products Section */}
+      {serializedFeatured.length > 0 && (
+        <AnimatedSection direction="up" delay={50}>
+          <section className="py-16 bg-gray-900 border-t border-gray-800">
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-3">
+                  <Star className="w-8 h-8 text-yellow-400" />
+                  <div>
+                    <h2 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-yellow-400 via-orange-400 to-pink-400 bg-clip-text text-transparent">
+                      Featured Products
+                    </h2>
+                    <p className="text-gray-400">Handpicked premium selections for you</p>
+                  </div>
+                </div>
+                <Link
+                  href="/products?featured=true"
+                  className="text-blue-400 font-semibold hover:text-blue-300 transition-colors flex items-center gap-2"
+                >
+                  View All <span>→</span>
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {serializedFeatured.slice(0, 8).map((product, index) => (
+                  <ProductCard key={product.id} product={product} index={index} />
+                ))}
+              </div>
+            </div>
+          </section>
+        </AnimatedSection>
+      )}
+
       {/* New Arrivals Section */}
       {serializedNewArrivals.length > 0 && (
         <AnimatedSection direction="up" delay={100}>
