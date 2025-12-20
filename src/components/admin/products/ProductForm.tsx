@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, X, Image as ImageIcon, Upload, Link as LinkIcon, Crop } from 'lucide-react'
 import ImageEditor from '../ImageEditor'
+import ProductColorsManager from './ProductColorsManager'
 
 type Category = {
   id: string
@@ -416,6 +417,11 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           Upload images from your computer or enter image URLs. The first image or the one marked as primary will be used as the main product image.
         </p>
       </div>
+
+      {/* Product Colors */}
+      {product?.id && (
+        <ProductColorsManager productId={product.id} />
+      )}
 
       <div className="flex gap-4">
         <button

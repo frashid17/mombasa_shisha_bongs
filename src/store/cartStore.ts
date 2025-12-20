@@ -7,6 +7,9 @@ type CartItem = {
   price: number
   image?: string
   quantity: number
+  colorId?: string | null
+  colorName?: string | null
+  colorValue?: string | null
 }
 
 type CartStore = {
@@ -30,12 +33,18 @@ export const useCartStore = create<CartStore>()(
       items: [],
       savedItems: [],
       addItem: (item) => {
-        const existing = get().items.find((i) => i.id === item.id)
+        // For products with colors, treat colorId as part of the unique identifier
+        const itemKey = item.colorId ? `${item.id}-${item.colorId}` : item.id
+        const existing = get().items.find((i) => {
+          const existingKey = i.colorId ? `${i.id}-${i.colorId}` : i.id
+          return existingKey === itemKey
+        })
         if (existing) {
           set({
-            items: get().items.map((i) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-            ),
+            items: get().items.map((i) => {
+              const existingKey = i.colorId ? `${i.id}-${i.colorId}` : i.id
+              return existingKey === itemKey ? { ...i, quantity: i.quantity + 1 } : i
+            }),
           })
         } else {
           set({ items: [...get().items, { ...item, quantity: 1 }] })

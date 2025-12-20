@@ -92,6 +92,9 @@ export const orderItemSchema = z.object({
     .min(1, 'Quantity must be at least 1')
     .max(100, 'Maximum quantity is 100'),
   price: z.number().positive('Price must be positive'),
+  colorId: z.string().optional().nullable(),
+  colorName: z.string().optional().nullable(),
+  colorValue: z.string().optional().nullable(),
 })
 
 export const createOrderSchema = z.object({

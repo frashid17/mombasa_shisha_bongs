@@ -58,6 +58,20 @@ export default function CartPage() {
                     )}
                     <div className="flex-1">
                       <h3 className="font-semibold text-white mb-2">{item.name}</h3>
+                      {item.colorName && (
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="text-sm text-gray-400">Color:</span>
+                          <div className="flex items-center gap-2">
+                            {item.colorValue && (
+                              <div
+                                className="w-4 h-4 rounded-full border border-gray-500"
+                                style={{ backgroundColor: item.colorValue }}
+                              />
+                            )}
+                            <span className="text-sm text-white">{item.colorName}</span>
+                          </div>
+                        </div>
+                      )}
                       <p className="text-blue-400 font-bold mb-4">{format(item.price)}</p>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                         <div className="flex items-center gap-2 border border-gray-600 rounded-lg bg-gray-900">

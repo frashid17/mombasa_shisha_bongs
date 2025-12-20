@@ -1,8 +1,7 @@
 import { notFound } from 'next/navigation'
 import { Metadata } from 'next'
 import prisma from '@/lib/prisma'
-import AddToCartButton from '@/components/cart/AddToCartButton'
-import BuyNowButton from '@/components/cart/BuyNowButton'
+import ProductColorSelectorWrapper from '@/components/products/ProductColorSelectorWrapper'
 import AddToWishlistButton from '@/components/wishlist/AddToWishlistButton'
 import ProductRecommendations from '@/components/products/ProductRecommendations'
 import ProductReviews from '@/components/products/ProductReviews'
@@ -24,6 +23,10 @@ async function getProduct(id: string) {
     include: {
       images: true,
       category: true,
+      colors: {
+        where: { isActive: true },
+        orderBy: { createdAt: 'asc' },
+      },
       reviews: {
         orderBy: { createdAt: 'desc' },
       },
@@ -145,10 +148,11 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           />
 
           {product.stock > 0 && (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <AddToCartButton product={serializedProduct} />
-              <BuyNowButton product={serializedProduct} />
-            </div>
+            <ProductColorSelectorWrapper
+              productId={product.id}
+              colors={product.colors || []}
+              product={serializedProduct}
+            />
           )}
 
           {product.stock === 0 && (
