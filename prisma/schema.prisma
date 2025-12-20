@@ -429,3 +429,15 @@ model WishlistShare {
   @@index([shareToken])
   @@map("wishlist_shares")
 }
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([isActive])
+  @@map("newsletter_subscribers")
+}
