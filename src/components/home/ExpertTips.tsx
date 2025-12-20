@@ -53,13 +53,24 @@ export default function ExpertTips() {
               href={`/tips/${tip.slug}`}
               className="group bg-gray-800 border border-gray-700 rounded-xl overflow-hidden hover:border-blue-500 transition-all hover:shadow-lg"
             >
-              <div className="relative h-48 overflow-hidden">
-                <Image
-                  src={tip.image}
-                  alt={tip.title}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                />
+              <div className="relative h-48 overflow-hidden bg-gray-800">
+                {tip.image && tip.image !== '/uploads/tips/' ? (
+                  <Image
+                    src={tip.image}
+                    alt={tip.title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    onError={(e) => {
+                      // Hide image on error, show placeholder
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                ) : null}
+                {(!tip.image || tip.image === '/uploads/tips/') && (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
+                    <BookOpen className="w-12 h-12 text-gray-600" />
+                  </div>
+                )}
               </div>
               <div className="p-6">
                 <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-blue-400 transition-colors">
