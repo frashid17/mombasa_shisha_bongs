@@ -12,13 +12,13 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       {/* Admin Header */}
       <AdminHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
-      <div className="flex">
+      <div className="flex flex-col lg:flex-row">
         {/* Sidebar */}
         <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         {/* Main Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 w-full lg:w-auto">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 w-full min-w-0 p-3 sm:p-4 md:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto w-full">
             {children}
           </div>
         </main>

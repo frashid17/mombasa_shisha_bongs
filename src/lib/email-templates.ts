@@ -45,7 +45,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
               ${products.map((product) => `
                 <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
                   ${product.image ? `
-                    <img src="${product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                    <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
                   ` : ''}
                   <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 20px;">${product.name}</h3>
                   <p style="color: #667eea; font-size: 24px; font-weight: bold; margin: 10px 0;">
@@ -115,7 +115,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
                 return `
                   <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 2px solid #f59e0b;">
                     ${product.image ? `
-                      <img src="${product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                      <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
                     ` : ''}
                     <div style="background: #fef3c7; color: #92400e; padding: 5px 10px; border-radius: 4px; display: inline-block; font-weight: bold; margin-bottom: 10px;">
                       ${discount}% OFF
@@ -194,7 +194,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
                     🔥 TRENDING
                   </div>
                   ${product.image ? `
-                    <img src="${product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                    <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
                   ` : ''}
                   <h3 style="color: #1f2937; margin: 10px 0; font-size: 20px;">${product.name}</h3>
                   <p style="color: #667eea; font-size: 24px; font-weight: bold; margin: 10px 0;">
@@ -260,7 +260,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
               ${products.map((product) => `
                 <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 2px solid #10b981;">
                   ${product.image ? `
-                    <img src="${product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                    <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
                   ` : ''}
                   <div style="background: #d1fae5; color: #065f46; padding: 5px 10px; border-radius: 4px; display: inline-block; font-weight: bold; margin-bottom: 10px;">
                     🎁 SPECIAL OFFER

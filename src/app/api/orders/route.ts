@@ -184,6 +184,7 @@ async function handlePOST(req: Request) {
         name: item.productName,
         quantity: item.quantity,
         price: Number(item.price),
+        image: item.productImage || undefined,
       })),
       deliveryAddress: order.deliveryAddress,
       deliveryCity: order.deliveryCity,

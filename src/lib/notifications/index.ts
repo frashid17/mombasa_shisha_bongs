@@ -19,7 +19,7 @@ interface OrderNotificationData {
   customerEmail: string
   customerPhone: string
   total: number
-  items: Array<{ name: string; quantity: number; price: number }>
+  items: Array<{ name: string; quantity: number; price: number; image?: string }>
   deliveryAddress: string
   deliveryCity: string
   estimatedDelivery?: string
@@ -168,30 +168,30 @@ export async function sendOrderConfirmationNotification(
               <!-- Order Items -->
               <div class="section">
                 <h2>📦 Order Items</h2>
-                <table class="items-table">
-                  <thead>
-                    <tr>
-                      <th>Item</th>
-                      <th>Quantity</th>
-                      <th>Price</th>
-                      <th>Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${data.items.map(item => `
-                      <tr>
-                        <td>${item.name}</td>
-                        <td>${item.quantity}</td>
-                        <td>KES ${item.price.toLocaleString()}</td>
-                        <td>KES ${(item.price * item.quantity).toLocaleString()}</td>
-                      </tr>
-                    `).join('')}
-                    <tr class="total-row">
-                      <td colspan="3" style="text-align: right;"><strong>Total:</strong></td>
-                      <td><strong>KES ${data.total.toLocaleString()}</strong></td>
-                    </tr>
-                  </tbody>
-                </table>
+                <div style="display: grid; gap: 15px; margin-top: 15px;">
+                  ${data.items.map(item => `
+                    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; display: flex; gap: 15px; align-items: center;">
+                      ${item.image ? `
+                        <img src="${item.image.startsWith('http') ? item.image : (process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com') + item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">
+                      ` : `
+                        <div style="width: 80px; height: 80px; background: #e5e7eb; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 12px;">No Image</div>
+                      `}
+                      <div style="flex: 1; min-width: 0;">
+                        <h3 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px; font-weight: bold;">${item.name}</h3>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; color: #6b7280;">
+                          <span><strong>Qty:</strong> ${item.quantity}</span>
+                          <span><strong>Price:</strong> KES ${item.price.toLocaleString()}</span>
+                          <span><strong>Subtotal:</strong> KES ${(item.price * item.quantity).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+                <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #e5e7eb; text-align: right;">
+                  <div style="font-size: 18px; font-weight: bold; color: #1f2937;">
+                    Total: <span style="color: #667eea;">KES ${data.total.toLocaleString()}</span>
+                  </div>
+                </div>
               </div>
               
               <!-- Action Button -->
