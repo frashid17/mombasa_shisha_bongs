@@ -81,17 +81,18 @@ export default function ExpertTips() {
                     </div>
                   )}
                 </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-blue-400 transition-colors">
-                  {tip.title}
-                </h3>
-                <div className="inline-flex items-center gap-2 text-blue-400 font-semibold group-hover:gap-3 transition-all">
-                  <span>Read Article</span>
-                  <ArrowRight className="w-4 h-4" />
+                <div className="p-6">
+                  <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-blue-400 transition-colors">
+                    {tip.title}
+                  </h3>
+                  <div className="inline-flex items-center gap-2 text-blue-400 font-semibold group-hover:gap-3 transition-all">
+                    <span>Read Article</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       </div>
     </section>
