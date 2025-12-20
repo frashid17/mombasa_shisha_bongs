@@ -171,11 +171,6 @@ export default async function HomePage() {
   const activeFlashSales = await getActiveFlashSales()
   const primaryFlashSale = activeFlashSales[0]
 
-  // Get category data for promo cards
-  const shishaCategory = categories.find(c => c.name.toLowerCase().includes('shisha') || c.name.toLowerCase().includes('hookah'))
-  const vapeCategory = categories.find(c => c.name.toLowerCase().includes('vape'))
-  const accessoriesCategory = categories.find(c => c.name.toLowerCase().includes('accessor'))
-
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Top Banner - Pay on Delivery */}
@@ -254,82 +249,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Category Introduction - 3 Columns */}
-      <section className="py-12 md:py-16 bg-gray-900">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 md:mb-12 text-center">
-            Mombasa Shisha Bongs - Online Vape Shop
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {/* Shisha Column */}
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-blue-500 transition-all">
-              <div className="relative h-48 mb-4 rounded-lg overflow-hidden">
-                <Image
-                  src="https://images.unsplash.com/photo-1761839257287-3030c9300ece?w=800&h=600&fit=crop&q=80"
-                  alt="Shisha Products"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Shisha & Hookah</h3>
-              <p className="text-gray-300 text-sm mb-4">
-                Premium shisha pipes, hookah accessories, flavored tobacco, and everything you need for the perfect shisha experience.
-              </p>
-              <Link
-                href={shishaCategory ? `/categories/${shishaCategory.id}` : '/products'}
-                className="text-blue-400 font-semibold hover:text-blue-300 transition-colors inline-flex items-center gap-2"
-              >
-                Shop Now <span>→</span>
-              </Link>
-            </div>
-
-            {/* Vape Kits Column */}
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-blue-500 transition-all">
-              <div className="relative h-48 mb-4 rounded-lg overflow-hidden">
-                <Image
-                  src="https://images.unsplash.com/photo-1555697863-80a30c6e4bc1?w=800&h=600&fit=crop&q=80"
-                  alt="Vape Kits"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Vape Kits</h3>
-              <p className="text-gray-300 text-sm mb-4">
-                Starter kits, pod kits, sub-ohm kits, and advanced vape kits. Everything from beginner to expert level.
-              </p>
-              <Link
-                href={vapeCategory ? `/categories/${vapeCategory.id}` : '/products'}
-                className="text-blue-400 font-semibold hover:text-blue-300 transition-colors inline-flex items-center gap-2"
-              >
-                Shop Now <span>→</span>
-              </Link>
-            </div>
-
-            {/* Disposables Column */}
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-blue-500 transition-all">
-              <div className="relative h-48 mb-4 rounded-lg overflow-hidden">
-                <Image
-                  src="https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&h=600&fit=crop&q=80"
-                  alt="Disposables"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">Disposables & E-Liquids</h3>
-              <p className="text-gray-300 text-sm mb-4">
-                Convenient disposable vapes, premium e-liquids, nicotine salts, and a wide variety of flavors to choose from.
-              </p>
-              <Link
-                href="/products"
-                className="text-blue-400 font-semibold hover:text-blue-300 transition-colors inline-flex items-center gap-2"
-              >
-                Shop Now <span>→</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Trust Section */}
       <section className="py-12 md:py-16 bg-gray-800 border-y border-gray-700">
