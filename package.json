@@ -13,6 +13,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:cleanup": "tsx scripts/cleanup-database.ts",
+    "db:add-categories": "tsx scripts/add-categories.ts",
+    "db:remove-old-categories": "tsx scripts/remove-old-categories.ts",
     "postinstall": "prisma generate"
   },
   "prisma": {

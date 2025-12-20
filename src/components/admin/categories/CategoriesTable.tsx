@@ -1,10 +1,47 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Edit, Trash2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export default function CategoriesTable({ categories }: { categories: any[] }) {
+  const router = useRouter()
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const handleDelete = async (categoryId: string, categoryName: string, productCount: number) => {
+    if (productCount > 0) {
+      toast.error(`Cannot delete "${categoryName}". It has ${productCount} product(s). Please reassign or delete products first.`)
+      return
+    }
+
+    if (!confirm(`Are you sure you want to delete "${categoryName}"? This action cannot be undone.`)) {
+      return
+    }
+
+    setDeletingId(categoryId)
+    try {
+      const response = await fetch(`/api/admin/categories/${categoryId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Failed to delete category')
+      }
+
+      toast.success('Category deleted successfully')
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete category')
+      console.error('Delete error:', error)
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="overflow-x-auto -mx-4 sm:mx-0">
@@ -58,10 +95,12 @@ export default function CategoriesTable({ categories }: { categories: any[] }) {
                         <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </Link>
                       <button 
-                        className="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded"
+                        onClick={() => handleDelete(category.id, category.name, category._count?.products || 0)}
+                        disabled={deletingId === category.id}
+                        className="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Delete category"
                       >
-                        <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        <Trash2 className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${deletingId === category.id ? 'animate-pulse' : ''}`} />
                       </button>
                     </div>
                   </td>

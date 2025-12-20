@@ -8,7 +8,6 @@ import ReviewCard from '@/components/home/ReviewCard'
 import RecentlyViewed from '@/components/home/RecentlyViewed'
 import FAQ from '@/components/home/FAQ'
 import ExpertTips from '@/components/home/ExpertTips'
-import CategoryPromoCard from '@/components/home/CategoryPromoCard'
 import { serializeProducts } from '@/lib/prisma-serialize'
 import CategoryImage from '@/components/categories/CategoryImage'
 import CountdownTimer from '@/components/flash-sales/CountdownTimer'
@@ -38,8 +37,8 @@ async function getFeaturedData() {
     topSellingProducts.map((item, index) => [item.productId, index])
   )
 
-  const [categories, featuredProducts, newArrivals, stats, reviewsCount, customerReviews] = await Promise.all([
-    prisma.category.findMany({ take: 6, orderBy: { name: 'asc' } }),
+  const [categories, featuredProducts, newArrivals, stats, reviewsCount, customerReviews, allProducts] = await Promise.all([
+    prisma.category.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } }),
     // Featured products: Top-selling products (automatically determined by sales)
     featuredProductIds.length > 0
       ? prisma.product.findMany({
@@ -94,6 +93,13 @@ async function getFeaturedData() {
       take: 6,
       orderBy: { createdAt: 'desc' },
     }),
+    // Get all products for "Explore All Items" section
+    prisma.product.findMany({
+      where: { isActive: true },
+      include: { images: { take: 1 }, category: true },
+      take: 12,
+      orderBy: { createdAt: 'desc' },
+    }),
   ])
 
   // Sort featured products by their sales order (top sellers first)
@@ -112,6 +118,7 @@ async function getFeaturedData() {
     stats,
     reviews: reviewsCount,
     customerReviews,
+    allProducts,
   }
 }
 
@@ -164,9 +171,10 @@ async function getActiveFlashSales() {
 }
 
 export default async function HomePage() {
-  const { categories, featuredProducts, newArrivals, stats, reviews, customerReviews } = await getFeaturedData()
+  const { categories, featuredProducts, newArrivals, stats, reviews, customerReviews, allProducts } = await getFeaturedData()
   const serializedFeatured = serializeProducts(featuredProducts)
   const serializedNewArrivals = serializeProducts(newArrivals)
+  const serializedAllProducts = serializeProducts(allProducts)
   const activeFlashSales = await getActiveFlashSales()
   const primaryFlashSale = activeFlashSales[0]
 
@@ -184,19 +192,41 @@ export default async function HomePage() {
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
         </div>
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Premium Shisha & Vapes
-            </h1>
-            <p className="text-xl md:text-2xl mb-6 text-gray-200">
-              Mix & Match any flavor & strength. Best prices in Mombasa
-            </p>
-            <Link
-              href="/products"
-              className="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold px-8 py-4 rounded-lg text-lg transition-colors shadow-lg"
-            >
-              Shop Now
-            </Link>
+          <div className="max-w-6xl mx-auto">
+            {/* Hero Text */}
+            <div className="text-center mb-8 md:mb-12">
+              <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Premium Shisha & Vapes
+              </h1>
+              <p className="text-xl md:text-2xl mb-6 text-gray-200">
+                Mix & Match any flavor & strength. Best prices in Mombasa
+              </p>
+              <Link
+                href="/products"
+                className="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold px-8 py-4 rounded-lg text-lg transition-colors shadow-lg"
+              >
+                Shop Now
+              </Link>
+            </div>
+
+            {/* Features Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center border border-white/20 hover:bg-white/15 transition-all">
+                <Truck className="w-12 h-12 mx-auto mb-4 text-blue-400" />
+                <h3 className="text-xl font-semibold mb-2 text-white">Fast Shipping</h3>
+                <p className="text-gray-300 text-sm">Same-day delivery in Mombasa. Nationwide shipping available.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center border border-white/20 hover:bg-white/15 transition-all">
+                <Shield className="w-12 h-12 mx-auto mb-4 text-green-400" />
+                <h3 className="text-xl font-semibold mb-2 text-white">Secure Payment</h3>
+                <p className="text-gray-300 text-sm">Paystack & secure checkout. Pay on delivery available.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center border border-white/20 hover:bg-white/15 transition-all">
+                <Star className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
+                <h3 className="text-xl font-semibold mb-2 text-white">Premium Quality</h3>
+                <p className="text-gray-300 text-sm">Authentic products guaranteed. 100% quality assurance.</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -265,35 +295,69 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Category Promotional Cards */}
+      {/* Categories Section */}
       <section className="py-12 md:py-16 bg-gray-900">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.slice(0, 5).map((category, index) => {
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Shop by Category</h2>
+              <p className="text-gray-400">Browse our wide selection of premium products</p>
+            </div>
+            <Link
+              href="/categories"
+              className="text-blue-400 font-semibold hover:text-blue-300 transition-colors flex items-center gap-2"
+            >
+              View All <span>→</span>
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {categories.map((category, index) => {
               const getCategoryImage = (name: string) => {
                 const nameLower = name.toLowerCase()
+                if (nameLower.includes('shisha') && nameLower.includes('flavor')) {
+                  return 'https://images.unsplash.com/photo-1548595165-c96277dfa6d3?w=800&h=600&fit=crop&q=80'
+                }
+                if (nameLower.includes('disposable')) {
+                  return 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&h=600&fit=crop&q=80'
+                }
                 if (nameLower.includes('shisha') || nameLower.includes('hookah')) {
                   return 'https://images.unsplash.com/photo-1761839257287-3030c9300ece?w=800&h=600&fit=crop&q=80'
                 }
-                if (nameLower.includes('vape')) {
-                  return 'https://images.unsplash.com/photo-1555697863-80a30c6e4bc1?w=800&h=600&fit=crop&q=80'
-                }
                 if (nameLower.includes('accessor')) {
                   return 'https://images.unsplash.com/photo-1591522810163-d1e3cbf1c888?w=800&h=600&fit=crop&q=80'
+                }
+                if (nameLower.includes('coal')) {
+                  return 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&h=600&fit=crop&q=80'
+                }
+                if (nameLower.includes('refillable')) {
+                  return 'https://images.unsplash.com/photo-1555697863-80a30c6e4bc1?w=800&h=600&fit=crop&q=80'
+                }
+                if (nameLower.includes('liquid')) {
+                  return 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&h=600&fit=crop&q=80'
                 }
                 return 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=800&h=600&fit=crop&q=80'
               }
 
               return (
-                <CategoryPromoCard
+                <Link
                   key={category.id}
-                  title={category.name}
-                  description={`Premium ${category.name.toLowerCase()} products`}
-                  products={`Browse our ${category.name.toLowerCase()} collection`}
-                  priceRange="KES 500"
-                  image={category.image || getCategoryImage(category.name)}
                   href={`/categories/${category.id}`}
-                />
+                  className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all hover:scale-105 group relative"
+                >
+                  <div className="relative h-32 bg-gray-800">
+                    <CategoryImage
+                      src={category.image || getCategoryImage(category.name)}
+                      alt={category.name}
+                      className={`object-cover group-hover:scale-110 transition-transform duration-300 ${!category.image ? 'opacity-80' : ''}`}
+                      unoptimized={category.image ? (category.image.startsWith('http') && !category.image.includes('localhost')) : true}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
+                  </div>
+                  <div className="p-4 text-center relative z-10">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <h3 className="text-sm font-semibold text-white relative z-10 group-hover:text-blue-400 transition-colors line-clamp-2">{category.name}</h3>
+                  </div>
+                </Link>
               )
             })}
           </div>
@@ -323,6 +387,36 @@ export default async function HomePage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {serializedFeatured.slice(0, 4).map((product, index) => (
+                <ProductCard key={product.id} product={product} index={index} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Explore All Items Section */}
+      {serializedAllProducts.length > 0 && (
+        <section className="py-12 md:py-16 bg-gray-900 border-t border-gray-800">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
+              <div className="flex items-center gap-3">
+                <Package className="w-6 h-6 md:w-8 md:h-8 text-blue-400" />
+                <div>
+                  <h2 className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2">
+                    Explore All Items
+                  </h2>
+                  <p className="text-gray-400 text-sm md:text-base">Browse our complete product catalog</p>
+                </div>
+              </div>
+              <Link
+                href="/products"
+                className="text-blue-400 font-semibold hover:text-blue-300 transition-colors flex items-center gap-2 text-sm md:text-base"
+              >
+                View All Products <span>→</span>
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {serializedAllProducts.slice(0, 8).map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))}
             </div>

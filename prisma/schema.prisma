@@ -41,7 +41,7 @@ model Product {
   lowStockThreshold  Int                 @default(10)
   trackInventory     Boolean             @default(true)
   allowBackorder     Boolean             @default(false)
-  categoryId         String
+  categoryId         String?
   brand              String?
   tags               String?             @db.VarChar(1000)
   featuredImage      String?
@@ -59,7 +59,7 @@ model Product {
   publishedAt        DateTime?
   orderItems         OrderItem[]
   images             ProductImage[]
-  category           Category            @relation(fields: [categoryId], references: [id])
+  category           Category?           @relation(fields: [categoryId], references: [id])
   reviews            Review[]
   stockNotifications StockNotification[]
   recentlyViewed     RecentlyViewed[]
