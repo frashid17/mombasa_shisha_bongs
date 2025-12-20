@@ -10,25 +10,34 @@ export async function getRecommendedProducts(productId: string, limit = 4) {
   if (!product) return []
 
   // Strategy 1: Same category products (most relevant)
-  const sameCategory = await prisma.product.findMany({
-    where: {
-      categoryId: product.categoryId,
-      isActive: true,
-      id: { not: productId },
-    },
-    include: { images: { take: 1 }, category: true },
-    take: limit,
-    orderBy: { createdAt: 'desc' },
-  })
+  // Only if product has a category
+  const sameCategory = product.categoryId
+    ? await prisma.product.findMany({
+        where: {
+          categoryId: product.categoryId,
+          isActive: true,
+          id: { not: productId },
+        },
+        include: { images: { take: 1 }, category: true },
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      })
+    : []
 
   // Strategy 2: If not enough, add products from related categories
   if (sameCategory.length < limit) {
+    const relatedWhere: any = {
+      isActive: true,
+      id: { not: productId },
+    }
+    
+    // Only exclude current category if it exists
+    if (product.categoryId) {
+      relatedWhere.categoryId = { not: product.categoryId }
+    }
+    
     const related = await prisma.product.findMany({
-      where: {
-        isActive: true,
-        id: { not: productId },
-        categoryId: { not: product.categoryId },
-      },
+      where: relatedWhere,
       include: { images: { take: 1 }, category: true },
       take: limit - sameCategory.length,
       orderBy: { createdAt: 'desc' },
@@ -48,7 +57,10 @@ export async function getCartRecommendations(cartItemIds: string[], limit = 4) {
     select: { categoryId: true },
   })
 
-  const categoryIds = [...new Set(products.map((p) => p.categoryId))]
+  const categoryIds = [...new Set(products.map((p) => p.categoryId).filter((id): id is string => id !== null))]
+
+  // If no valid category IDs, return empty array
+  if (categoryIds.length === 0) return []
 
   // Recommend products from same categories
   const recommendations = await prisma.product.findMany({
