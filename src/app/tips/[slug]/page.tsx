@@ -1,7 +1,11 @@
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowLeft, Calendar, Clock, BookOpen } from 'lucide-react'
+import StructuredData from '@/components/seo/StructuredData'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
 interface Article {
   slug: string
@@ -66,6 +70,42 @@ export async function generateStaticParams() {
   }))
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const article = articles[slug]
+
+  if (!article) {
+    return {
+      title: 'Article Not Found',
+    }
+  }
+
+  const articleUrl = `${siteUrl}/tips/${slug}`
+  const articleImage = article.image && article.image !== '/uploads/tips/' ? article.image : '/logo.png'
+
+  return {
+    title: `${article.title} - Expert Tips | Mombasa Shisha Bongs`,
+    description: article.content[0] || `${article.title} - Expert guide from Mombasa Shisha Bongs`,
+    openGraph: {
+      title: article.title,
+      description: article.content[0] || article.title,
+      url: articleUrl,
+      images: [articleImage.startsWith('http') ? articleImage : `${siteUrl}${articleImage}`],
+      type: 'article',
+      publishedTime: '2025-12-20T00:00:00Z',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.content[0] || article.title,
+      images: [articleImage.startsWith('http') ? articleImage : `${siteUrl}${articleImage}`],
+    },
+    alternates: {
+      canonical: articleUrl,
+    },
+  }
+}
+
 export default async function TipPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const article = articles[slug]
@@ -74,8 +114,27 @@ export default async function TipPage({ params }: { params: Promise<{ slug: stri
     notFound()
   }
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Expert Tips', url: '/#expert-tips' },
+    { name: article.title, url: `/tips/${slug}` },
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-900">
+    <>
+      <StructuredData
+        type="Article"
+        data={{
+          title: article.title,
+          description: article.content[0] || article.title,
+          image: article.image && article.image !== '/uploads/tips/' ? article.image : '/logo.png',
+          date: '2025-12-20',
+          datePublished: '2025-12-20T00:00:00Z',
+          dateModified: '2025-12-20T00:00:00Z',
+        }}
+      />
+      <StructuredData type="BreadcrumbList" data={breadcrumbs} />
+      <div className="min-h-screen bg-gray-900">
       {/* Header */}
       <div className="bg-gradient-to-br from-gray-800 to-gray-900 border-b border-gray-800">
         <div className="container mx-auto px-4 py-8">
@@ -177,6 +236,7 @@ export default async function TipPage({ params }: { params: Promise<{ slug: stri
         </article>
       </div>
     </div>
+    </>
   )
 }
 

@@ -25,10 +25,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
+
 export const metadata: Metadata = {
-  title: "Mombasa Shisha Bongs - Premium Shisha & Vapes",
-  description: "Premium shisha, vapes, and smoking accessories in Mombasa. Fast delivery, authentic products, secure payment with Mpesa.",
-  keywords: ["shisha", "hookah", "vape", "tobacco", "mombasa", "kenya"],
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Mombasa Shisha Bongs - Premium Shisha & Vapes in Mombasa, Kenya",
+    template: "%s | Mombasa Shisha Bongs"
+  },
+  description: "Premium shisha, vapes, and smoking accessories in Mombasa, Kenya. Fast delivery, authentic products, secure payment with Mpesa and Paystack. Shop the best shisha flavors, hookahs, disposable vapes, and e-liquids.",
+  keywords: [
+    "shisha",
+    "hookah",
+    "vape",
+    "tobacco",
+    "mombasa",
+    "kenya",
+    "shisha flavors",
+    "disposable vapes",
+    "e-liquids",
+    "hookah accessories",
+    "shisha coals",
+    "vape kits",
+    "mombasa shisha shop",
+    "online shisha store kenya"
+  ],
+  authors: [{ name: "Mombasa Shisha Bongs" }],
+  creator: "Mombasa Shisha Bongs",
+  publisher: "Mombasa Shisha Bongs",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: [
       { url: '/uploads/hookah.svg', type: 'image/svg+xml' },
@@ -39,9 +68,45 @@ export const metadata: Metadata = {
     shortcut: '/uploads/hookah.svg',
   },
   openGraph: {
+    type: 'website',
+    locale: 'en_KE',
+    url: siteUrl,
+    siteName: 'Mombasa Shisha Bongs',
+    title: "Mombasa Shisha Bongs - Premium Shisha & Vapes in Mombasa",
+    description: "Premium shisha, vapes, and smoking accessories in Mombasa, Kenya. Fast delivery, authentic products, secure payment.",
+    images: [
+      {
+        url: '/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'Mombasa Shisha Bongs Logo',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
     title: "Mombasa Shisha Bongs - Premium Shisha & Vapes",
-    description: "Premium shisha, vapes, and smoking accessories in Mombasa.",
+    description: "Premium shisha, vapes, and smoking accessories in Mombasa, Kenya.",
     images: ['/logo.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    // Add your verification codes here when available
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
+  },
+  alternates: {
+    canonical: siteUrl,
   },
 };
 

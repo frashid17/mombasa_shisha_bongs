@@ -1,5 +1,22 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
 import { ArrowLeft } from 'lucide-react'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
+
+export const metadata: Metadata = {
+  title: 'Privacy Policy - Mombasa Shisha Bongs',
+  description: 'Read our privacy policy to understand how Mombasa Shisha Bongs collects, uses, and protects your personal information when you use our website and services.',
+  openGraph: {
+    title: 'Privacy Policy - Mombasa Shisha Bongs',
+    description: 'Learn how we protect your privacy and handle your personal information.',
+    url: `${siteUrl}/privacy`,
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: `${siteUrl}/privacy`,
+  },
+}
 
 export default function PrivacyPage() {
   return (

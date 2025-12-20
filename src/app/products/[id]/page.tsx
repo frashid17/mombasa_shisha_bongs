@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 import prisma from '@/lib/prisma'
 import AddToCartButton from '@/components/cart/AddToCartButton'
 import BuyNowButton from '@/components/cart/BuyNowButton'
@@ -13,6 +14,9 @@ import PriceDisplay from '@/components/products/PriceDisplay'
 import ProductImageCarousel from '@/components/products/ProductImageCarousel'
 import { getRecommendedProducts } from '@/lib/recommendations'
 import { serializeProduct, serializeProducts } from '@/lib/prisma-serialize'
+import StructuredData from '@/components/seo/StructuredData'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
 async function getProduct(id: string) {
   return prisma.product.findUnique({
@@ -25,6 +29,41 @@ async function getProduct(id: string) {
       },
     },
   })
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const product = await getProduct(id)
+
+  if (!product || !product.isActive) {
+    return {
+      title: 'Product Not Found',
+    }
+  }
+
+  const productImage = product.images[0]?.url || '/logo.png'
+  const productUrl = `${siteUrl}/products/${id}`
+
+  return {
+    title: `${product.name} - Mombasa Shisha Bongs`,
+    description: product.description || `${product.name} - Premium quality ${product.category?.name?.toLowerCase() || 'product'} from Mombasa Shisha Bongs. Shop now with fast delivery in Mombasa, Kenya.`,
+    openGraph: {
+      title: product.name,
+      description: product.description || `${product.name} - Premium quality product`,
+      url: productUrl,
+      images: [productImage.startsWith('http') ? productImage : `${siteUrl}${productImage}`],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.name,
+      description: product.description || `${product.name} - Premium quality product`,
+      images: [productImage.startsWith('http') ? productImage : `${siteUrl}${productImage}`],
+    },
+    alternates: {
+      canonical: productUrl,
+    },
+  }
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
@@ -42,9 +81,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   const serializedProduct = serializeProduct(product)
   const serializedRecommendations = serializeProducts(recommendations)
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Products', url: '/products' },
+    { name: product.category?.name || 'Product', url: product.category ? `/categories/${product.category.id}` : '/products' },
+    { name: product.name, url: `/products/${id}` },
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-900">
-      <TrackProductView productId={id} />
+    <>
+      <StructuredData type="Product" data={product} />
+      <StructuredData type="BreadcrumbList" data={breadcrumbs} />
+      <div className="min-h-screen bg-gray-900">
+        <TrackProductView productId={id} />
       <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Images */}
@@ -125,6 +174,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
       <ProductRecommendations products={serializedRecommendations} />
       </div>
     </div>
+    </>
   )
 }
 

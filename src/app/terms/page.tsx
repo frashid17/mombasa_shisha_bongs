@@ -1,5 +1,22 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
 import { ArrowLeft } from 'lucide-react'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
+
+export const metadata: Metadata = {
+  title: 'Terms & Conditions - Mombasa Shisha Bongs',
+  description: 'Read our terms and conditions for using Mombasa Shisha Bongs website and services. Age requirements, payment terms, returns policy, and more.',
+  openGraph: {
+    title: 'Terms & Conditions - Mombasa Shisha Bongs',
+    description: 'Terms and conditions for using our website and services.',
+    url: `${siteUrl}/terms`,
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: `${siteUrl}/terms`,
+  },
+}
 
 export default function TermsPage() {
   return (

@@ -1,6 +1,24 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
 import prisma from '@/lib/prisma'
 import CategoryImage from '@/components/categories/CategoryImage'
+import StructuredData from '@/components/seo/StructuredData'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
+
+export const metadata: Metadata = {
+  title: 'All Categories - Browse Shisha & Vape Categories',
+  description: 'Browse all product categories at Mombasa Shisha Bongs. Shop shisha flavors, disposable vapes, hookahs, accessories, coals, refillable vapes, and e-liquids in Mombasa, Kenya.',
+  openGraph: {
+    title: 'All Categories - Mombasa Shisha Bongs',
+    description: 'Browse all product categories. Shop shisha, vapes, and accessories in Mombasa, Kenya.',
+    url: `${siteUrl}/categories`,
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: `${siteUrl}/categories`,
+  },
+}
 
 async function getCategories() {
   return prisma.category.findMany({
@@ -41,8 +59,15 @@ function getCategoryPlaceholderImage(name: string): string {
 export default async function CategoriesPage() {
   const categories = await getCategories()
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Categories', url: '/categories' },
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-900">
+    <>
+      <StructuredData type="BreadcrumbList" data={breadcrumbs} />
+      <div className="min-h-screen bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -102,6 +127,7 @@ export default async function CategoriesPage() {
         )}
       </div>
     </div>
+    </>
   )
 }
 

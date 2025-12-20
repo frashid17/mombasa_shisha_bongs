@@ -1,5 +1,22 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
 import { ArrowLeft } from 'lucide-react'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
+
+export const metadata: Metadata = {
+  title: 'Shipping Policy - Delivery Information | Mombasa Shisha Bongs',
+  description: 'Learn about our shipping and delivery policy. Same-day delivery in Mombasa, nationwide shipping across Kenya. Delivery fees, timeframes, and tracking information.',
+  openGraph: {
+    title: 'Shipping Policy - Mombasa Shisha Bongs',
+    description: 'Same-day delivery in Mombasa, nationwide shipping across Kenya. Fast and reliable delivery service.',
+    url: `${siteUrl}/shipping-policy`,
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: `${siteUrl}/shipping-policy`,
+  },
+}
 
 export default function ShippingPolicyPage() {
   return (

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
 import prisma from '@/lib/prisma'
 import { Shield, Star, TrendingUp, Truck, Sparkles, Zap, Award, MessageSquare, Package, ShoppingBag } from 'lucide-react'
 import SearchBar from '@/components/SearchBar'
@@ -12,6 +13,23 @@ import { serializeProducts } from '@/lib/prisma-serialize'
 import CategoryImage from '@/components/categories/CategoryImage'
 import CountdownTimer from '@/components/flash-sales/CountdownTimer'
 import Image from 'next/image'
+import StructuredData from '@/components/seo/StructuredData'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
+
+export const metadata: Metadata = {
+  title: 'Premium Shisha & Vapes in Mombasa, Kenya',
+  description: 'Shop premium shisha, hookahs, vapes, and smoking accessories in Mombasa. Fast delivery, authentic products, secure payment. Browse our collection of shisha flavors, disposable vapes, e-liquids, and hookah accessories.',
+  openGraph: {
+    title: 'Mombasa Shisha Bongs - Premium Shisha & Vapes',
+    description: 'Premium shisha, vapes, and smoking accessories in Mombasa, Kenya. Fast delivery, authentic products.',
+    url: siteUrl,
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: siteUrl,
+  },
+}
 
 async function getFeaturedData() {
   // Calculate date for "new arrivals" (products created in last 30 days)
@@ -179,7 +197,9 @@ export default async function HomePage() {
   const primaryFlashSale = activeFlashSales[0]
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <>
+      <StructuredData type="Organization" />
+      <div className="min-h-screen bg-gray-900">
       {/* Top Banner - Pay on Delivery */}
       <div className="bg-blue-600 text-white py-2 text-center text-sm font-semibold">
         <p>PAY ON DELIVERY IN MOMBASA</p>
@@ -472,5 +492,6 @@ export default async function HomePage() {
       {/* Recently Viewed Section */}
       <RecentlyViewed />
     </div>
+    </>
   )
 }

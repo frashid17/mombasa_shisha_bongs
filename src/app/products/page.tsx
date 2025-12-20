@@ -1,9 +1,13 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { Metadata } from 'next'
 import prisma from '@/lib/prisma'
 import SearchBar from '@/components/SearchBar'
 import ProductsGrid from '@/components/products/ProductsGrid'
 import { serializeProducts } from '@/lib/prisma-serialize'
+import StructuredData from '@/components/seo/StructuredData'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
 async function getProducts(searchParams: {
   search?: string
@@ -62,6 +66,36 @@ async function getCategories() {
   return prisma.category.findMany({ orderBy: { name: 'asc' } })
 }
 
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ search?: string; category?: string; minPrice?: string; maxPrice?: string }> }): Promise<Metadata> {
+  const params = await searchParams
+  const hasFilters = !!(params.search || params.category || params.minPrice || params.maxPrice)
+  
+  let title = 'All Products - Shop Premium Shisha & Vapes in Mombasa'
+  let description = 'Browse our complete collection of premium shisha, vapes, and smoking accessories in Mombasa, Kenya. Fast delivery, authentic products, secure payment.'
+
+  if (params.search) {
+    title = `Search Results for "${params.search}" - Mombasa Shisha Bongs`
+    description = `Find the best ${params.search} products in Mombasa. Premium quality, fast delivery, secure payment.`
+  } else if (params.category) {
+    title = `${params.category} - Shop Premium ${params.category} in Mombasa`
+    description = `Browse our collection of premium ${params.category.toLowerCase()} in Mombasa, Kenya.`
+  }
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/products${hasFilters ? `?${new URLSearchParams(params as any).toString()}` : ''}`,
+      images: ['/logo.png'],
+    },
+    alternates: {
+      canonical: `${siteUrl}/products${hasFilters ? `?${new URLSearchParams(params as any).toString()}` : ''}`,
+    },
+  }
+}
+
 export default async function ProductsPage({
   searchParams,
 }: {
@@ -75,8 +109,15 @@ export default async function ProductsPage({
 
   const products = serializeProducts(rawProducts)
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Products', url: '/products' },
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-900">
+    <>
+      <StructuredData type="BreadcrumbList" data={breadcrumbs} />
+      <div className="min-h-screen bg-gray-900">
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
@@ -125,5 +166,6 @@ export default async function ProductsPage({
         )}
       </div>
     </div>
+    </>
   )
 }

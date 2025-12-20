@@ -1,7 +1,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
+import { Metadata } from 'next'
 import prisma from '@/lib/prisma'
+import StructuredData from '@/components/seo/StructuredData'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
 async function getCategoryProducts(categoryId: string) {
   const category = await prisma.category.findUnique({
@@ -17,6 +21,41 @@ async function getCategoryProducts(categoryId: string) {
   return category
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const category = await getCategoryProducts(id)
+
+  if (!category) {
+    return {
+      title: 'Category Not Found',
+    }
+  }
+
+  const categoryUrl = `${siteUrl}/categories/${id}`
+  const categoryImage = category.image || '/logo.png'
+
+  return {
+    title: `${category.name} - Shop Premium ${category.name} in Mombasa`,
+    description: category.description || `Browse our collection of premium ${category.name.toLowerCase()} in Mombasa, Kenya. Fast delivery, authentic products, secure payment.`,
+    openGraph: {
+      title: `${category.name} - Mombasa Shisha Bongs`,
+      description: category.description || `Premium ${category.name.toLowerCase()} in Mombasa, Kenya`,
+      url: categoryUrl,
+      images: [categoryImage.startsWith('http') ? categoryImage : `${siteUrl}${categoryImage}`],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${category.name} - Mombasa Shisha Bongs`,
+      description: category.description || `Premium ${category.name.toLowerCase()} in Mombasa`,
+      images: [categoryImage.startsWith('http') ? categoryImage : `${siteUrl}${categoryImage}`],
+    },
+    alternates: {
+      canonical: categoryUrl,
+    },
+  }
+}
+
 export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const category = await getCategoryProducts(id)
@@ -25,8 +64,16 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
     notFound()
   }
 
+  const breadcrumbs = [
+    { name: 'Home', url: '/' },
+    { name: 'Categories', url: '/categories' },
+    { name: category.name, url: `/categories/${id}` },
+  ]
+
   return (
-    <div className="min-h-screen bg-gray-900">
+    <>
+      <StructuredData type="BreadcrumbList" data={breadcrumbs} />
+      <div className="min-h-screen bg-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -91,6 +138,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
         )}
       </div>
     </div>
+    </>
   )
 }
 

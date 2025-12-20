@@ -1,5 +1,22 @@
 import Link from 'next/link'
+import { Metadata } from 'next'
 import { ArrowLeft } from 'lucide-react'
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
+
+export const metadata: Metadata = {
+  title: 'About Us - Mombasa Shisha Bongs',
+  description: 'Learn about Mombasa Shisha Bongs - Mombasa\'s premier destination for premium shisha, vapes, and smoking accessories. 100% authentic products, fast delivery, excellent customer service.',
+  openGraph: {
+    title: 'About Us - Mombasa Shisha Bongs',
+    description: 'Mombasa\'s premier destination for premium shisha, vapes, and smoking accessories.',
+    url: `${siteUrl}/about`,
+    images: ['/logo.png'],
+  },
+  alternates: {
+    canonical: `${siteUrl}/about`,
+  },
+}
 
 export default function AboutPage() {
   return (
