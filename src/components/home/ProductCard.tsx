@@ -15,7 +15,7 @@ interface ProductCardProps {
     price: number
     compareAtPrice?: number | null
     images: Array<{ url: string; altText?: string | null }>
-    category: { name: string }
+    category: { name: string } | null
     stock: number
     isFeatured?: boolean
     isNewArrival?: boolean
@@ -145,7 +145,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
       {/* Product Info */}
       <div className="p-5">
-        <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+        {product.category && (
+          <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+        )}
         <h3 className="font-semibold text-white mb-3 line-clamp-2 group-hover:text-blue-400 transition-colors">
           {product.name}
         </h3>

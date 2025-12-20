@@ -268,6 +268,7 @@ export default async function HomePage() {
                   ...product,
                   compareAtPrice: product.compareAtPrice ?? product.price,
                   price: discountedPrice,
+                  category: product.category || { name: 'Uncategorized' },
                 }
 
                 return (
