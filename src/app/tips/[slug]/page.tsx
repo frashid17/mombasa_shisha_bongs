@@ -66,7 +66,7 @@ export async function generateStaticParams() {
   }))
 }
 
-export default function TipPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function TipPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const article = articles[slug]
 
