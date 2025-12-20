@@ -13,19 +13,19 @@ const expertTips: Tip[] = [
   {
     id: '1',
     title: 'Top 5 Best Shisha Products in 2024',
-    image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=800&h=600&fit=crop&q=80',
+    image: '/uploads/tips/top-shisha-products-2024.jpg',
     slug: 'top-shisha-products-2024',
   },
   {
     id: '2',
     title: 'How to Choose the Right Vape Kit',
-    image: 'https://images.unsplash.com/photo-1555697863-80a30c6e4bc1?w=800&h=600&fit=crop&q=80',
+    image: '/uploads/tips/choose-right-vape-kit.jpg',
     slug: 'choose-right-vape-kit',
   },
   {
     id: '3',
     title: 'Complete Guide to Shisha Maintenance',
-    image: 'https://images.unsplash.com/photo-1761839257287-3030c9300ece?w=800&h=600&fit=crop&q=80',
+    image: '/uploads/tips/shisha-maintenance-guide.jpg',
     slug: 'shisha-maintenance-guide',
   },
 ]
@@ -50,7 +50,7 @@ export default function ExpertTips() {
           {expertTips.map((tip) => (
             <Link
               key={tip.id}
-              href={`/blog/${tip.slug}`}
+              href={`/tips/${tip.slug}`}
               className="group bg-gray-800 border border-gray-700 rounded-xl overflow-hidden hover:border-blue-500 transition-all hover:shadow-lg"
             >
               <div className="relative h-48 overflow-hidden">
