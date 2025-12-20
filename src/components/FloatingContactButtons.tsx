@@ -1,6 +1,20 @@
 'use client'
 
-import { Phone, MessageCircle } from 'lucide-react'
+import { Phone } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faWhatsapp } from '@fortawesome/free-brands-svg-icons'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+
+// Add all brand icons to library
+library.add(fab)
+
+// Access icons via byPrefixAndName pattern
+const byPrefixAndName = {
+  fab: {
+    'whatsapp': faWhatsapp,
+  },
+}
 
 export default function FloatingContactButtons() {
   return (
@@ -13,7 +27,7 @@ export default function FloatingContactButtons() {
         className="bg-green-500 hover:bg-green-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 flex items-center justify-center"
         aria-label="Contact us on WhatsApp"
       >
-        <MessageCircle className="w-5 h-5" />
+        <FontAwesomeIcon icon={byPrefixAndName.fab['whatsapp']} className="w-5 h-5" />
       </a>
 
       {/* Phone Button */}

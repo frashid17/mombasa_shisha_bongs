@@ -22,6 +22,9 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.2",
+    "@fortawesome/fontawesome-svg-core": "^7.1.0",
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.1",
     "@prisma/client": "^6.19.1",
     "@tanstack/react-query": "^5.90.12",
     "@types/nodemailer": "^7.0.4",

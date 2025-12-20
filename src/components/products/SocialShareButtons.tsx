@@ -1,6 +1,23 @@
 'use client'
 
-import { Share2, Instagram, Twitter, MessageCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Share2, Instagram } from 'lucide-react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faXTwitter, faSnapchat, faWhatsapp } from '@fortawesome/free-brands-svg-icons'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fab } from '@fortawesome/free-brands-svg-icons'
+
+// Add all brand icons to library
+library.add(fab)
+
+// Access icons via byPrefixAndName pattern
+const byPrefixAndName = {
+  fab: {
+    'x-twitter': faXTwitter,
+    'snapchat': faSnapchat,
+    'whatsapp': faWhatsapp,
+  },
+}
 
 interface SocialShareButtonsProps {
   productName: string
@@ -13,12 +30,22 @@ export default function SocialShareButtons({
   productUrl,
   productImage,
 }: SocialShareButtonsProps) {
-  const fullUrl = typeof window !== 'undefined' ? `${window.location.origin}${productUrl}` : productUrl
+  const [hasNativeShare, setHasNativeShare] = useState(false)
+  const [fullUrl, setFullUrl] = useState(productUrl)
+
+  useEffect(() => {
+    // Only check on client side after hydration
+    if (typeof window !== 'undefined') {
+      setFullUrl(`${window.location.origin}${productUrl}`)
+      setHasNativeShare('share' in navigator)
+    }
+  }, [productUrl])
+
   const encodedUrl = encodeURIComponent(fullUrl)
   const encodedText = encodeURIComponent(`Check out ${productName}!`)
 
   const shareLinks = {
-    twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`,
+    x: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedText}`,
     instagram: `https://www.instagram.com/`, // Instagram doesn't support direct sharing, opens app
     snapchat: `https://www.snapchat.com/scan?attachmentUrl=${encodedUrl}`,
     whatsapp: `https://wa.me/?text=${encodedText}%20${encodedUrl}`,
@@ -44,8 +71,6 @@ export default function SocialShareButtons({
     }
   }
 
-  const hasNativeShare = typeof window !== 'undefined' && 'share' in navigator
-
   return (
     <div className="flex items-center gap-2 mt-4">
       <span className="text-sm text-gray-400">Share:</span>
@@ -60,11 +85,11 @@ export default function SocialShareButtons({
           </button>
         )}
         <button
-          onClick={() => handleShare('twitter')}
-          className="p-2 bg-gray-700 hover:bg-blue-500 rounded-lg transition-colors"
-          title="Share on Twitter"
+          onClick={() => handleShare('x')}
+          className="p-2 bg-gray-700 hover:bg-black rounded-lg transition-colors"
+          title="Share on X"
         >
-          <Twitter className="w-4 h-4 text-white" />
+          <FontAwesomeIcon icon={faXTwitter} className="w-4 h-4 text-white" />
         </button>
         <button
           onClick={() => handleShare('instagram')}
@@ -78,14 +103,14 @@ export default function SocialShareButtons({
           className="p-2 bg-gray-700 hover:bg-yellow-400 rounded-lg transition-colors"
           title="Share on Snapchat"
         >
-          <MessageCircle className="w-4 h-4 text-white" />
+          <FontAwesomeIcon icon={faSnapchat} className="w-4 h-4 text-white" />
         </button>
         <button
           onClick={() => handleShare('whatsapp')}
           className="p-2 bg-gray-700 hover:bg-green-500 rounded-lg transition-colors"
           title="Share on WhatsApp"
         >
-          <MessageCircle className="w-4 h-4 text-white" />
+          <FontAwesomeIcon icon={byPrefixAndName.fab['whatsapp']} className="w-4 h-4 text-white" />
         </button>
       </div>
     </div>
