@@ -148,9 +148,11 @@ export default function HeroProductCarousel({ products }: HeroProductCarouselPro
 
                   {/* Product Info */}
                   <div className="p-4">
-                    <p className="text-xs text-blue-300 font-semibold mb-1 line-clamp-1">
-                      {product.category.name}
-                    </p>
+                    {product.category && (
+                      <p className="text-xs text-blue-300 font-semibold mb-1 line-clamp-1">
+                        {product.category.name}
+                      </p>
+                    )}
                     <h3 className="text-sm md:text-base font-semibold text-white mb-2 line-clamp-2 group-hover:text-blue-300 transition-colors">
                       {product.name}
                     </h3>

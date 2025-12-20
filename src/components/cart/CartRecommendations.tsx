@@ -52,7 +52,9 @@ export default function CartRecommendations({ cartItemIds }: { cartItemIds: stri
               <div className="h-48 bg-gradient-to-br from-gray-700 to-gray-800" />
             )}
             <div className="p-4">
-              <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+              {product.category && (
+                <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+              )}
               <h3 className="font-semibold text-white mb-2 line-clamp-2">{product.name}</h3>
               <p className="text-blue-400 font-bold">KES {product.price.toLocaleString()}</p>
             </div>

@@ -109,7 +109,9 @@ export default function FeaturedProductsCarousel({ products }: FeaturedProductsC
                         <span className="inline-block bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">
                           FEATURED
                         </span>
-                        <p className="text-blue-400 font-semibold mb-2">{product.category.name}</p>
+                        {product.category && (
+                          <p className="text-blue-400 font-semibold mb-2">{product.category.name}</p>
+                        )}
                         <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">
                           {product.name}
                         </h3>

@@ -72,9 +72,11 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
               <div className="h-64 bg-gradient-to-br from-gray-700 to-gray-800" />
             )}
             <div className="p-5">
-              <p className="text-sm text-blue-400 font-semibold mb-1">
-                {product.category.name}
-              </p>
+              {product.category && (
+                <p className="text-sm text-blue-400 font-semibold mb-1">
+                  {product.category.name}
+                </p>
+              )}
               <h3 className="font-semibold text-white mb-2 line-clamp-2 group-hover:text-blue-400 transition-colors">
                 {product.name}
               </h3>

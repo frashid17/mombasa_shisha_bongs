@@ -89,7 +89,7 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 hidden sm:table-cell">{product.category.name}</td>
+                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 hidden sm:table-cell">{product.category?.name || 'Uncategorized'}</td>
                   <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">KES {product.price.toLocaleString()}</td>
                   <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 hidden md:table-cell">{product.stock}</td>
                   <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 hidden lg:table-cell">{product._count.orderItems}</td>

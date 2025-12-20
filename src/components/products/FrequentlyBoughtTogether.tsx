@@ -57,7 +57,9 @@ export default function FrequentlyBoughtTogether({ productId }: { productId: str
               )}
             </Link>
             <div className="p-4">
-              <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+              {product.category && (
+                <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+              )}
               <Link href={`/products/${product.id}`}>
                 <h3 className="font-semibold text-white mb-2 line-clamp-2 hover:text-blue-400 transition-colors">
                   {product.name}

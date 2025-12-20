@@ -71,7 +71,9 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
                     <div className="h-64 bg-gradient-to-br from-gray-700 to-gray-800" />
                   )}
                   <div className="p-5">
-                    <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+                    {product.category && (
+                      <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+                    )}
                     <h3 className="font-semibold text-white mb-2 line-clamp-2">{product.name}</h3>
                     <div className="flex items-center justify-between">
                       <p className="text-blue-400 font-bold text-xl">KES {product.price.toLocaleString()}</p>

@@ -109,7 +109,7 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">Category</p>
-                  <p className="text-gray-900">{product.category.name}</p>
+                  <p className="text-gray-900">{product.category?.name || 'Uncategorized'}</p>
                 </div>
               </div>
               {product.brand && (
