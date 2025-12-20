@@ -199,8 +199,15 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       })
 
       if (res.ok) {
-        router.push('/admin/products')
-        router.refresh()
+        const savedProduct = await res.json()
+        // If creating a new product, update the product state to allow color management
+        if (!product && savedProduct.id) {
+          router.replace(`/admin/products/${savedProduct.id}/edit`)
+          router.refresh()
+        } else {
+          router.push('/admin/products')
+          router.refresh()
+        }
       } else {
         const error = await res.json()
         alert(error.error || 'Failed to save product')
@@ -421,6 +428,14 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       {/* Product Colors */}
       {product?.id && (
         <ProductColorsManager productId={product.id} />
+      )}
+      {!product && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm text-blue-800">
+            <strong>Note:</strong> You can add product colors after creating the product. 
+            The product will be saved first, then you'll be able to manage colors on the edit page.
+          </p>
+        </div>
       )}
 
       <div className="flex gap-4">

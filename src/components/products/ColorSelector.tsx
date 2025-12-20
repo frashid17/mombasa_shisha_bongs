@@ -63,7 +63,11 @@ export default function ColorSelector({
           >
             <div
               className="w-6 h-6 rounded-full border-2 border-gray-400"
-              style={{ backgroundColor: color.value }}
+              style={{ 
+                backgroundColor: color.value.startsWith('#') ? color.value : `#${color.value}`,
+                minWidth: '24px',
+                minHeight: '24px'
+              }}
             />
             <span className="text-white font-medium">{color.name}</span>
             {selectedId === color.id && (
