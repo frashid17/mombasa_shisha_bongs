@@ -81,16 +81,17 @@ export default function InstallPrompt() {
 
   const handleDismiss = () => {
     setShowPrompt(false)
-    // Don't show again for this session
-    sessionStorage.setItem('pwa-prompt-dismissed', 'true')
+    // Don't show again ever (user can use Chrome's toolbar install option)
+    localStorage.setItem('pwa-prompt-dismissed', 'true')
   }
 
-  // Don't show if already installed or dismissed this session
+  // Don't show if already installed, dismissed, or no prompt available
   if (isInstalled || !showPrompt || !deferredPrompt) {
     return null
   }
 
-  if (sessionStorage.getItem('pwa-prompt-dismissed') === 'true') {
+  // Double check localStorage (in case it was set elsewhere)
+  if (typeof window !== 'undefined' && localStorage.getItem('pwa-prompt-dismissed') === 'true') {
     return null
   }
 
