@@ -11,16 +11,68 @@ import CategoryImage from '@/components/categories/CategoryImage'
 import CountdownTimer from '@/components/flash-sales/CountdownTimer'
 
 async function getFeaturedData() {
+  // Calculate date for "new arrivals" (products created in last 30 days)
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+  // Get top-selling products for "featured" (based on order items)
+  const topSellingProducts = await prisma.orderItem.groupBy({
+    by: ['productId'],
+    _sum: {
+      quantity: true,
+    },
+    orderBy: {
+      _sum: {
+        quantity: 'desc',
+      },
+    },
+    take: 8,
+  })
+
+  const featuredProductIds = topSellingProducts.map((item) => item.productId)
+  const featuredProductIdMap = new Map(
+    topSellingProducts.map((item, index) => [item.productId, index])
+  )
+
   const [categories, featuredProducts, newArrivals, stats, reviewsCount, customerReviews] = await Promise.all([
     prisma.category.findMany({ take: 6, orderBy: { name: 'asc' } }),
+    // Featured products: Top-selling products (automatically determined by sales)
+    featuredProductIds.length > 0
+      ? prisma.product.findMany({
+          where: {
+            isActive: true,
+            id: { in: featuredProductIds },
+          },
+          include: {
+            images: { take: 1 },
+            category: true,
+            _count: {
+              select: {
+                orderItems: true,
+              },
+            },
+          },
+          take: 8,
+          // Order by the order in which they appear in featuredProductIds (top sellers first)
+          orderBy: featuredProductIds.length > 0
+            ? undefined
+            : { createdAt: 'desc' },
+        })
+      : // Fallback: If no sales yet, show recently created products
+        prisma.product.findMany({
+          where: { isActive: true },
+          include: { images: { take: 1 }, category: true },
+          take: 8,
+          orderBy: { createdAt: 'desc' },
+        }),
+    // New arrivals: Products created in the last 30 days (automatically determined by date)
     prisma.product.findMany({
-      where: { isActive: true, isFeatured: true },
-      include: { images: { take: 1 }, category: true },
-      take: 8,
-      orderBy: { createdAt: 'desc' },
-    }),
-    prisma.product.findMany({
-      where: { isActive: true, isNewArrival: true },
+      where: {
+        isActive: true,
+        createdAt: {
+          gte: thirtyDaysAgo,
+        },
+      },
       include: { images: { take: 1 }, category: true },
       take: 8,
       orderBy: { createdAt: 'desc' },
@@ -40,7 +92,24 @@ async function getFeaturedData() {
       orderBy: { createdAt: 'desc' },
     }),
   ])
-  return { categories, featuredProducts, newArrivals, stats, reviews: reviewsCount, customerReviews }
+
+  // Sort featured products by their sales order (top sellers first)
+  const sortedFeaturedProducts = featuredProductIds.length > 0
+    ? [...featuredProducts].sort((a, b) => {
+        const aIndex = featuredProductIdMap.get(a.id) ?? Infinity
+        const bIndex = featuredProductIdMap.get(b.id) ?? Infinity
+        return aIndex - bIndex
+      })
+    : featuredProducts
+
+  return {
+    categories,
+    featuredProducts: sortedFeaturedProducts,
+    newArrivals,
+    stats,
+    reviews: reviewsCount,
+    customerReviews,
+  }
 }
 
 async function getActiveFlashSales() {
