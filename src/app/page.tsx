@@ -6,7 +6,6 @@ import ProductCard from '@/components/home/ProductCard'
 import AnimatedSection from '@/components/home/AnimatedSection'
 import ReviewCard from '@/components/home/ReviewCard'
 import RecentlyViewed from '@/components/home/RecentlyViewed'
-import NewsletterSignup from '@/components/home/NewsletterSignup'
 import FAQ from '@/components/home/FAQ'
 import ExpertTips from '@/components/home/ExpertTips'
 import CategoryPromoCard from '@/components/home/CategoryPromoCard'
@@ -330,9 +329,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Newsletter Signup */}
-      <NewsletterSignup />
 
       {/* Customer Reviews Section */}
       {customerReviews.length > 0 && (
