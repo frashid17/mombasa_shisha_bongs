@@ -69,14 +69,15 @@ export default async function CategoriesPage() {
                 href={`/categories/${category.id}`}
                 className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all hover:scale-105 group relative"
               >
-                <div className="relative h-64 md:h-80 bg-gray-800">
+                <div className="relative h-64 md:h-80 bg-gray-800 overflow-hidden">
                   <CategoryImage
                     src={category.image || getCategoryPlaceholderImage(category.name)}
                     alt={category.name}
-                    className={`object-contain group-hover:scale-105 transition-transform duration-300 ${!category.image ? 'opacity-80' : ''}`}
+                    className={`object-cover group-hover:scale-110 transition-transform duration-500 ${!category.image ? 'opacity-80' : ''}`}
                     unoptimized={category.image ? (category.image.startsWith('http') && !category.image.includes('localhost')) : true}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/30 to-transparent pointer-events-none"></div>
+                  {/* Overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </div>
                 <div className="p-6 relative z-10">
                   <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
