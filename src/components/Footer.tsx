@@ -155,7 +155,7 @@ export default async function Footer() {
               © {new Date().getFullYear()} Mombasa Shisha Bongs. All rights reserved.
             </p>
             <p className="text-gray-500 text-xs">
-              You must be 21+ to purchase. Please drink responsibly.
+              You must be 18+ to purchase. Age verification required.
             </p>
           </div>
         </div>

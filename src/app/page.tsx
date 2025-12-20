@@ -178,9 +178,9 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Top Banner - Free Delivery */}
+      {/* Top Banner - Pay on Delivery */}
       <div className="bg-blue-600 text-white py-2 text-center text-sm font-semibold">
-        <p>FREE DELIVERY ON ALL ORDERS OVER KES 2,000</p>
+        <p>PAY ON DELIVERY IN MOMBASA</p>
       </div>
 
       {/* Hero Section - Promotional Banner */}
@@ -411,17 +411,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Brand Logos Section */}
-      <section className="py-8 md:py-12 bg-gray-800 border-y border-gray-700">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12 opacity-60">
-            <div className="text-2xl md:text-3xl font-bold text-white">SHIVA</div>
-            <div className="text-2xl md:text-3xl font-bold text-white">HAWAII</div>
-            <div className="text-2xl md:text-3xl font-bold text-white">187</div>
-          </div>
-        </div>
-      </section>
 
       {/* Newsletter Signup */}
       <NewsletterSignup />
