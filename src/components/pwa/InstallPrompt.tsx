@@ -27,6 +27,12 @@ export default function InstallPrompt() {
       return
     }
 
+    // Check if prompt was already dismissed (show only once ever)
+    const promptDismissed = localStorage.getItem('pwa-prompt-dismissed')
+    if (promptDismissed === 'true') {
+      return // Don't show again if already dismissed
+    }
+
     // Listen for the beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
