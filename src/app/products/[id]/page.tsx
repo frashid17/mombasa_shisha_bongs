@@ -57,7 +57,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
         {/* Product Info */}
         <div>
-          <p className="text-blue-400 mb-2">{product.category.name}</p>
+          {product.category && (
+            <p className="text-blue-400 mb-2">{product.category.name}</p>
+          )}
           <h1 className="text-4xl font-bold text-white mb-4">{product.name}</h1>
           <div className="mb-6">
             <PriceDisplay 
