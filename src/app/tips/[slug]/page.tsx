@@ -15,15 +15,15 @@ interface Article {
 const articles: Record<string, Article> = {
   'top-shisha-products-2024': {
     slug: 'top-shisha-products-2024',
-    title: 'Top 5 Best Shisha Products in 2024',
+    title: 'Top 5 Best Shisha Products in 2025',
     image: '/uploads/tips/top-shisha-products-2024.jpg',
-    date: 'January 15, 2024',
+    date: 'December 20, 2025',
     readTime: '5 min read',
     content: [
-      'As we navigate through 2024, the shisha market continues to evolve with innovative products that enhance your smoking experience. Whether you\'re a seasoned enthusiast or new to the world of shisha, finding the right products can make all the difference.',
+      'As we navigate through 2025, the shisha market continues to evolve with innovative products that enhance your smoking experience. Whether you\'re a seasoned enthusiast or new to the world of shisha, finding the right products can make all the difference.',
       'In this comprehensive guide, we\'ve curated the top 5 shisha products that stand out for their quality, performance, and value. Our selection is based on customer reviews, expert testing, and market trends.',
       'From premium hookah pipes to the finest shisha tobacco flavors, each product on our list has been carefully evaluated to ensure it meets the highest standards. We consider factors such as build quality, ease of use, flavor delivery, and overall smoking experience.',
-      'Stay tuned as we dive deep into each product, exploring their unique features, pros and cons, and what makes them the best choices for 2024. Whether you\'re looking to upgrade your current setup or start your shisha journey, this guide will help you make informed decisions.',
+      'Stay tuned as we dive deep into each product, exploring their unique features, pros and cons, and what makes them the best choices for 2025. Whether you\'re looking to upgrade your current setup or start your shisha journey, this guide will help you make informed decisions.',
       'Remember, the best shisha experience comes from combining quality products with proper technique and maintenance. We\'ll also share tips on how to get the most out of each product.',
     ],
   },
@@ -31,7 +31,7 @@ const articles: Record<string, Article> = {
     slug: 'choose-right-vape-kit',
     title: 'How to Choose the Right Vape Kit',
     image: '/uploads/tips/choose-right-vape-kit.jpg',
-    date: 'January 20, 2024',
+    date: 'December 20, 2025',
     readTime: '7 min read',
     content: [
       'Choosing the right vape kit can be overwhelming, especially with the vast array of options available in today\'s market. Whether you\'re transitioning from traditional smoking or looking to upgrade your current setup, understanding what to look for is crucial.',
@@ -46,7 +46,7 @@ const articles: Record<string, Article> = {
     slug: 'shisha-maintenance-guide',
     title: 'Complete Guide to Shisha Maintenance',
     image: '/uploads/tips/shisha-maintenance-guide.jpg',
-    date: 'January 25, 2024',
+    date: 'December 20, 2025',
     readTime: '8 min read',
     content: [
       'Proper maintenance is the key to ensuring your shisha delivers the best possible experience every time you use it. A well-maintained hookah not only performs better but also lasts longer and provides cleaner, more flavorful smoke.',

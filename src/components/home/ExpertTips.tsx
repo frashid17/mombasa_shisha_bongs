@@ -15,7 +15,7 @@ interface Tip {
 const expertTips: Tip[] = [
   {
     id: '1',
-    title: 'Top 5 Best Shisha Products in 2024',
+    title: 'Top 5 Best Shisha Products in 2025',
     image: '/uploads/tips/top-shisha-products-2024.jpg',
     slug: 'top-shisha-products-2024',
   },
