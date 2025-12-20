@@ -97,7 +97,7 @@ export default async function RootLayout({
               </Suspense>
             )}
             {!isAdminRoute && <InstallPrompt />}
-            <FloatingContactButtons />
+            {!isAdminRoute && <FloatingContactButtons />}
             <Toaster
               position="top-right"
               toastOptions={{
