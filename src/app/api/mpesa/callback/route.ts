@@ -111,6 +111,28 @@ export async function POST(req: Request) {
         // Don't fail the callback if notification fails
       })
 
+      // Send order confirmation notification now that payment is received
+      const { sendOrderConfirmationNotification } = await import('@/lib/notifications')
+      sendOrderConfirmationNotification(payment.orderId, {
+        orderNumber: payment.order.orderNumber,
+        customerName: payment.order.userName,
+        customerEmail: payment.order.userEmail,
+        customerPhone: payment.order.userPhone,
+        total: Number(payment.order.total),
+        items: updatedOrder.items.map((item) => ({
+          name: item.productName,
+          quantity: item.quantity,
+          price: Number(item.price),
+          image: item.productImage || undefined,
+        })),
+        deliveryAddress: payment.order.deliveryAddress,
+        deliveryCity: payment.order.deliveryCity,
+        paymentMethod: payment.method,
+        paymentStatus: 'PAID',
+      }).catch((error) => {
+        console.error('Failed to send order confirmation notification:', error)
+      })
+
       console.log(`✅ Payment successful for order ${payment.order.orderNumber}`)
       console.log('   Receipt Number:', receiptNumber)
       console.log('   Amount:', amount)

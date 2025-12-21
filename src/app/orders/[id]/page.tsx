@@ -231,14 +231,22 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
           {paymentProcessing && (
             <div className="bg-blue-900/50 border border-blue-700 rounded-lg p-6 mb-6">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 mb-4">
                 <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
-                <div>
+                <div className="flex-1">
                   <h3 className="text-lg font-semibold text-white mb-1">Payment Processing</h3>
                   <p className="text-blue-300">
-                    Your payment is being processed. Please complete the payment on the Paystack page.
+                    Your payment is being processed. If you accidentally closed the payment page, you can retry payment below.
                   </p>
                 </div>
+              </div>
+              <div className="mt-4">
+                <PaystackPaymentButton
+                  orderId={order.id}
+                  amount={Number(order.total)}
+                  orderNumber={order.orderNumber}
+                  customerEmail={order.userEmail}
+                />
               </div>
             </div>
           )}

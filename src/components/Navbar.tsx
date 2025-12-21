@@ -239,13 +239,34 @@ export default function Navbar() {
                      </Link>
                    )}
             {isSignedIn ? (
-              <Link
-                href="/profile"
-                className="block py-2 hover:text-blue-400 transition"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Profile
-              </Link>
+              <>
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-3 py-2 hover:text-blue-400 transition"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Settings className="w-4 h-4" />
+                  View Profile
+                </Link>
+                <Link
+                  href="/profile/addresses"
+                  className="flex items-center gap-3 py-2 hover:text-blue-400 transition"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <MapPin className="w-4 h-4" />
+                  Manage Address
+                </Link>
+                <button
+                  onClick={() => {
+                    handleSignOut()
+                    setMobileMenuOpen(false)
+                  }}
+                  className="w-full flex items-center gap-3 py-2 text-left hover:text-red-400 transition"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              </>
             ) : (
               <Link
                 href="/sign-in"

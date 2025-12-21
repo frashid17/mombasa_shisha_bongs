@@ -99,6 +99,35 @@ export async function GET(req: Request) {
             console.error('Failed to send payment notification:', error)
           })
 
+          // Send order confirmation notification now that payment is received
+          const { sendOrderConfirmationNotification } = await import('@/lib/notifications')
+          const orderWithItems = await prisma.order.findUnique({
+            where: { id: payment.orderId },
+            include: { items: true },
+          })
+          
+          if (orderWithItems) {
+            sendOrderConfirmationNotification(payment.orderId, {
+              orderNumber: payment.order.orderNumber,
+              customerName: payment.order.userName,
+              customerEmail: payment.order.userEmail,
+              customerPhone: payment.order.userPhone,
+              total: Number(payment.order.total),
+              items: orderWithItems.items.map((item) => ({
+                name: item.productName,
+                quantity: item.quantity,
+                price: Number(item.price),
+                image: item.productImage || undefined,
+              })),
+              deliveryAddress: payment.order.deliveryAddress,
+              deliveryCity: payment.order.deliveryCity,
+              paymentMethod: payment.method,
+              paymentStatus: 'PAID',
+            }).catch((error) => {
+              console.error('Failed to send order confirmation notification:', error)
+            })
+          }
+
           console.log(`✅ Payment verified and updated for order ${payment.order.orderNumber}`)
         } else {
           // Payment failed

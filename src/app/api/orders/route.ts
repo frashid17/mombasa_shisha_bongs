@@ -176,27 +176,30 @@ async function handlePOST(req: Request) {
       }
     }
 
-    // Send order confirmation notification (async, don't wait)
-    sendOrderConfirmationNotification(order.id, {
-      orderNumber: order.orderNumber,
-      customerName: order.userName,
-      customerEmail: order.userEmail,
-      customerPhone: order.userPhone,
-      total: Number(order.total),
-      items: order.items.map((item) => ({
-        name: item.productName,
-        quantity: item.quantity,
-        price: Number(item.price),
-        image: item.productImage || undefined,
-      })),
-      deliveryAddress: order.deliveryAddress,
-      deliveryCity: order.deliveryCity,
-      paymentMethod: validated.paymentMethod,
-      paymentStatus: order.paymentStatus,
-    }).catch((error) => {
-      console.error('Failed to send order confirmation notification:', error)
-      // Don't fail the order creation if notification fails
-    })
+    // Only send order confirmation notification if payment is already PAID (e.g., COD)
+    // For other payment methods, confirmation will be sent when payment is received
+    if (order.paymentStatus === 'PAID') {
+      sendOrderConfirmationNotification(order.id, {
+        orderNumber: order.orderNumber,
+        customerName: order.userName,
+        customerEmail: order.userEmail,
+        customerPhone: order.userPhone,
+        total: Number(order.total),
+        items: order.items.map((item) => ({
+          name: item.productName,
+          quantity: item.quantity,
+          price: Number(item.price),
+          image: item.productImage || undefined,
+        })),
+        deliveryAddress: order.deliveryAddress,
+        deliveryCity: order.deliveryCity,
+        paymentMethod: validated.paymentMethod,
+        paymentStatus: order.paymentStatus,
+      }).catch((error) => {
+        console.error('Failed to send order confirmation notification:', error)
+        // Don't fail the order creation if notification fails
+      })
+    }
 
     return createSecureResponse({ order }, 201)
   } catch (error: any) {
