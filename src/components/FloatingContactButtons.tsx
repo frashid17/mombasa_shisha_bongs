@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Phone } from 'lucide-react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons'
@@ -17,6 +19,18 @@ const byPrefixAndName = {
 }
 
 export default function FloatingContactButtons() {
+  const pathname = usePathname()
+  const [isAdminRoute, setIsAdminRoute] = useState(false)
+
+  useEffect(() => {
+    setIsAdminRoute(pathname.startsWith('/admin'))
+  }, [pathname])
+
+  // Don't render on admin routes
+  if (isAdminRoute) {
+    return null
+  }
+
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
       {/* WhatsApp Button */}

@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma'
 import NotificationRow from '@/components/admin/notifications/NotificationRow'
+import MarkAllNotificationsButton from '@/components/admin/notifications/MarkAllNotificationsButton'
 
 async function getNotifications() {
   return prisma.notification.findMany({
@@ -20,9 +21,12 @@ export default async function AdminNotificationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-        <p className="text-gray-700 mt-1">View all notification logs and delivery status</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
+          <p className="text-gray-700 mt-1">View all notification logs and delivery status</p>
+        </div>
+        <MarkAllNotificationsButton />
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">

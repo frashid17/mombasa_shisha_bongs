@@ -9,47 +9,59 @@ import {
 } from 'lucide-react'
 
 export default async function StatsCards() {
-  // Fetch statistics
-  const [
-    totalRevenue,
-    totalOrders,
-    totalProducts,
-    totalCustomers,
-    previousMonthRevenue,
-    previousMonthOrders,
-  ] = await Promise.all([
-    // Total Revenue (paid orders)
-    prisma.order.aggregate({
-      where: { paymentStatus: 'PAID' },
-      _sum: { total: true },
-    }),
-    // Total Orders
-    prisma.order.count(),
-    // Total Products
-    prisma.product.count({ where: { isActive: true } }),
-    // Total Customers (unique userIds)
-    prisma.order.findMany({ select: { userId: true }, distinct: ['userId'] }),
-    // Previous Month Revenue
-    prisma.order.aggregate({
-      where: {
-        paymentStatus: 'PAID',
-        createdAt: {
-          gte: new Date(new Date().setMonth(new Date().getMonth() - 2)),
-          lt: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+  // Fetch statistics with error handling
+  let totalRevenue = { _sum: { total: null } }
+  let totalOrders = 0
+  let totalProducts = 0
+  let totalCustomers: { userId: string }[] = []
+  let previousMonthRevenue = { _sum: { total: null } }
+  let previousMonthOrders = 0
+
+  try {
+    const results = await Promise.all([
+      // Total Revenue (paid orders)
+      prisma.order.aggregate({
+        where: { paymentStatus: 'PAID' },
+        _sum: { total: true },
+      }).catch(() => ({ _sum: { total: null } })),
+      // Total Orders
+      prisma.order.count().catch(() => 0),
+      // Total Products
+      prisma.product.count({ where: { isActive: true } }).catch(() => 0),
+      // Total Customers (unique userIds)
+      prisma.order.findMany({ select: { userId: true }, distinct: ['userId'] }).catch(() => []),
+      // Previous Month Revenue
+      prisma.order.aggregate({
+        where: {
+          paymentStatus: 'PAID',
+          createdAt: {
+            gte: new Date(new Date().setMonth(new Date().getMonth() - 2)),
+            lt: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+          },
         },
-      },
-      _sum: { total: true },
-    }),
-    // Previous Month Orders
-    prisma.order.count({
-      where: {
-        createdAt: {
-          gte: new Date(new Date().setMonth(new Date().getMonth() - 2)),
-          lt: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+        _sum: { total: true },
+      }).catch(() => ({ _sum: { total: null } })),
+      // Previous Month Orders
+      prisma.order.count({
+        where: {
+          createdAt: {
+            gte: new Date(new Date().setMonth(new Date().getMonth() - 2)),
+            lt: new Date(new Date().setMonth(new Date().getMonth() - 1)),
+          },
         },
-      },
-    }),
-  ])
+      }).catch(() => 0),
+    ])
+
+    totalRevenue = results[0] as typeof totalRevenue
+    totalOrders = results[1] as number
+    totalProducts = results[2] as number
+    totalCustomers = results[3] as typeof totalCustomers
+    previousMonthRevenue = results[4] as typeof previousMonthRevenue
+    previousMonthOrders = results[5] as number
+  } catch (error) {
+    console.error('Error fetching dashboard statistics:', error)
+    // Use default values on error
+  }
 
   const revenue = Number(totalRevenue._sum.total || 0)
   const prevRevenue = Number(previousMonthRevenue._sum.total || 0)
