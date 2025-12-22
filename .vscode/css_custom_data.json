@@ -1,0 +1,14 @@
+{
+  "version": 1.1,
+  "atDirectives": [
+    {
+      "name": "@theme",
+      "description": "Tailwind CSS v4 theme directive for defining custom theme values"
+    },
+    {
+      "name": "@import",
+      "description": "CSS import directive"
+    }
+  ]
+}
+

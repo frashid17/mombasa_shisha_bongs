@@ -5,10 +5,11 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
-import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield } from 'lucide-react'
+import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield, Search } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import Logo from './Logo'
 import CurrencySelector from './CurrencySelector'
+import SearchModal from './SearchModal'
 
 export default function Navbar() {
   const { user, isSignedIn } = useUser()
@@ -19,6 +20,7 @@ export default function Navbar() {
   const [itemCount, setItemCount] = useState(0)
   const [wishlistCount, setWishlistCount] = useState(0)
   const [isMounted, setIsMounted] = useState(false)
+  const [showSearchModal, setShowSearchModal] = useState(false)
   const profileMenuRef = useRef<HTMLDivElement>(null)
   
   // Get cart items from store
@@ -59,7 +61,7 @@ export default function Navbar() {
   const isAdmin = user?.publicMetadata?.role === 'admin'
 
   return (
-    <nav className="bg-gray-900 text-white border-b border-gray-800 sticky top-0 z-50">
+    <nav className="bg-gray-900/95 backdrop-blur-md text-white border-b border-gray-800 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Logo width={50} height={50} />
@@ -76,6 +78,14 @@ export default function Navbar() {
                        My Orders
                      </Link>
                    )}
+                   <button
+                     onClick={() => setShowSearchModal(true)}
+                     className="hover:text-blue-400 transition flex items-center gap-2"
+                     aria-label="Search"
+                   >
+                     <Search className="w-5 h-5" />
+                     <span className="hidden lg:inline">Search</span>
+                   </button>
                  </div>
 
           <div className="flex items-center gap-4">
@@ -183,7 +193,9 @@ export default function Navbar() {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2"
+              className="md:hidden p-2 rounded-lg hover:bg-gray-800 active:scale-95 transition"
+              aria-label="Toggle navigation"
+              aria-expanded={mobileMenuOpen}
             >
               <Menu className="w-6 h-6" />
             </button>
@@ -191,7 +203,7 @@ export default function Navbar() {
         </div>
 
                {mobileMenuOpen && (
-                 <div className="md:hidden py-4 border-t border-gray-800">
+                 <div className="md:hidden py-4 border-t border-gray-800 bg-gray-900/98 backdrop-blur-md animate-fade-in-up">
                    {/* Currency Selector for Mobile */}
                    <div className="mb-4 pb-4 border-b border-gray-800">
                      <CurrencySelector />
@@ -279,6 +291,9 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      {/* Search Modal */}
+      <SearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
     </nav>
   )
 }

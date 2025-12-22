@@ -60,13 +60,16 @@ model Product {
   orderItems         OrderItem[]
   images             ProductImage[]
   colors             ProductColor[]
+  specifications     ProductSpecification[]
   category           Category?           @relation(fields: [categoryId], references: [id])
   reviews            Review[]
   stockNotifications StockNotification[]
   recentlyViewed     RecentlyViewed[]
   savedCartItems     SavedCartItem[]
+  bundleItems        ProductBundleItem[]
 
   @@index([categoryId])
+  @@index([brand])
   @@index([slug])
   @@index([sku])
   @@index([isActive, isFeatured])
@@ -103,6 +106,54 @@ model ProductColor {
   @@index([productId])
   @@index([isActive])
   @@map("product_colors")
+}
+
+model ProductSpecification {
+  id         String      @id @default(cuid())
+  productId  String
+  type       String      // e.g., "Size", "Flavor", "Weight"
+  name       String      // e.g., "250g", "Mint", "Gum with Mint"
+  value      String?     // Optional value (e.g., "250" for size)
+  isActive   Boolean     @default(true)
+  position   Int         @default(0) // For ordering
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
+
+  @@index([productId])
+  @@index([type])
+  @@index([isActive])
+  @@map("product_specifications")
+}
+
+model ProductBundle {
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  price       Decimal  @db.Decimal(10, 2) // Bundle price (usually discounted)
+  discount    Decimal? @db.Decimal(10, 2) // Discount amount
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  items       ProductBundleItem[]
+
+  @@index([isActive])
+  @@map("product_bundles")
+}
+
+model ProductBundleItem {
+  id          String        @id @default(cuid())
+  bundleId    String
+  productId   String
+  quantity    Int           @default(1)
+  bundle      ProductBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  product     Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([bundleId, productId])
+  @@index([bundleId])
+  @@index([productId])
+  @@map("product_bundle_items")
 }
 
 model Order {
@@ -160,6 +211,10 @@ model OrderItem {
   colorId      String?
   colorName    String?
   colorValue   String? // Hex color code
+  specId       String?
+  specType     String? // e.g., "Size", "Flavor"
+  specName     String? // e.g., "250g", "Mint"
+  specValue    String? // Optional value
   price        Decimal       @db.Decimal(10, 2)
   quantity     Int
   subtotal     Decimal       @db.Decimal(10, 2)
@@ -167,10 +222,12 @@ model OrderItem {
   order        Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product      Product       @relation(fields: [productId], references: [id])
   color        ProductColor? @relation(fields: [colorId], references: [id])
+  specification ProductSpecification? @relation(fields: [specId], references: [id])
 
   @@index([orderId])
   @@index([productId])
   @@index([colorId])
+  @@index([specId])
   @@map("order_items")
 }
 

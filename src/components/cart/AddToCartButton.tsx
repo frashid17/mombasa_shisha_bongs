@@ -14,14 +14,19 @@ interface Color {
 export default function AddToCartButton({ 
   product, 
   colors = [],
-  selectedColorId = null
+  selectedColorId = null,
+  selectedSpecId = null,
+  specs = []
 }: { 
   product: any
   colors?: Color[]
   selectedColorId?: string | null
+  selectedSpecId?: string | null
+  specs?: Array<{ id: string; type: string; name: string; value: string | null }>
 }) {
   const [loading, setLoading] = useState(false)
   const [selectedColor, setSelectedColor] = useState<Color | null>(null)
+  const [selectedSpec, setSelectedSpec] = useState<any>(null)
   const addItem = useCartStore((state) => state.addItem)
 
   useEffect(() => {
@@ -33,9 +38,22 @@ export default function AddToCartButton({
     }
   }, [selectedColorId, colors])
 
+  useEffect(() => {
+    if (selectedSpecId && specs.length > 0) {
+      const spec = specs.find(s => s.id === selectedSpecId)
+      setSelectedSpec(spec || null)
+    } else {
+      setSelectedSpec(null)
+    }
+  }, [selectedSpecId, specs])
+
   const handleAdd = () => {
     if (colors.length > 0 && !selectedColorId) {
       alert('Please select a color')
+      return
+    }
+    if (specs.length > 0 && !selectedSpecId) {
+      alert('Please select a specification')
       return
     }
 
@@ -48,12 +66,18 @@ export default function AddToCartButton({
       colorId: selectedColorId || null,
       colorName: selectedColor?.name || null,
       colorValue: selectedColor?.value || null,
+      specId: selectedSpecId || null,
+      specType: selectedSpec?.type || null,
+      specName: selectedSpec?.name || null,
+      specValue: selectedSpec?.value || null,
     })
     setTimeout(() => setLoading(false), 300)
   }
 
   const hasColors = colors.length > 0
-  const canAdd = !hasColors || (hasColors && selectedColorId)
+  const hasSpecs = specs.length > 0
+  const canAdd = (!hasColors || (hasColors && selectedColorId)) && 
+                 (!hasSpecs || (hasSpecs && selectedSpecId))
 
   return (
     <button

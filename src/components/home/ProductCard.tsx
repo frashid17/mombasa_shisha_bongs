@@ -3,10 +3,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { Sparkles, ShoppingCart, Heart } from 'lucide-react'
+import { Sparkles, ShoppingCart, Heart, Eye } from 'lucide-react'
 import { useCurrency } from '@/contexts/CurrencyContext'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
+import QuickViewModal from '@/components/products/QuickViewModal'
 
 interface ProductCardProps {
   product: {
@@ -20,6 +21,8 @@ interface ProductCardProps {
     isFeatured?: boolean
     isNewArrival?: boolean
     slug?: string
+    averageRating?: number
+    reviewCount?: number
   }
   index?: number
 }
@@ -27,6 +30,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [showQuickView, setShowQuickView] = useState(false)
   
   const addToCart = useCartStore((state) => state.addItem)
   const { toggleItem, isInWishlist } = useWishlistStore()
@@ -76,7 +80,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group relative bg-gray-900 rounded-xl border border-gray-700 shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1"
+      className="group relative bg-gray-900 rounded-xl border border-gray-700 shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-transform duration-300 hover:scale-[1.02] hover:-translate-y-1 animate-fade-in-up"
       style={{
         animationDelay: `${index * 100}ms`,
       }}
@@ -105,9 +109,10 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       <div className="relative h-64 bg-gray-800 overflow-hidden">
         {product.images[0] ? (
           <>
+            {/* Skeleton shimmer while image loads */}
             <div
-              className={`absolute inset-0 bg-gray-800 transition-opacity duration-300 ${
-                imageLoaded ? 'opacity-0' : 'opacity-100'
+              className={`absolute inset-0 transition-opacity duration-300 ${
+                imageLoaded ? 'opacity-0' : 'opacity-100 skeleton'
               }`}
             />
             <Image
@@ -151,19 +156,56 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         <h3 className="font-semibold text-white mb-3 line-clamp-2 group-hover:text-blue-400 transition-colors">
           {product.name}
         </h3>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex flex-col">
-            <p className="text-blue-400 font-bold text-xl">{format(product.price)}</p>
-            {hasDiscount && (
-              <p className="text-gray-500 text-sm line-through">
-                {format(Number(product.compareAtPrice))}
-              </p>
-            )}
+        <div className="space-y-2 mb-3">
+          {/* Rating row */}
+          {product.averageRating !== undefined && product.reviewCount !== undefined && product.reviewCount > 0 && (
+            <div className="flex items-center gap-1 text-xs text-gray-300">
+              <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className={
+                      star <= Math.round(product.averageRating ?? 0)
+                        ? 'text-yellow-400'
+                        : 'text-gray-600'
+                    }
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+              <span className="ml-1">
+                {product.averageRating?.toFixed(1)} ({product.reviewCount})
+              </span>
+            </div>
+          )}
+
+          {/* Price row */}
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <p className="text-blue-400 font-bold text-xl leading-tight">{format(product.price)}</p>
+              {hasDiscount && (
+                <p className="text-gray-500 text-sm leading-tight line-through">
+                  {format(Number(product.compareAtPrice))}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Quick Actions */}
         <div className="flex items-center gap-2 mt-2">
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              setShowQuickView(true)
+            }}
+            className="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+            aria-label="Quick view"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
           <button
             onClick={handleQuickAddToCart}
             disabled={product.stock === 0}
@@ -185,6 +227,16 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           </button>
         </div>
       </div>
+
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={{
+          ...product,
+          colors: (product as any).colors || [],
+        }}
+        isOpen={showQuickView}
+        onClose={() => setShowQuickView(false)}
+      />
     </Link>
   )
 }

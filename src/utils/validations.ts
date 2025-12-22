@@ -95,6 +95,10 @@ export const orderItemSchema = z.object({
   colorId: z.string().optional().nullable(),
   colorName: z.string().optional().nullable(),
   colorValue: z.string().optional().nullable(),
+  specId: z.string().optional().nullable(),
+  specType: z.string().optional().nullable(),
+  specName: z.string().optional().nullable(),
+  specValue: z.string().optional().nullable(),
 })
 
 export const createOrderSchema = z.object({

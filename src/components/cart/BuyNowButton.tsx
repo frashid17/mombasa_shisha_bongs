@@ -15,14 +15,19 @@ interface Color {
 export default function BuyNowButton({ 
   product, 
   colors = [],
-  selectedColorId = null
+  selectedColorId = null,
+  selectedSpecId = null,
+  specs = []
 }: { 
   product: any
   colors?: Color[]
   selectedColorId?: string | null
+  selectedSpecId?: string | null
+  specs?: Array<{ id: string; type: string; name: string; value: string | null }>
 }) {
   const [loading, setLoading] = useState(false)
   const [selectedColor, setSelectedColor] = useState<Color | null>(null)
+  const [selectedSpec, setSelectedSpec] = useState<any>(null)
   const router = useRouter()
   const addItem = useCartStore((state) => state.addItem)
 
@@ -35,9 +40,22 @@ export default function BuyNowButton({
     }
   }, [selectedColorId, colors])
 
+  useEffect(() => {
+    if (selectedSpecId && specs.length > 0) {
+      const spec = specs.find(s => s.id === selectedSpecId)
+      setSelectedSpec(spec || null)
+    } else {
+      setSelectedSpec(null)
+    }
+  }, [selectedSpecId, specs])
+
   const handleBuyNow = () => {
     if (colors.length > 0 && !selectedColorId) {
       alert('Please select a color')
+      return
+    }
+    if (specs.length > 0 && !selectedSpecId) {
+      alert('Please select a specification')
       return
     }
 
@@ -51,6 +69,10 @@ export default function BuyNowButton({
       colorId: selectedColorId || null,
       colorName: selectedColor?.name || null,
       colorValue: selectedColor?.value || null,
+      specId: selectedSpecId || null,
+      specType: selectedSpec?.type || null,
+      specName: selectedSpec?.name || null,
+      specValue: selectedSpec?.value || null,
     })
     // Redirect to checkout immediately
     setTimeout(() => {
@@ -60,7 +82,9 @@ export default function BuyNowButton({
   }
 
   const hasColors = colors.length > 0
-  const canBuy = !hasColors || (hasColors && selectedColorId)
+  const hasSpecs = specs.length > 0
+  const canBuy = (!hasColors || (hasColors && selectedColorId)) && 
+                 (!hasSpecs || (hasSpecs && selectedSpecId))
 
   return (
     <button

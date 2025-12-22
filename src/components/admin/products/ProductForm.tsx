@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, X, Image as ImageIcon, Upload, Link as LinkIcon, Crop } from 'lucide-react'
 import ImageEditor from '../ImageEditor'
 import ProductColorsManager from './ProductColorsManager'
+import ProductSpecsManager from './ProductSpecsManager'
 
 type Category = {
   id: string
@@ -23,6 +24,18 @@ type ImageInput = {
   isPrimary: boolean
 }
 
+type DraftColor = {
+  name: string
+  value: string
+}
+
+type DraftSpec = {
+  type: string
+  name: string
+  value: string | null
+  position: number
+}
+
 export default function ProductForm({ categories, product }: ProductFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -38,6 +51,9 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       isPrimary: img.isPrimary || false,
     })) || [{ url: '', altText: '', isPrimary: true }]
   )
+  // Draft state for colors and specs when creating new product
+  const [draftColors, setDraftColors] = useState<DraftColor[]>([])
+  const [draftSpecs, setDraftSpecs] = useState<DraftSpec[]>([])
 
   const handleFileUpload = async (index: number, file: File) => {
     setUploading(index)
@@ -175,6 +191,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       stock: parseInt(formData.get('stock') as string),
       sku: formData.get('sku'),
       categoryId: formData.get('categoryId'),
+      brand: formData.get('brand') || null,
       isActive: formData.get('isActive') === 'on',
       images: imageUrls.map((url, index) => {
         // Find the original image index to get altText and isPrimary
@@ -200,10 +217,49 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
 
       if (res.ok) {
         const savedProduct = await res.json()
-        // If creating a new product, update the product state to allow color management
+        
+        // If creating a new product, save draft colors and specs
         if (!product && savedProduct.id) {
-          router.replace(`/admin/products/${savedProduct.id}/edit`)
-          router.refresh()
+          // Save draft colors
+          if (draftColors.length > 0) {
+            try {
+              await Promise.all(
+                draftColors.map(color =>
+                  fetch(`/api/admin/products/${savedProduct.id}/colors`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(color),
+                  })
+                )
+              )
+            } catch (error) {
+              console.error('Failed to save colors:', error)
+            }
+          }
+          
+          // Save draft specs
+          if (draftSpecs.length > 0) {
+            try {
+              await Promise.all(
+                draftSpecs.map((spec, index) =>
+                  fetch(`/api/admin/products/${savedProduct.id}/specs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      type: spec.type,
+                      name: spec.name,
+                      value: spec.value,
+                      position: spec.position + index,
+                    }),
+                  })
+                )
+              )
+            } catch (error) {
+              console.error('Failed to save specs:', error)
+            }
+          }
+          
+          router.push(`/admin/products/${savedProduct.id}/edit`)
         } else {
           router.push('/admin/products')
           router.refresh()
@@ -261,6 +317,17 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
               </option>
             ))}
           </select>
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-900 mb-2">Brand</label>
+          <input
+            type="text"
+            name="brand"
+            defaultValue={product?.brand || ''}
+            placeholder="e.g., Al Fakher, Starbuzz, Fumari"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            style={{ color: '#111827' }}
+          />
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-900 mb-2">Price (KES) *</label>
@@ -426,16 +493,23 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       </div>
 
       {/* Product Colors */}
-      {product?.id && (
+      {product?.id ? (
         <ProductColorsManager productId={product.id} />
+      ) : (
+        <DraftColorsManager 
+          colors={draftColors} 
+          onColorsChange={setDraftColors} 
+        />
       )}
-      {!product && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
-            <strong>Note:</strong> You can add product colors after creating the product. 
-            The product will be saved first, then you'll be able to manage colors on the edit page.
-          </p>
-        </div>
+
+      {/* Product Specifications */}
+      {product?.id ? (
+        <ProductSpecsManager productId={product.id} />
+      ) : (
+        <DraftSpecsManager 
+          specs={draftSpecs} 
+          onSpecsChange={setDraftSpecs} 
+        />
       )}
 
       <div className="flex gap-4">
@@ -465,6 +539,368 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
         />
       )}
     </form>
+  )
+}
+
+// Draft Colors Manager - for use when creating new products
+function DraftColorsManager({ 
+  colors, 
+  onColorsChange 
+}: { 
+  colors: DraftColor[]
+  onColorsChange: (colors: DraftColor[]) => void 
+}) {
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [formData, setFormData] = useState({ name: '', value: '#000000' })
+
+  const getHexFromColorName = (name: string): string | null => {
+    const colorMap: { [key: string]: string } = {
+      'red': '#FF0000', 'green': '#00FF00', 'blue': '#0000FF', 'yellow': '#FFFF00',
+      'orange': '#FFA500', 'purple': '#800080', 'pink': '#FFC0CB', 'brown': '#A52A2A',
+      'black': '#000000', 'white': '#FFFFFF', 'gray': '#808080', 'grey': '#808080',
+    }
+    return colorMap[name.trim().toLowerCase()] || null
+  }
+
+  const handleAdd = () => {
+    if (!formData.name.trim() || !formData.value.trim()) {
+      alert('Please enter color name and value')
+      return
+    }
+
+    let colorValue = formData.value.trim()
+    if (!colorValue.startsWith('#')) {
+      colorValue = '#' + colorValue
+    }
+    if (!/^#[0-9A-Fa-f]{6}$/i.test(colorValue)) {
+      alert('Please enter a valid hex color code (e.g., #FF0000)')
+      return
+    }
+
+    onColorsChange([...colors, { name: formData.name.trim(), value: colorValue.toUpperCase() }])
+    setFormData({ name: '', value: '#000000' })
+    setShowAddForm(false)
+  }
+
+  const handleDelete = (index: number) => {
+    onColorsChange(colors.filter((_, i) => i !== index))
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-semibold text-gray-900">Product Colors (Optional)</label>
+        {!showAddForm && (
+          <button
+            type="button"
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            Add Color
+          </button>
+        )}
+      </div>
+
+      {showAddForm && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Color Name</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => {
+                  const newName = e.target.value
+                  const autoHex = getHexFromColorName(newName)
+                  setFormData({ 
+                    name: newName, 
+                    value: autoHex || formData.value 
+                  })
+                }}
+                placeholder="e.g., Red, Blue, Green"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Color Value (Hex)</label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  value={formData.value.startsWith('#') ? formData.value : `#${formData.value}`}
+                  onChange={(e) => setFormData({ ...formData, value: e.target.value.toUpperCase() })}
+                  className="h-10 w-16 border border-gray-300 rounded cursor-pointer"
+                />
+                <input
+                  type="text"
+                  value={formData.value}
+                  onChange={(e) => {
+                    let value = e.target.value.trim()
+                    if (value && !value.startsWith('#')) value = '#' + value
+                    value = value.toUpperCase().replace(/[^#0-9A-F]/g, '')
+                    setFormData({ ...formData, value })
+                  }}
+                  placeholder="#FF0000"
+                  maxLength={7}
+                  className="flex-1 border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowAddForm(false)
+                setFormData({ name: '', value: '#000000' })
+              }}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {colors.length > 0 && (
+        <div className="space-y-2">
+          {colors.map((color, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg"
+            >
+              <div
+                className="w-10 h-10 rounded border-2 border-gray-300"
+                style={{ backgroundColor: color.value }}
+              />
+              <div className="flex-1">
+                <p className="font-medium text-gray-900">{color.name}</p>
+                <p className="text-xs text-gray-500">{color.value}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDelete(index)}
+                className="p-2 text-red-600 hover:bg-red-50 rounded"
+                title="Delete"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {colors.length === 0 && !showAddForm && (
+        <p className="text-sm text-gray-500 italic">No colors added. Colors are optional.</p>
+      )}
+    </div>
+  )
+}
+
+// Draft Specs Manager - for use when creating new products
+function DraftSpecsManager({ 
+  specs, 
+  onSpecsChange 
+}: { 
+  specs: DraftSpec[]
+  onSpecsChange: (specs: DraftSpec[]) => void 
+}) {
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [formData, setFormData] = useState({ 
+    type: 'Size', 
+    name: '', 
+    value: '',
+    position: 0 
+  })
+
+  const specTypes = [
+    { value: 'Size', label: 'Size', commonValues: ['250g', '500g', '1kg', '50g', '100g'] },
+    { value: 'Flavor', label: 'Flavor', commonValues: ['Mint', 'Gum with Mint', 'Apple', 'Grape', 'Watermelon', 'Strawberry', 'Blueberry', 'Cherry', 'Vanilla', 'Chocolate'] },
+    { value: 'Weight', label: 'Weight', commonValues: ['250g', '500g', '1kg'] },
+    { value: 'Volume', label: 'Volume', commonValues: ['250ml', '500ml', '1L'] },
+    { value: 'Other', label: 'Other', commonValues: [] },
+  ]
+
+  const handleAdd = () => {
+    if (!formData.type || !formData.name.trim()) {
+      alert('Please enter specification type and name')
+      return
+    }
+
+    // Parse comma-separated values
+    const names = formData.name
+      .split(',')
+      .map(n => n.trim())
+      .filter(n => n.length > 0)
+
+    if (names.length === 0) {
+      alert('Please enter at least one specification name')
+      return
+    }
+
+    // Add all specifications
+    const newSpecs = names.map((name, index) => ({
+      type: formData.type,
+      name: name,
+      value: formData.value.trim() || null,
+      position: formData.position + index,
+    }))
+
+    onSpecsChange([...specs, ...newSpecs])
+    setFormData({ type: 'Size', name: '', value: '', position: 0 })
+    setShowAddForm(false)
+  }
+
+  const handleDelete = (index: number) => {
+    onSpecsChange(specs.filter((_, i) => i !== index))
+  }
+
+  const selectedType = specTypes.find(t => t.value === formData.type)
+  const commonValues = selectedType?.commonValues || []
+
+  // Group specs by type
+  const specsByType = specs.reduce((acc, spec) => {
+    if (!acc[spec.type]) acc[spec.type] = []
+    acc[spec.type].push(spec)
+    return acc
+  }, {} as Record<string, DraftSpec[]>)
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-semibold text-gray-900">
+          Product Specifications (Optional)
+          <span className="text-xs font-normal text-gray-500 ml-2">
+            e.g., Size (250g), Flavor (Mint)
+          </span>
+        </label>
+        {!showAddForm && (
+          <button
+            type="button"
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            <Plus className="w-4 h-4" />
+            Add Specification
+          </button>
+        )}
+      </div>
+
+      {showAddForm && (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">Type</label>
+              <select
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value, name: '' })}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
+              >
+                {specTypes.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Name <span className="text-gray-500 font-normal">(comma-separated for multiple)</span>
+              </label>
+              <div className="space-y-2">
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder={`e.g., ${commonValues.slice(0, 3).join(', ') || 'Mint, Apple, Grape'}`}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
+                />
+                <p className="text-xs text-gray-500">
+                  💡 Tip: Separate multiple values with commas (e.g., "Mint, Gum with Mint, Apple")
+                </p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Value (Optional)
+              <span className="text-gray-500 font-normal ml-1">- Additional info</span>
+            </label>
+            <input
+              type="text"
+              value={formData.value}
+              onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+              placeholder="Optional value"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="px-4 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700"
+            >
+              Add
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowAddForm(false)
+                setFormData({ type: 'Size', name: '', value: '', position: 0 })
+              }}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {specs.length > 0 && (
+        <div className="space-y-3">
+          {Object.entries(specsByType).map(([type, typeSpecs]) => (
+            <div key={type} className="space-y-2">
+              <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{type}</h4>
+              {typeSpecs.map((spec, index) => {
+                const specIndex = specs.findIndex(s => s === spec)
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg"
+                  >
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{spec.name}</p>
+                      {spec.value && (
+                        <p className="text-xs text-gray-500">{spec.value}</p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(specIndex)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded"
+                      title="Delete"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {specs.length === 0 && !showAddForm && (
+        <p className="text-sm text-gray-500 italic">No specifications added. Specifications are optional.</p>
+      )}
+    </div>
   )
 }
 

@@ -4,6 +4,8 @@ import { Metadata } from 'next'
 import prisma from '@/lib/prisma'
 import SearchBar from '@/components/SearchBar'
 import ProductsGrid from '@/components/products/ProductsGrid'
+import ProductSortFilter from '@/components/products/ProductSortFilter'
+import ProductPagination from '@/components/products/ProductPagination'
 import { serializeProducts } from '@/lib/prisma-serialize'
 import StructuredData from '@/components/seo/StructuredData'
 
@@ -14,17 +16,25 @@ async function getProducts(searchParams: {
   category?: string
   minPrice?: string
   maxPrice?: string
+  brand?: string
+  stockStatus?: string
+  minRating?: string
+  sortBy?: string
+  sortOrder?: string
+  page?: string
+  limit?: string
 }) {
   const where: any = { isActive: true }
 
-  // Search filter - MySQL is case-insensitive by default with utf8mb4_unicode_ci
+  // Search filter
   if (searchParams.search) {
     const searchTerm = searchParams.search.trim()
     where.OR = [
-      { name: { contains: searchTerm } },
-      { description: { contains: searchTerm } },
-      { sku: { contains: searchTerm } },
-      { tags: { contains: searchTerm } },
+      { name: { contains: searchTerm, mode: 'insensitive' } },
+      { description: { contains: searchTerm, mode: 'insensitive' } },
+      { sku: { contains: searchTerm, mode: 'insensitive' } },
+      { tags: { contains: searchTerm, mode: 'insensitive' } },
+      { brand: { contains: searchTerm, mode: 'insensitive' } },
     ]
   }
 
@@ -34,7 +44,7 @@ async function getProducts(searchParams: {
       where: {
         OR: [
           { slug: searchParams.category },
-          { name: { contains: searchParams.category } },
+          { name: { contains: searchParams.category, mode: 'insensitive' } },
         ],
         isActive: true,
       },
@@ -42,6 +52,18 @@ async function getProducts(searchParams: {
     if (category) {
       where.categoryId = category.id
     }
+  }
+
+  // Brand filter
+  if (searchParams.brand) {
+    where.brand = { contains: searchParams.brand, mode: 'insensitive' }
+  }
+
+  // Stock status filter
+  if (searchParams.stockStatus === 'in_stock') {
+    where.stock = { gt: 0 }
+  } else if (searchParams.stockStatus === 'out_of_stock') {
+    where.stock = { lte: 0 }
   }
 
   // Price range filter
@@ -55,18 +77,92 @@ async function getProducts(searchParams: {
     }
   }
 
-  return prisma.product.findMany({
-    where,
-    include: { images: { take: 1 }, category: true },
-    orderBy: { createdAt: 'desc' },
-  })
+  // Rating filter (requires join with reviews)
+  if (searchParams.minRating) {
+    const minRating = parseFloat(searchParams.minRating)
+    const productsWithRatings = await prisma.review.groupBy({
+      by: ['productId'],
+      having: {
+        rating: {
+          _avg: {
+            gte: minRating,
+          },
+        },
+      },
+    })
+    const productIds = productsWithRatings.map((r) => r.productId)
+    if (productIds.length > 0) {
+      where.id = { in: productIds }
+    } else {
+      // No products match the rating, return empty
+      where.id = { in: [] }
+    }
+  }
+
+  // Sorting
+  const sortBy = searchParams.sortBy || 'createdAt'
+  const sortOrder = searchParams.sortOrder || 'desc'
+  
+  // For popularity, we need to get products with order counts and sort manually
+  let orderBy: any = { [sortBy]: sortOrder }
+  
+  // Note: Popularity sorting will be handled after fetching
+
+  // Pagination
+  const page = parseInt(searchParams.page || '1')
+  const limit = parseInt(searchParams.limit || '24')
+  const skip = (page - 1) * limit
+
+  const [allProducts, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      include: {
+        images: { take: 1 },
+        category: true,
+        reviews: {
+          select: { rating: true },
+        },
+        _count: {
+          select: { orderItems: true },
+        },
+      },
+    }),
+    prisma.product.count({ where }),
+  ])
+
+  // Sort products
+  let sortedProducts = [...allProducts]
+  if (sortBy === 'popularity') {
+    sortedProducts.sort((a, b) => {
+      const aCount = a._count.orderItems
+      const bCount = b._count.orderItems
+      return sortOrder === 'desc' ? bCount - aCount : aCount - bCount
+    })
+  } else {
+    sortedProducts.sort((a: any, b: any) => {
+      const aVal = a[sortBy]
+      const bVal = b[sortBy]
+      if (aVal === null || aVal === undefined) return 1
+      if (bVal === null || bVal === undefined) return -1
+      if (sortOrder === 'desc') {
+        return aVal > bVal ? -1 : aVal < bVal ? 1 : 0
+      } else {
+        return aVal < bVal ? -1 : aVal > bVal ? 1 : 0
+      }
+    })
+  }
+
+  // Apply pagination
+  const paginatedProducts = sortedProducts.slice(skip, skip + limit)
+
+  return { products: paginatedProducts, total, page, limit }
 }
 
 async function getCategories() {
   return prisma.category.findMany({ orderBy: { name: 'asc' } })
 }
 
-export async function generateMetadata({ searchParams }: { searchParams: Promise<{ search?: string; category?: string; minPrice?: string; maxPrice?: string }> }): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ search?: string; category?: string; minPrice?: string; maxPrice?: string; brand?: string; sortBy?: string }> }): Promise<Metadata> {
   const params = await searchParams
   const hasFilters = !!(params.search || params.category || params.minPrice || params.maxPrice)
   
@@ -99,15 +195,35 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; category?: string; minPrice?: string; maxPrice?: string }>
+  searchParams: Promise<{ 
+    search?: string
+    category?: string
+    minPrice?: string
+    maxPrice?: string
+    brand?: string
+    stockStatus?: string
+    minRating?: string
+    sortBy?: string
+    sortOrder?: string
+    page?: string
+    limit?: string
+  }>
 }) {
   const params = await searchParams
-  const [rawProducts, categories] = await Promise.all([
+  const [productsData, categories, brands] = await Promise.all([
     getProducts(params),
     getCategories(),
+    prisma.product.findMany({
+      where: { isActive: true, brand: { not: null } },
+      select: { brand: true },
+      distinct: ['brand'],
+    }),
   ])
 
-  const products = serializeProducts(rawProducts)
+  const products = serializeProducts(productsData.products)
+  const totalProducts = productsData.total
+  const currentPage = productsData.page
+  const totalPages = Math.ceil(totalProducts / productsData.limit)
 
   const breadcrumbs = [
     { name: 'Home', url: '/' },
@@ -125,30 +241,33 @@ export default async function ProductsPage({
           <SearchBar />
         </div>
 
-        {/* Active Filters */}
-        {(params.search || params.category || params.minPrice || params.maxPrice) && (
-          <div className="mb-6 flex flex-wrap gap-2">
-            {params.search && (
-              <span className="bg-blue-900 text-blue-300 px-3 py-1 rounded-full text-sm">
-                Search: {params.search}
-              </span>
-            )}
-            {params.category && (
-              <span className="bg-purple-900 text-purple-300 px-3 py-1 rounded-full text-sm">
-                Category: {params.category}
-              </span>
-            )}
-            {(params.minPrice || params.maxPrice) && (
-              <span className="bg-green-900 text-green-300 px-3 py-1 rounded-full text-sm">
-                Price: KES {params.minPrice || '0'} - {params.maxPrice || '∞'}
-              </span>
-            )}
+        {/* Sort and Filters */}
+        <ProductSortFilter
+          categories={categories}
+          brands={brands}
+          activeFilters={{
+            category: params.category,
+            brand: params.brand,
+            stockStatus: params.stockStatus,
+            minRating: params.minRating,
+            minPrice: params.minPrice,
+            maxPrice: params.maxPrice,
+          }}
+        />
+
+        {/* Search Active Filter */}
+        {params.search && (
+          <div className="mb-4">
+            <span className="bg-blue-900 text-blue-300 px-3 py-1 rounded-full text-sm">
+              Search: {params.search}
+            </span>
           </div>
         )}
 
         {products.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-gray-400 text-lg">No products found</p>
+            <p className="text-gray-400 text-lg mb-2">No products found</p>
+            <p className="text-gray-500 text-sm mb-4">Try adjusting your filters or search terms</p>
             <Link
               href="/products"
               className="inline-block mt-4 text-blue-400 hover:text-blue-300 font-semibold"
@@ -158,10 +277,13 @@ export default async function ProductsPage({
           </div>
         ) : (
           <>
-            <p className="text-gray-400 mb-6">
-              Found {products.length} product{products.length !== 1 ? 's' : ''}
-            </p>
             <ProductsGrid products={products} />
+            <ProductPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalProducts={totalProducts}
+              limit={productsData.limit}
+            />
           </>
         )}
       </div>

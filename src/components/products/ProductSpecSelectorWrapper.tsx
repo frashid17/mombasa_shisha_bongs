@@ -1,17 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import ProductColorSelector from './ProductColorSelector'
 import SpecSelector from './SpecSelector'
 import AddToCartButton from '@/components/cart/AddToCartButton'
 import BuyNowButton from '@/components/cart/BuyNowButton'
-
-interface Color {
-  id: string
-  name: string
-  value: string
-  isActive: boolean
-}
 
 interface Specification {
   id: string
@@ -21,38 +13,23 @@ interface Specification {
   isActive: boolean
 }
 
-interface ProductColorSelectorWrapperProps {
+interface ProductSpecSelectorWrapperProps {
   productId: string
-  colors: Color[]
+  specs: Specification[]
   product: any
-  specs?: Specification[]
 }
 
-export default function ProductColorSelectorWrapper({
+export default function ProductSpecSelectorWrapper({
   productId,
-  colors,
+  specs,
   product,
-  specs = [],
-}: ProductColorSelectorWrapperProps) {
-  const [selectedColorId, setSelectedColorId] = useState<string | null>(null)
+}: ProductSpecSelectorWrapperProps) {
   const [selectedSpecId, setSelectedSpecId] = useState<string | null>(null)
 
-  const hasColors = colors.length > 0
   const hasSpecs = specs.length > 0
 
   return (
     <div className="mt-6">
-      {hasColors && (
-        <div className="mb-4">
-          <ProductColorSelector
-            productId={productId}
-            colors={colors}
-            selectedColorId={selectedColorId}
-            onColorChange={setSelectedColorId}
-            required={true}
-          />
-        </div>
-      )}
       {hasSpecs && (
         <div className="mb-4">
           <SpecSelector
@@ -67,15 +44,11 @@ export default function ProductColorSelectorWrapper({
       <div className="flex flex-col sm:flex-row gap-3">
         <AddToCartButton 
           product={product} 
-          colors={colors}
-          selectedColorId={selectedColorId}
           selectedSpecId={selectedSpecId}
           specs={specs}
         />
         <BuyNowButton 
           product={product}
-          colors={colors}
-          selectedColorId={selectedColorId}
           selectedSpecId={selectedSpecId}
           specs={specs}
         />

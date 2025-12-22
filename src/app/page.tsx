@@ -93,7 +93,14 @@ async function getFeaturedData() {
           gte: thirtyDaysAgo,
         },
       },
-      include: { images: { take: 1 }, category: true },
+      include: {
+        images: { take: 1 },
+        category: true,
+        reviews: {
+          where: { isApproved: true },
+          select: { rating: true },
+        },
+      },
       take: 8,
       orderBy: { createdAt: 'desc' },
     }),
@@ -114,7 +121,14 @@ async function getFeaturedData() {
     // Get all products for "Explore All Items" section
     prisma.product.findMany({
       where: { isActive: true },
-      include: { images: { take: 1 }, category: true },
+      include: {
+        images: { take: 1 },
+        category: true,
+        reviews: {
+          where: { isApproved: true },
+          select: { rating: true },
+        },
+      },
       take: 12,
       orderBy: { createdAt: 'desc' },
     }),
@@ -190,66 +204,161 @@ async function getActiveFlashSales() {
 
 export default async function HomePage() {
   const { categories, featuredProducts, newArrivals, stats, reviews, customerReviews, allProducts } = await getFeaturedData()
-  const serializedFeatured = serializeProducts(featuredProducts)
-  const serializedNewArrivals = serializeProducts(newArrivals)
-  const serializedAllProducts = serializeProducts(allProducts)
+  // Compute rating meta for homepage cards (keep heavy review UI in product pages)
+  const mapWithRating = (products: any[]) =>
+    products.map((p) => {
+      const ratings: number[] = p.reviews?.map((r: { rating: number }) => r.rating) ?? []
+      const reviewCount = ratings.length
+      const averageRating =
+        reviewCount > 0
+          ? ratings.reduce((sum: number, r: number) => sum + r, 0) / reviewCount
+          : undefined
+      return {
+        ...p,
+        averageRating,
+        reviewCount,
+      }
+    })
+
+  const serializedFeatured = serializeProducts(mapWithRating(featuredProducts))
+  const serializedNewArrivals = serializeProducts(mapWithRating(newArrivals))
+  const serializedAllProducts = serializeProducts(mapWithRating(allProducts))
   const activeFlashSales = await getActiveFlashSales()
   const primaryFlashSale = activeFlashSales[0]
 
   return (
     <>
       <StructuredData type="Organization" />
-      <div className="min-h-screen bg-gray-900">
-      {/* Top Banner - Pay on Delivery */}
-      <div className="bg-blue-600 text-white py-2 text-center text-sm font-semibold">
-        <p>PAY ON DELIVERY IN MOMBASA</p>
-      </div>
-
-      {/* Hero Section - Promotional Banner */}
-      <section className="bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900 text-white py-12 md:py-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+      <div className="min-h-screen bg-gray-900 page-fade-in">
+        {/* Top Banner - Pay on Delivery */}
+        <div className="bg-blue-600 text-white py-2 text-center text-sm font-semibold">
+          <p>PAY ON DELIVERY IN MOMBASA</p>
         </div>
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-6xl mx-auto">
-            {/* Hero Text */}
-            <div className="text-center mb-8 md:mb-12">
-              <h1 className="text-4xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Premium Shisha & Vapes
-              </h1>
-              <p className="text-xl md:text-2xl mb-6 text-gray-200">
-                Mix & Match any flavor & strength. Best prices in Mombasa
-              </p>
-              <Link
-                href="/products"
-                className="inline-block bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold px-8 py-4 rounded-lg text-lg transition-colors shadow-lg"
-              >
-                Shop Now
-              </Link>
-            </div>
 
-            {/* Features Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 max-w-4xl mx-auto">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center border border-white/20 hover:bg-white/15 transition-all">
-                <Truck className="w-12 h-12 mx-auto mb-4 text-blue-400" />
-                <h3 className="text-xl font-semibold mb-2 text-white">Fast Shipping</h3>
-                <p className="text-gray-300 text-sm">Same-day delivery in Mombasa. Nationwide shipping available.</p>
+        {/* Hero Section - Promotional Banner */}
+        <section className="bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900 text-white py-12 md:py-20 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
+          </div>
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-6xl mx-auto">
+              {/* Hero Text */}
+              <div className="text-center mb-10 md:mb-14 animate-fade-in-up">
+                <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs md:text-sm text-gray-200 border border-white/20 mb-4">
+                  <Sparkles className="w-4 h-4 text-yellow-300" />
+                  <span>Trusted Shisha & Vape store in Mombasa</span>
+                </p>
+                <h1 className="text-4xl md:text-6xl font-extrabold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight md:leading-[1.1]">
+                  Premium Shisha & Vapes
+          </h1>
+                <p className="text-lg md:text-2xl mb-6 text-gray-200 max-w-2xl mx-auto">
+                  Mix & match any flavor & strength. Fast delivery, secure payment, and authentic products in Mombasa.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <Link
+                    href="/products"
+                    className="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold px-8 py-3 rounded-lg text-base md:text-lg transition-colors shadow-lg shadow-yellow-500/30"
+                  >
+                    Shop Now
+                  </Link>
+                  <Link
+                    href="#trending"
+                    className="inline-flex items-center justify-center border border-white/30 hover:border-white/60 text-white px-6 py-3 rounded-lg text-sm md:text-base bg-white/5 hover:bg-white/10 transition-colors"
+                  >
+                    Browse Trending Products
+                  </Link>
+                </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center border border-white/20 hover:bg-white/15 transition-all">
-                <Shield className="w-12 h-12 mx-auto mb-4 text-green-400" />
-                <h3 className="text-xl font-semibold mb-2 text-white">Secure Payment</h3>
-                <p className="text-gray-300 text-sm">Paystack & secure checkout. Pay on delivery available.</p>
+
+              {/* Trust Indicators */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mt-6 text-sm md:text-base animate-fade-in-up-delay">
+                <div className="bg-black/20 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3 backdrop-blur">
+                  <ShoppingBag className="w-6 h-6 text-blue-400" />
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-gray-400">Products</p>
+                    <p className="text-white font-semibold text-lg">
+                      {stats}+
+                      <span className="ml-1 text-xs font-normal text-gray-300">items in stock</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-black/20 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3 backdrop-blur">
+                  <Star className="w-6 h-6 text-yellow-400" />
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-gray-400">Customer Reviews</p>
+                    <p className="text-white font-semibold text-lg">
+                      {reviews}+
+                      <span className="ml-1 text-xs font-normal text-gray-300">verified ratings</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-black/20 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3 backdrop-blur">
+                  <Truck className="w-6 h-6 text-green-400" />
+                  <div>
+                    <p className="text-xs uppercase tracking-wide text-gray-400">Delivery</p>
+                    <p className="text-white font-semibold text-lg">
+                      Same-day
+                      <span className="ml-1 text-xs font-normal text-gray-300">within Mombasa</span>
+          </p>
+        </div>
+                </div>
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 text-center border border-white/20 hover:bg-white/15 transition-all">
-                <Star className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
-                <h3 className="text-xl font-semibold mb-2 text-white">Premium Quality</h3>
-                <p className="text-gray-300 text-sm">Authentic products guaranteed. 100% quality assurance.</p>
-              </div>
+
+              {/* Featured product strip inside hero */}
+              {serializedFeatured.length > 0 && (
+                <div className="mt-10 md:mt-12">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm text-gray-300 flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-yellow-300" />
+                      <span>Popular right now</span>
+                    </p>
+                    <Link
+                      href="/products"
+                      className="text-xs md:text-sm text-blue-300 hover:text-blue-200 transition-colors"
+                    >
+                      View all products →
+                    </Link>
+                  </div>
+                  <div className="flex gap-4 overflow-x-auto scrollbar-hide pt-1 pb-3 -mx-4 px-4 snap-x snap-mandatory">
+                    {serializedFeatured.slice(0, 10).map((product, index) => (
+                      <Link
+                        key={product.id}
+                        href={`/products/${product.id}`}
+                        className="min-w-[180px] max-w-[200px] bg-black/30 border border-white/10 rounded-xl p-3 flex-shrink-0 snap-start hover:border-blue-400/60 hover:bg-black/40 transition-colors"
+                        style={{ animationDelay: `${index * 60}ms` }}
+                      >
+                        <div className="relative h-28 w-full rounded-lg overflow-hidden mb-3 bg-gray-800">
+                          {product.images?.[0]?.url ? (
+            <Image
+                              src={product.images[0].url}
+                              alt={product.images[0].altText || product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
+                              No image
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-blue-300 mb-1 line-clamp-1">
+                          {product.category?.name || 'Shisha & Vapes'}
+                        </p>
+                        <p className="text-sm text-white font-semibold mb-1 line-clamp-2">
+                          {product.name}
+                        </p>
+                        <p className="text-sm text-blue-300 font-bold">
+                          KES {Number(product.price).toLocaleString()}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* Flash Sale Section */}
       {primaryFlashSale && primaryFlashSale.products.length > 0 && (
