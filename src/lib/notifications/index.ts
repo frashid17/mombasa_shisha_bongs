@@ -19,7 +19,19 @@ interface OrderNotificationData {
   customerEmail: string
   customerPhone: string
   total: number
-  items: Array<{ name: string; quantity: number; price: number; image?: string }>
+  items: Array<{ 
+    name: string
+    quantity: number
+    price: number
+    image?: string
+    colorId?: string
+    colorName?: string
+    colorValue?: string
+    specId?: string
+    specType?: string
+    specName?: string
+    specValue?: string
+  }>
   deliveryAddress: string
   deliveryCity: string
   estimatedDelivery?: string
@@ -178,6 +190,18 @@ export async function sendOrderConfirmationNotification(
                       `}
                       <div style="flex: 1; min-width: 0;">
                         <h3 style="margin: 0 0 8px 0; color: #1f2937; font-size: 16px; font-weight: bold;">${item.name}</h3>
+                        ${item.colorName ? `
+                          <div style="margin-bottom: 6px; font-size: 14px; color: #6b7280;">
+                            <strong>Color:</strong> 
+                            ${item.colorValue ? `<span style="display: inline-block; width: 16px; height: 16px; background-color: ${item.colorValue}; border: 1px solid #d1d5db; border-radius: 50%; vertical-align: middle; margin-left: 6px; margin-right: 6px;"></span>` : ''}
+                            ${item.colorName}
+                          </div>
+                        ` : ''}
+                        ${item.specName ? `
+                          <div style="margin-bottom: 6px; font-size: 14px; color: #6b7280;">
+                            <strong>${item.specType || 'Spec'}:</strong> ${item.specName}${item.specValue ? ` (${item.specValue})` : ''}
+                          </div>
+                        ` : ''}
                         <div style="display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; color: #6b7280;">
                           <span><strong>Qty:</strong> ${item.quantity}</span>
                           <span><strong>Price:</strong> KES ${item.price.toLocaleString()}</span>
@@ -223,7 +247,17 @@ Payment Information:
 - Payment Status: ${paymentStatusDisplay}
 
 Order Items:
-${data.items.map(item => `- ${item.name} x${item.quantity} - KES ${item.price.toLocaleString()} each = KES ${(item.price * item.quantity).toLocaleString()}`).join('\n')}
+${data.items.map(item => {
+  let itemText = `- ${item.name} x${item.quantity}`
+  if (item.colorName) {
+    itemText += ` (Color: ${item.colorName})`
+  }
+  if (item.specName) {
+    itemText += ` (${item.specType || 'Spec'}: ${item.specName}${item.specValue ? ` - ${item.specValue}` : ''})`
+  }
+  itemText += ` - KES ${item.price.toLocaleString()} each = KES ${(item.price * item.quantity).toLocaleString()}`
+  return itemText
+}).join('\n')}
 
 Total: KES ${data.total.toLocaleString()}
 

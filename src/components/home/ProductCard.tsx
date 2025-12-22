@@ -49,12 +49,29 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     ? Math.round(((Number(product.compareAtPrice) - product.price) / Number(product.compareAtPrice)) * 100)
     : 0
 
-  const handleQuickAddToCart = (e: React.MouseEvent) => {
+  const handleQuickAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
     if (product.stock === 0) return
 
+    // Check if product has required colors or specs
+    try {
+      const res = await fetch(`/api/products/${product.id}/has-options`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.hasColors || data.hasSpecs) {
+          // Product has required options, redirect to product page
+          window.location.href = `/products/${product.id}`
+          return
+        }
+      }
+    } catch (error) {
+      console.error('Error checking product options:', error)
+      // If check fails, allow adding (fallback behavior)
+    }
+
+    // Product has no required options, add directly
     addToCart({
       id: product.id,
       name: product.name,

@@ -679,11 +679,38 @@ export default function CheckoutPage() {
 
           <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6 h-fit">
             <h2 className="text-xl font-bold text-white mb-4">Order Summary</h2>
-            <div className="space-y-2 mb-4">
+            <div className="space-y-3 mb-4">
               {items.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <span className="text-gray-300">{item.name} x{item.quantity}</span>
-                  <span className="text-white">{format(item.price * item.quantity)}</span>
+                <div key={item.cartItemId || item.id} className="border-b border-gray-700 pb-3 last:border-b-0">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-gray-300 font-medium">{item.name}</span>
+                    <span className="text-white font-semibold">{format(item.price * item.quantity)}</span>
+                  </div>
+                  <div className="space-y-1">
+                    {item.colorName && (
+                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                        <span>Color:</span>
+                        {item.colorValue && (
+                          <div
+                            className="w-3 h-3 rounded-full border border-gray-600"
+                            style={{ backgroundColor: item.colorValue }}
+                          />
+                        )}
+                        <span>{item.colorName}</span>
+                      </div>
+                    )}
+                    {item.specName && (
+                      <div className="text-xs text-gray-400">
+                        <span>{item.specType || 'Spec'}:</span> <span className="text-gray-300">{item.specName}</span>
+                        {item.specValue && (
+                          <span className="text-gray-500"> ({item.specValue})</span>
+                        )}
+                      </div>
+                    )}
+                    <div className="text-xs text-gray-500">
+                      Qty: {item.quantity} × {format(item.price)}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>

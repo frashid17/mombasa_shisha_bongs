@@ -2,7 +2,8 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
 type CartItem = {
-  id: string
+  id: string // Product ID
+  cartItemId?: string // Unique identifier for this cart item (product + color + spec)
   name: string
   price: number
   image?: string
@@ -16,19 +17,40 @@ type CartItem = {
   specValue?: string | null
 }
 
+// Helper function to generate unique cart item ID
+function generateCartItemId(productId: string, colorId?: string | null, specId?: string | null): string {
+  const parts = [productId]
+  if (colorId) parts.push(`color:${colorId}`)
+  if (specId) parts.push(`spec:${specId}`)
+  return parts.join('|')
+}
+
 type CartStore = {
   items: CartItem[]
   savedItems: CartItem[]
-  addItem: (item: Omit<CartItem, 'quantity'>) => void
-  removeItem: (id: string) => void
-  saveForLater: (id: string) => void
-  moveToCart: (id: string) => void
-  removeSavedItem: (id: string) => void
-  updateQuantity: (id: string, quantity: number) => void
+  addItem: (item: Omit<CartItem, 'quantity' | 'cartItemId'>) => void
+  removeItem: (cartItemId: string) => void
+  saveForLater: (cartItemId: string) => void
+  moveToCart: (cartItemId: string) => void
+  removeSavedItem: (cartItemId: string) => void
+  updateQuantity: (cartItemId: string, quantity: number) => void
   clearCart: () => void
   clearSaved: () => void
   getTotal: () => number
   getItemCount: () => number
+}
+
+// Helper function to migrate items (for backward compatibility)
+function migrateItems(items: CartItem[]): CartItem[] {
+  return items.map(item => {
+    if (!item.cartItemId) {
+      return {
+        ...item,
+        cartItemId: generateCartItemId(item.id, item.colorId, item.specId)
+      }
+    }
+    return item
+  })
 }
 
 export const useCartStore = create<CartStore>()(
@@ -37,67 +59,90 @@ export const useCartStore = create<CartStore>()(
       items: [],
       savedItems: [],
       addItem: (item) => {
-        // For products with colors or specs, treat them as part of the unique identifier
-        const itemKey = item.colorId || item.specId 
-          ? `${item.id}-${item.colorId || ''}-${item.specId || ''}` 
-          : item.id
-        const existing = get().items.find((i) => {
-          const existingKey = i.colorId || i.specId 
-            ? `${i.id}-${i.colorId || ''}-${i.specId || ''}` 
-            : i.id
-          return existingKey === itemKey
-        })
+        const cartItemId = generateCartItemId(item.id, item.colorId, item.specId)
+        // Ensure all items have cartItemId for comparison
+        const itemsWithIds = get().items.map(i => ({
+          ...i,
+          cartItemId: i.cartItemId || generateCartItemId(i.id, i.colorId, i.specId)
+        }))
+        const existing = itemsWithIds.find((i) => i.cartItemId === cartItemId)
+        
         if (existing) {
           set({
-            items: get().items.map((i) => {
-              const existingKey = i.colorId || i.specId 
-                ? `${i.id}-${i.colorId || ''}-${i.specId || ''}` 
-                : i.id
-              return existingKey === itemKey ? { ...i, quantity: i.quantity + 1 } : i
-            }),
+            items: itemsWithIds.map((i) =>
+              i.cartItemId === cartItemId ? { ...i, quantity: i.quantity + 1 } : i
+            ),
           })
         } else {
-          set({ items: [...get().items, { ...item, quantity: 1 }] })
+          set({ items: [...itemsWithIds, { ...item, cartItemId, quantity: 1 }] })
         }
       },
-      removeItem: (id) => {
-        set({ items: get().items.filter((i) => i.id !== id) })
+      removeItem: (cartItemId) => {
+        const items = get().items.map(i => ({
+          ...i,
+          cartItemId: i.cartItemId || generateCartItemId(i.id, i.colorId, i.specId)
+        }))
+        set({ items: items.filter((i) => i.cartItemId !== cartItemId) })
       },
-      saveForLater: (id) => {
-        const item = get().items.find((i) => i.id === id)
+      saveForLater: (cartItemId) => {
+        const items = get().items.map(i => ({
+          ...i,
+          cartItemId: i.cartItemId || generateCartItemId(i.id, i.colorId, i.specId)
+        }))
+        const item = items.find((i) => i.cartItemId === cartItemId)
         if (!item) return
 
-        const alreadySaved = get().savedItems.find((i) => i.id === id)
+        const savedItems = get().savedItems.map(i => ({
+          ...i,
+          cartItemId: i.cartItemId || generateCartItemId(i.id, i.colorId, i.specId)
+        }))
+        const alreadySaved = savedItems.find((i) => i.cartItemId === cartItemId)
         set({
-          items: get().items.filter((i) => i.id !== id),
+          items: items.filter((i) => i.cartItemId !== cartItemId),
           savedItems: alreadySaved
-            ? get().savedItems
-            : [...get().savedItems, { ...item }],
+            ? savedItems
+            : [...savedItems, { ...item }],
         })
       },
-      moveToCart: (id) => {
-        const item = get().savedItems.find((i) => i.id === id)
+      moveToCart: (cartItemId) => {
+        const savedItems = get().savedItems.map(i => ({
+          ...i,
+          cartItemId: i.cartItemId || generateCartItemId(i.id, i.colorId, i.specId)
+        }))
+        const item = savedItems.find((i) => i.cartItemId === cartItemId)
         if (!item) return
 
-        const existingInCart = get().items.find((i) => i.id === id)
+        const items = get().items.map(i => ({
+          ...i,
+          cartItemId: i.cartItemId || generateCartItemId(i.id, i.colorId, i.specId)
+        }))
+        const existingInCart = items.find((i) => i.cartItemId === cartItemId)
         set({
-          savedItems: get().savedItems.filter((i) => i.id !== id),
+          savedItems: savedItems.filter((i) => i.cartItemId !== cartItemId),
           items: existingInCart
-            ? get().items.map((i) =>
-                i.id === id ? { ...i, quantity: i.quantity + item.quantity } : i
+            ? items.map((i) =>
+                i.cartItemId === cartItemId ? { ...i, quantity: i.quantity + item.quantity } : i
               )
-            : [...get().items, { ...item }],
+            : [...items, { ...item }],
         })
       },
-      removeSavedItem: (id) => {
-        set({ savedItems: get().savedItems.filter((i) => i.id !== id) })
+      removeSavedItem: (cartItemId) => {
+        const savedItems = get().savedItems.map(i => ({
+          ...i,
+          cartItemId: i.cartItemId || generateCartItemId(i.id, i.colorId, i.specId)
+        }))
+        set({ savedItems: savedItems.filter((i) => i.cartItemId !== cartItemId) })
       },
-      updateQuantity: (id, quantity) => {
+      updateQuantity: (cartItemId, quantity) => {
         if (quantity <= 0) {
-          get().removeItem(id)
+          get().removeItem(cartItemId)
         } else {
+          const items = get().items.map(i => ({
+            ...i,
+            cartItemId: i.cartItemId || generateCartItemId(i.id, i.colorId, i.specId)
+          }))
           set({
-            items: get().items.map((i) => (i.id === id ? { ...i, quantity } : i)),
+            items: items.map((i) => (i.cartItemId === cartItemId ? { ...i, quantity } : i)),
           })
         }
       },
@@ -110,7 +155,23 @@ export const useCartStore = create<CartStore>()(
         return get().items.reduce((sum, item) => sum + item.quantity, 0)
       },
     }),
-    { name: 'cart-storage' }
+    { 
+      name: 'cart-storage',
+      partialize: (state) => ({ items: state.items, savedItems: state.savedItems }),
+      onRehydrateStorage: () => (state) => {
+        // Migrate old cart items to have cartItemId when rehydrating
+        if (state) {
+          const migratedItems = migrateItems(state.items)
+          const migratedSavedItems = migrateItems(state.savedItems)
+          if (migratedItems.length !== state.items.length || 
+              migratedSavedItems.length !== state.savedItems.length ||
+              migratedItems.some((item, i) => item.cartItemId !== state.items[i]?.cartItemId)) {
+            state.items = migratedItems
+            state.savedItems = migratedSavedItems
+          }
+        }
+      }
+    }
   )
 )
 

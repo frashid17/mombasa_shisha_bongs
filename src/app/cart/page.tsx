@@ -50,7 +50,7 @@ export default function CartPage() {
             {items.length > 0 && (
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div key={item.id} className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 flex gap-4">
+                  <div key={item.cartItemId || item.id} className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-4 flex gap-4">
                     {item.image ? (
                       <Image src={item.image} alt={item.name} width={100} height={100} className="rounded object-cover" />
                     ) : (
@@ -58,25 +58,36 @@ export default function CartPage() {
                     )}
                     <div className="flex-1">
                       <h3 className="font-semibold text-white mb-2">{item.name}</h3>
-                      {item.colorName && (
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-sm text-gray-400">Color:</span>
+                      <div className="space-y-1 mb-2">
+                        {item.colorName && (
                           <div className="flex items-center gap-2">
-                            {item.colorValue && (
-                              <div
-                                className="w-4 h-4 rounded-full border border-gray-500"
-                                style={{ backgroundColor: item.colorValue }}
-                              />
-                            )}
-                            <span className="text-sm text-white">{item.colorName}</span>
+                            <span className="text-sm text-gray-400">Color:</span>
+                            <div className="flex items-center gap-2">
+                              {item.colorValue && (
+                                <div
+                                  className="w-4 h-4 rounded-full border border-gray-500"
+                                  style={{ backgroundColor: item.colorValue }}
+                                />
+                              )}
+                              <span className="text-sm text-white">{item.colorName}</span>
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
+                        {item.specName && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-gray-400">{item.specType}:</span>
+                            <span className="text-sm text-white">{item.specName}</span>
+                            {item.specValue && (
+                              <span className="text-xs text-gray-500">({item.specValue})</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       <p className="text-blue-400 font-bold mb-4">{format(item.price)}</p>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                         <div className="flex items-center gap-2 border border-gray-600 rounded-lg bg-gray-900">
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity - 1)}
                             className="p-2 hover:bg-gray-700 text-white rounded-l-lg transition-colors"
                             aria-label="Decrease quantity"
                           >
@@ -84,7 +95,7 @@ export default function CartPage() {
                           </button>
                           <span className="px-4 py-2 text-white font-semibold min-w-[3rem] text-center">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity + 1)}
                             className="p-2 hover:bg-gray-700 text-white rounded-r-lg transition-colors"
                             aria-label="Increase quantity"
                           >
@@ -93,14 +104,14 @@ export default function CartPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => saveForLater(item.id)}
+                            onClick={() => saveForLater(item.cartItemId || item.id)}
                             className="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm bg-gray-700 text-gray-200 rounded-lg hover:bg-gray-600 transition-colors"
                           >
                             <Bookmark className="w-4 h-4" />
                             Save for later
                           </button>
                           <button
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => removeItem(item.cartItemId || item.id)}
                             className="p-2 text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
                             aria-label="Remove item"
                           >
@@ -135,7 +146,7 @@ export default function CartPage() {
                 </div>
                 <div className="space-y-4">
                   {savedItems.map((item) => (
-                    <div key={item.id} className="bg-gray-850 bg-gray-900 border border-gray-700 rounded-lg shadow p-4 flex gap-4">
+                    <div key={item.cartItemId || item.id} className="bg-gray-850 bg-gray-900 border border-gray-700 rounded-lg shadow p-4 flex gap-4">
                       {item.image ? (
                         <Image src={item.image} alt={item.name} width={80} height={80} className="rounded object-cover" />
                       ) : (
@@ -143,17 +154,31 @@ export default function CartPage() {
                       )}
                       <div className="flex-1">
                         <h3 className="font-semibold text-white mb-1">{item.name}</h3>
+                        <div className="space-y-1 mb-2">
+                          {item.colorName && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-400">Color:</span>
+                              <span className="text-xs text-white">{item.colorName}</span>
+                            </div>
+                          )}
+                          {item.specName && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-gray-400">{item.specType}:</span>
+                              <span className="text-xs text-white">{item.specName}</span>
+                            </div>
+                          )}
+                        </div>
                         <p className="text-blue-400 font-bold mb-3">{format(item.price)}</p>
                         <div className="flex flex-wrap items-center gap-2">
                           <button
-                            onClick={() => moveToCart(item.id)}
+                            onClick={() => moveToCart(item.cartItemId || item.id)}
                             className="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                           >
                             <ArrowLeftRight className="w-4 h-4" />
                             Move to cart
                           </button>
                           <button
-                            onClick={() => removeSavedItem(item.id)}
+                            onClick={() => removeSavedItem(item.cartItemId || item.id)}
                             className="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 transition-colors"
                           >
                             <Trash2 className="w-4 h-4" />
