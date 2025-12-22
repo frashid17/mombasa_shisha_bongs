@@ -204,6 +204,8 @@ async function handlePOST(req: Request) {
         })),
         deliveryAddress: order.deliveryAddress,
         deliveryCity: order.deliveryCity,
+        deliveryLatitude: order.deliveryLatitude ? Number(order.deliveryLatitude) : null,
+        deliveryLongitude: order.deliveryLongitude ? Number(order.deliveryLongitude) : null,
         paymentMethod: validated.paymentMethod,
         paymentStatus: order.paymentStatus,
       }).catch((error) => {

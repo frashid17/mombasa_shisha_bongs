@@ -34,6 +34,8 @@ interface OrderNotificationData {
   }>
   deliveryAddress: string
   deliveryCity: string
+  deliveryLatitude?: number | null
+  deliveryLongitude?: number | null
   estimatedDelivery?: string
   trackingNumber?: string
   paymentMethod?: string
@@ -152,10 +154,44 @@ export async function sendOrderConfirmationNotification(
               <!-- Delivery Information -->
               <div class="section">
                 <h2>📍 Delivery Location</h2>
-                <div class="info-row">
-                  <span class="info-label">Address:</span>
-                  <span class="info-value">${data.deliveryAddress}</span>
-                </div>
+                ${(() => {
+                  // Extract coordinates from address if it contains "Lat:" pattern
+                  let lat = data.deliveryLatitude
+                  let lng = data.deliveryLongitude
+                  let address: string | null = data.deliveryAddress
+                  
+                  if (!lat && !lng && address && address.includes('Lat:') && address.includes('Lng:')) {
+                    const latMatch = address.match(/Lat:\s*(-?\d+\.?\d*)/)
+                    const lngMatch = address.match(/Lng:\s*(-?\d+\.?\d*)/)
+                    if (latMatch && lngMatch) {
+                      lat = parseFloat(latMatch[1])
+                      lng = parseFloat(lngMatch[1])
+                      address = null // Don't show address if it's just coordinates
+                    }
+                  }
+                  
+                  return `
+                    ${address && !address.includes('Lat:') ? `
+                      <div class="info-row">
+                        <span class="info-label">Address:</span>
+                        <span class="info-value">${address}</span>
+                      </div>
+                    ` : ''}
+                    ${lat && lng ? `
+                      <div class="info-row">
+                        <span class="info-label">Location:</span>
+                        <span class="info-value">
+                          <a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" style="color: #667eea; text-decoration: none; margin-right: 15px; font-weight: 500;">📍 Open in Google Maps</a>
+                          <a href="https://maps.apple.com/?q=${lat},${lng}" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 500;">🍎 Open in Apple Maps</a>
+                        </span>
+                      </div>
+                      <div class="info-row">
+                        <span class="info-label">Coordinates:</span>
+                        <span class="info-value" style="font-family: monospace; font-size: 12px; color: #6b7280;">${lat}, ${lng}</span>
+                      </div>
+                    ` : ''}
+                  `
+                })()}
                 <div class="info-row">
                   <span class="info-label">City:</span>
                   <span class="info-value">${data.deliveryCity}</span>
@@ -239,8 +275,34 @@ Customer Information:
 - Phone: ${data.customerPhone}
 
 Delivery Location:
-- Address: ${data.deliveryAddress}
-- City: ${data.deliveryCity}
+${(() => {
+  // Extract coordinates from address if it contains "Lat:" pattern
+  let lat = data.deliveryLatitude
+  let lng = data.deliveryLongitude
+  let address: string | null = data.deliveryAddress
+  
+  if (!lat && !lng && address && address.includes('Lat:') && address.includes('Lng:')) {
+    const latMatch = address.match(/Lat:\s*(-?\d+\.?\d*)/)
+    const lngMatch = address.match(/Lng:\s*(-?\d+\.?\d*)/)
+    if (latMatch && lngMatch) {
+      lat = parseFloat(latMatch[1])
+      lng = parseFloat(lngMatch[1])
+      address = null
+    }
+  }
+  
+  let result = ''
+  if (address && !address.includes('Lat:')) {
+    result += `- Address: ${address}\n`
+  }
+  if (lat && lng) {
+    result += `- Coordinates: ${lat}, ${lng}\n`
+    result += `- Google Maps: https://www.google.com/maps?q=${lat},${lng}\n`
+    result += `- Apple Maps: https://maps.apple.com/?q=${lat},${lng}\n`
+  }
+  result += `- City: ${data.deliveryCity}`
+  return result
+})()}
 
 Payment Information:
 - Payment Method: ${paymentMethodDisplay}

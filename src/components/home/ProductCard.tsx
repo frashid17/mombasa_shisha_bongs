@@ -3,11 +3,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { Sparkles, ShoppingCart, Heart, Eye } from 'lucide-react'
+import { Sparkles, ShoppingCart, Heart } from 'lucide-react'
 import { useCurrency } from '@/contexts/CurrencyContext'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
-import QuickViewModal from '@/components/products/QuickViewModal'
 
 interface ProductCardProps {
   product: {
@@ -30,7 +29,6 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const [showQuickView, setShowQuickView] = useState(false)
   
   const addToCart = useCartStore((state) => state.addItem)
   const { toggleItem, isInWishlist } = useWishlistStore()
@@ -97,7 +95,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group relative bg-gray-900 rounded-xl border border-gray-700 shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-transform duration-300 hover:scale-[1.02] hover:-translate-y-1 animate-fade-in-up"
+      className="group relative bg-gray-900 rounded-xl border border-gray-700 shadow-lg overflow-visible sm:overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-transform duration-300 hover:scale-[1.02] hover:-translate-y-1 animate-fade-in-up flex flex-col h-full"
       style={{
         animationDelay: `${index * 100}ms`,
       }}
@@ -166,14 +164,14 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       </div>
 
       {/* Product Info */}
-      <div className="p-5">
+      <div className="p-4 sm:p-5 pb-4 sm:pb-5">
         {product.category && (
-          <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+          <p className="text-xs sm:text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
         )}
-        <h3 className="font-semibold text-white mb-3 line-clamp-2 group-hover:text-blue-400 transition-colors">
+        <h3 className="font-semibold text-white mb-2 sm:mb-3 line-clamp-2 text-sm sm:text-base group-hover:text-blue-400 transition-colors min-h-[2.5rem] sm:min-h-[3rem]">
           {product.name}
         </h3>
-        <div className="space-y-2 mb-3">
+        <div className="space-y-1 sm:space-y-2 mb-2 sm:mb-3">
           {/* Rating row */}
           {product.averageRating !== undefined && product.reviewCount !== undefined && product.reviewCount > 0 && (
             <div className="flex items-center gap-1 text-xs text-gray-300">
@@ -200,9 +198,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           {/* Price row */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <p className="text-blue-400 font-bold text-xl leading-tight">{format(product.price)}</p>
+              <p className="text-blue-400 font-bold text-lg sm:text-xl leading-tight">{format(product.price)}</p>
               {hasDiscount && (
-                <p className="text-gray-500 text-sm leading-tight line-through">
+                <p className="text-gray-500 text-xs sm:text-sm leading-tight line-through">
                   {format(Number(product.compareAtPrice))}
                 </p>
               )}
@@ -211,49 +209,29 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         </div>
 
         {/* Quick Actions */}
-        <div className="flex items-center gap-2 mt-2">
-          <button
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-              setShowQuickView(true)
-            }}
-            className="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-            aria-label="Quick view"
-          >
-            <Eye className="w-4 h-4" />
-          </button>
+        <div className="flex items-center gap-1.5 sm:gap-2 mt-2">
           <button
             onClick={handleQuickAddToCart}
             disabled={product.stock === 0}
-            className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-blue-600 text-white px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-0"
           >
-            <ShoppingCart className="w-4 h-4" />
-            <span>Add to Cart</span>
+            <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
+            <span className="truncate hidden sm:inline">Add to Cart</span>
+            <span className="truncate sm:hidden">Add</span>
           </button>
           <button
             onClick={handleToggleWishlist}
-            className={`inline-flex items-center justify-center px-3 py-2 rounded-lg border text-sm ${
+            className={`inline-flex items-center justify-center p-2 sm:px-3 sm:py-2 rounded-lg border text-xs sm:text-sm flex-shrink-0 ${
               wishlistActive
                 ? 'bg-red-600 border-red-500 text-white hover:bg-red-700'
                 : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
             } transition-colors`}
             aria-label={wishlistActive ? 'Remove from wishlist' : 'Add to wishlist'}
           >
-            <Heart className={`w-4 h-4 ${wishlistActive ? 'fill-current' : ''}`} />
+            <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${wishlistActive ? 'fill-current' : ''}`} />
           </button>
         </div>
       </div>
-
-      {/* Quick View Modal */}
-      <QuickViewModal
-        product={{
-          ...product,
-          colors: (product as any).colors || [],
-        }}
-        isOpen={showQuickView}
-        onClose={() => setShowQuickView(false)}
-      />
     </Link>
   )
 }

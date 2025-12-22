@@ -133,6 +133,8 @@ export async function POST(req: Request) {
           })),
           deliveryAddress: payment.order.deliveryAddress,
           deliveryCity: payment.order.deliveryCity,
+          deliveryLatitude: payment.order.deliveryLatitude ? Number(payment.order.deliveryLatitude) : null,
+          deliveryLongitude: payment.order.deliveryLongitude ? Number(payment.order.deliveryLongitude) : null,
           paymentMethod: payment.method,
           paymentStatus: 'PAID',
         }).catch((error) => {
