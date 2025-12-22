@@ -14,6 +14,7 @@ import CategoryImage from '@/components/categories/CategoryImage'
 import CountdownTimer from '@/components/flash-sales/CountdownTimer'
 import Image from 'next/image'
 import StructuredData from '@/components/seo/StructuredData'
+import PriceDisplay from '@/components/products/PriceDisplay'
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
@@ -348,9 +349,7 @@ export default async function HomePage() {
                         <p className="text-sm text-white font-semibold mb-1 line-clamp-2">
                           {product.name}
                         </p>
-                        <p className="text-sm text-blue-300 font-bold">
-                          KES {Number(product.price).toLocaleString()}
-                        </p>
+                        <PriceDisplay price={product.price} size="sm" showCompare={false} />
                       </Link>
                     ))}
                   </div>
