@@ -5,61 +5,39 @@ import { Eye, Mail, Phone, Send } from 'lucide-react'
 import BulkEmailButton from '@/components/admin/customers/BulkEmailButton'
 
 async function getCustomers() {
-  // Get unique customers from orders
-  const orders = await prisma.order.findMany({
-    select: {
-      userId: true,
-      userEmail: true,
-      userName: true,
-      userPhone: true,
+  // Use a single aggregated query instead of per-customer queries
+  const grouped = await prisma.order.groupBy({
+    by: ['userId', 'userEmail', 'userName', 'userPhone'],
+    _sum: {
+      total: true,
+    },
+    _count: {
+      _all: true,
+    },
+    _min: {
       createdAt: true,
     },
-    orderBy: { createdAt: 'desc' },
+    _max: {
+      createdAt: true,
+    },
+    orderBy: {
+      _sum: {
+        total: 'desc',
+      },
+    },
+    take: 200, // Cap to top 200 customers to avoid excessive data
   })
 
-  // Group by userId to get unique customers
-  const customerMap = new Map()
-  orders.forEach((order) => {
-    if (!customerMap.has(order.userId)) {
-      customerMap.set(order.userId, {
-        userId: order.userId,
-        email: order.userEmail,
-        name: order.userName,
-        phone: order.userPhone,
-        firstOrderDate: order.createdAt,
-        lastOrderDate: order.createdAt,
-        orderCount: 0,
-      })
-    }
-    const customer = customerMap.get(order.userId)
-    customer.orderCount += 1
-    if (order.createdAt > customer.lastOrderDate) {
-      customer.lastOrderDate = order.createdAt
-    }
-    if (order.createdAt < customer.firstOrderDate) {
-      customer.firstOrderDate = order.createdAt
-    }
-  })
-
-  // Get order totals for each customer
-  const customersWithTotals = await Promise.all(
-    Array.from(customerMap.values()).map(async (customer) => {
-      const customerOrders = await prisma.order.findMany({
-        where: { userId: customer.userId },
-        select: { total: true },
-      })
-      const totalSpent = customerOrders.reduce(
-        (sum, order) => sum + Number(order.total),
-        0
-      )
-      return {
-        ...customer,
-        totalSpent,
-      }
-    })
-  )
-
-  return customersWithTotals.sort((a, b) => b.totalSpent - a.totalSpent)
+  return grouped.map((c) => ({
+    userId: c.userId || 'guest',
+    email: c.userEmail,
+    name: c.userName,
+    phone: c.userPhone,
+    firstOrderDate: c._min.createdAt!,
+    lastOrderDate: c._max.createdAt!,
+    orderCount: c._count._all,
+    totalSpent: Number(c._sum.total || 0),
+  }))
 }
 
 export default async function CustomersPage() {

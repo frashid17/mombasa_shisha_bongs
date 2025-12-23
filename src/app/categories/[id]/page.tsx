@@ -15,15 +15,28 @@ async function getCategoryProducts(categoryId: string) {
         where: { isActive: true },
         include: { images: { take: 1 }, category: true },
         orderBy: { createdAt: 'desc' },
+        take: 24, // Limit to first 24 products to avoid loading huge lists
       },
     },
   })
   return category
 }
 
+async function getCategoryMeta(categoryId: string) {
+  return prisma.category.findUnique({
+    where: { id: categoryId },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      image: true,
+    },
+  })
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
-  const category = await getCategoryProducts(id)
+  const category = await getCategoryMeta(id)
 
   if (!category) {
     return {

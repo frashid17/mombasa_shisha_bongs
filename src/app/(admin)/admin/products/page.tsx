@@ -14,6 +14,7 @@ async function getProducts() {
       _count: { select: { orderItems: true } },
     },
     orderBy: { createdAt: 'desc' },
+    take: 200, // Limit to most recent 200 products to avoid loading huge catalogs at once
   })
   
   // Convert Decimal to number for client components

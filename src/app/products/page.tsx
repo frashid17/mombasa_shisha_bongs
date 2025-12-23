@@ -102,18 +102,27 @@ async function getProducts(searchParams: {
   // Sorting
   const sortBy = searchParams.sortBy || 'createdAt'
   const sortOrder = searchParams.sortOrder || 'desc'
-  
-  // For popularity, we need to get products with order counts and sort manually
-  let orderBy: any = { [sortBy]: sortOrder }
-  
-  // Note: Popularity sorting will be handled after fetching
 
   // Pagination
   const page = parseInt(searchParams.page || '1')
   const limit = parseInt(searchParams.limit || '24')
   const skip = (page - 1) * limit
 
-  const [allProducts, total] = await Promise.all([
+  // Build orderBy for Prisma instead of sorting all results in memory
+  let orderBy: any
+  if (sortBy === 'popularity') {
+    // Let the database sort by number of order items
+    orderBy = { orderItems: { _count: sortOrder } }
+  } else if (sortBy === 'price') {
+    orderBy = { price: sortOrder }
+  } else if (sortBy === 'name') {
+    orderBy = { name: sortOrder }
+  } else {
+    // Default to createdAt
+    orderBy = { createdAt: sortOrder }
+  }
+
+  const [products, total] = await Promise.all([
     prisma.product.findMany({
       where,
       include: {
@@ -122,40 +131,15 @@ async function getProducts(searchParams: {
         reviews: {
           select: { rating: true },
         },
-        _count: {
-          select: { orderItems: true },
-        },
       },
+      orderBy,
+      skip,
+      take: limit,
     }),
     prisma.product.count({ where }),
   ])
 
-  // Sort products
-  let sortedProducts = [...allProducts]
-  if (sortBy === 'popularity') {
-    sortedProducts.sort((a, b) => {
-      const aCount = a._count.orderItems
-      const bCount = b._count.orderItems
-      return sortOrder === 'desc' ? bCount - aCount : aCount - bCount
-    })
-  } else {
-    sortedProducts.sort((a: any, b: any) => {
-      const aVal = a[sortBy]
-      const bVal = b[sortBy]
-      if (aVal === null || aVal === undefined) return 1
-      if (bVal === null || bVal === undefined) return -1
-      if (sortOrder === 'desc') {
-        return aVal > bVal ? -1 : aVal < bVal ? 1 : 0
-      } else {
-        return aVal < bVal ? -1 : aVal > bVal ? 1 : 0
-      }
-    })
-  }
-
-  // Apply pagination
-  const paginatedProducts = sortedProducts.slice(skip, skip + limit)
-
-  return { products: paginatedProducts, total, page, limit }
+  return { products, total, page, limit }
 }
 
 async function getCategories() {

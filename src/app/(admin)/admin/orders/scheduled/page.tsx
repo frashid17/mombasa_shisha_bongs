@@ -22,6 +22,7 @@ async function getScheduledOrders() {
     orderBy: {
       scheduledDelivery: 'asc',
     },
+    take: 200, // Limit to 200 scheduled orders to avoid excessive data
   })
 }
 

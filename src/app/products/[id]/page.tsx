@@ -42,9 +42,33 @@ async function getProduct(id: string) {
   })
 }
 
+// Lighter query just for metadata to reduce work in generateMetadata
+async function getProductMeta(id: string) {
+  return prisma.product.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      description: true,
+      isActive: true,
+      images: {
+        take: 1,
+        select: {
+          url: true,
+        },
+      },
+      category: {
+        select: {
+          name: true,
+        },
+      },
+    },
+  })
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
-  const product = await getProduct(id)
+  const product = await getProductMeta(id)
 
   if (!product || !product.isActive) {
     return {

@@ -11,6 +11,7 @@ async function getOrders(userId?: string) {
       payment: true,
     },
     orderBy: { createdAt: 'desc' },
+    take: 200, // Limit to the 200 most recent orders to avoid unbounded queries
   })
 }
 

@@ -18,6 +18,9 @@ import PriceDisplay from '@/components/products/PriceDisplay'
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
+// Cache homepage data for 5 minutes to avoid recomputing heavy Prisma queries on every request
+export const revalidate = 300
+
 export const metadata: Metadata = {
   title: 'Premium Shisha & Vapes in Mombasa, Kenya',
   description: 'Shop premium shisha, hookahs, vapes, and smoking accessories in Mombasa. Fast delivery, authentic products, secure payment. Browse our collection of shisha flavors, disposable vapes, e-liquids, and hookah accessories.',
