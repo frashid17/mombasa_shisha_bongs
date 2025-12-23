@@ -499,7 +499,10 @@ export default async function HomePage() {
 
       {/* Trending Products Section */}
       {serializedFeatured.length > 0 && (
-        <section className="py-12 md:py-16 bg-gray-900 border-t border-gray-800">
+        <section
+          id="trending"
+          className="py-12 md:py-16 bg-gray-900 border-t border-gray-800"
+        >
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-3">
