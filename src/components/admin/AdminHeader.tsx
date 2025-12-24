@@ -119,7 +119,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           {/* View Store Button */}
           <Link
             href="/"
-            target="_blank"
+            // target="_blank"
             className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap"
           >
             <Store className="w-4 h-4" />
