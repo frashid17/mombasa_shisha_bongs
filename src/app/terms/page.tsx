@@ -93,7 +93,7 @@ export default function TermsPage() {
               <p>
                 For questions about these terms, please contact us at{' '}
                 <a href="tel://+254117037140" className="text-blue-400 hover:text-blue-300">
-                  +254 719 541 660
+                  +254 7117037140
                 </a>
                 .
               </p>

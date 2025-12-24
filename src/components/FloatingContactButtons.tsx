@@ -47,7 +47,7 @@ export default function FloatingContactButtons() {
       {/* Phone Button */}
       <a
         href="tel://+254117037140"
-        className="bg-blue-500 hover:bg-blue-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 flex items-center justify-center"
+        className="bg-red-600 hover:bg-red-700 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 flex items-center justify-center"
         aria-label="Call us"
       >
         <Phone className="w-5 h-5" />

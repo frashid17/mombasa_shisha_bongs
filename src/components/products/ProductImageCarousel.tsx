@@ -75,7 +75,7 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
 
   if (images.length === 0) {
     return (
-      <div className="w-full h-96 bg-gray-800 rounded-lg flex items-center justify-center">
+      <div className="w-full h-96 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200">
         <span className="text-gray-500">No images available</span>
       </div>
     )
@@ -83,12 +83,12 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
 
   if (images.length === 1) {
     return (
-      <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-800">
+      <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-white border border-gray-200">
         <Image
           src={images[0].url}
           alt={images[0].altText || productName}
           fill
-          className="object-cover"
+          className="object-contain"
           priority
         />
       </div>
@@ -99,7 +99,7 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
     <div className="relative w-full">
       {/* Main Image Display */}
       <div
-        className="relative w-full aspect-square rounded-lg overflow-hidden bg-gray-800 group"
+        className="relative w-full aspect-square rounded-lg overflow-hidden bg-white border border-gray-200 group"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -115,7 +115,7 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
               src={image.url}
               alt={image.altText || `${productName} - Image ${index + 1}`}
               fill
-              className="object-cover"
+              className="object-contain"
               priority={index === 0}
             />
           </div>
@@ -165,7 +165,7 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
                 src={image.url}
                 alt={image.altText || `${productName} thumbnail ${index + 1}`}
                 fill
-                className="object-cover"
+                className="object-contain"
               />
             </button>
           ))}
@@ -180,7 +180,7 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
               key={index}
               onClick={() => goToSlide(index)}
               className={`h-2 rounded-full transition-all ${
-                index === currentIndex ? 'w-8 bg-blue-500' : 'w-2 bg-gray-600'
+                index === currentIndex ? 'w-8 bg-red-600' : 'w-2 bg-gray-300'
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />

@@ -217,11 +217,11 @@ export default async function ProductsPage({
   return (
     <>
       <StructuredData type="BreadcrumbList" data={breadcrumbs} />
-      <div className="min-h-screen bg-gray-900">
+      <div className="min-h-screen bg-white">
       
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">All Products</h1>
+          <h1 className="text-4xl font-bold text-green-600 mb-4">All Products</h1>
           <SearchBar />
         </div>
 
@@ -242,7 +242,7 @@ export default async function ProductsPage({
         {/* Search Active Filter */}
         {params.search && (
           <div className="mb-4">
-            <span className="bg-blue-900 text-blue-300 px-3 py-1 rounded-full text-sm">
+            <span className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-semibold">
               Search: {params.search}
             </span>
           </div>
@@ -250,11 +250,11 @@ export default async function ProductsPage({
 
         {products.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-gray-400 text-lg mb-2">No products found</p>
-            <p className="text-gray-500 text-sm mb-4">Try adjusting your filters or search terms</p>
+            <p className="text-gray-700 text-lg mb-2 font-semibold">No products found</p>
+            <p className="text-gray-600 text-sm mb-4">Try adjusting your filters or search terms</p>
             <Link
               href="/products"
-              className="inline-block mt-4 text-blue-400 hover:text-blue-300 font-semibold"
+              className="inline-block mt-4 bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 font-semibold shadow-md transition-all duration-300"
             >
               View All Products
             </Link>

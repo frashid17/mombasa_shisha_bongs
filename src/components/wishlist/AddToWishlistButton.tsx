@@ -32,19 +32,16 @@ export default function AddToWishlistButton({ product }: { product: any }) {
     <button
       onClick={handleToggle}
       disabled={loading}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+      className={`flex items-center justify-center p-2.5 rounded-md border transition-all ${
         isInWishlist
-          ? 'bg-red-600 text-white hover:bg-red-700'
-          : 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
+          ? 'bg-red-600 border-red-600 text-white hover:bg-red-700'
+          : 'bg-white border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600'
       } disabled:opacity-50 disabled:cursor-not-allowed`}
       aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
     >
       <Heart
         className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`}
       />
-      <span className="hidden sm:inline">
-        {isInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
-      </span>
     </button>
   )
 }

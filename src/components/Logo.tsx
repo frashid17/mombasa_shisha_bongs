@@ -11,7 +11,7 @@ interface LogoProps {
   showText?: boolean
 }
 
-export default function Logo({ className = '', width = 40, height = 40, showText = true }: LogoProps) {
+export default function Logo({ className = '', width = 60, height = 60, showText = true }: LogoProps) {
   const [imageError, setImageError] = useState(false)
 
   return (
@@ -35,8 +35,8 @@ export default function Logo({ className = '', width = 40, height = 40, showText
         </div>
       )}
       {showText && (
-        <span className="text-2xl font-bold text-white hover:text-blue-400 transition">
-          Mombasa Shisha
+        <span className="text-lg md:text-xl font-bold text-gray-900 hover:text-red-600 transition-colors duration-300">
+          Mombasa Shisha Bongs
         </span>
       )}
     </Link>

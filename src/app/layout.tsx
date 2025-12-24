@@ -139,16 +139,17 @@ export default async function RootLayout({
       signInFallbackRedirectUrl="/"
       signUpFallbackRedirectUrl="/"
     >
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <head>
           <link rel="icon" href="/uploads/hookah.svg" type="image/svg+xml" />
           <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
           <link rel="apple-touch-icon" href="/uploads/hookah.svg" />
           <link rel="manifest" href="/manifest.json" />
-          <meta name="theme-color" content="#111827" />
+          <meta name="theme-color" content="#ffffff" />
         </head>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-900 text-gray-100`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
+          style={{ backgroundColor: 'white' }}
         >
           <CurrencyProvider>
             <ServiceWorkerRegistration />

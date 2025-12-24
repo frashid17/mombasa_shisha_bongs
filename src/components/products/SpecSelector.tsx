@@ -53,8 +53,8 @@ export default function SpecSelector({
     <div className="mb-6 space-y-4">
       {Object.entries(specsByType).map(([type, typeSpecs]) => (
         <div key={type}>
-          <label className="block text-sm font-semibold text-white mb-3">
-            {type} {required && <span className="text-red-400">*</span>}
+          <label className="block text-sm font-semibold text-gray-900 mb-3">
+            {type} {required && <span className="text-red-600">*</span>}
           </label>
           <div className="flex flex-wrap gap-3">
             {typeSpecs.map((spec) => (
@@ -66,8 +66,8 @@ export default function SpecSelector({
                   px-4 py-2 rounded-lg border-2 transition-all font-medium
                   ${
                     selectedId === spec.id
-                      ? 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/30 text-white'
-                      : 'border-gray-600 bg-gray-800 hover:border-gray-500 text-gray-300'
+                      ? 'border-red-600 bg-red-50 shadow-lg shadow-red-500/30 text-red-600'
+                      : 'border-gray-300 bg-white hover:border-gray-400 text-gray-900'
                   }
                 `}
               >
@@ -77,7 +77,7 @@ export default function SpecSelector({
                 )}
                 {selectedId === spec.id && (
                   <svg
-                    className="w-4 h-4 inline ml-2 text-blue-400"
+                    className="w-4 h-4 inline ml-2 text-red-600"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -96,7 +96,7 @@ export default function SpecSelector({
         </div>
       ))}
       {required && !selectedId && (
-        <p className="text-red-400 text-sm mt-2">Please select a specification</p>
+        <p className="text-red-600 text-sm mt-2">Please select a specification</p>
       )}
     </div>
   )

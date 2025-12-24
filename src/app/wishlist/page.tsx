@@ -29,34 +29,34 @@ export default function WishlistPage() {
 
   if (!isMounted) {
     return (
-      <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen bg-white text-gray-900 flex items-center justify-center">
+        <div className="text-gray-900">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100">
+    <div className="min-h-screen bg-white text-gray-900">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center gap-4">
               <Link
                 href="/"
-                className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                className="inline-flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Home
               </Link>
-              <h1 className="text-3xl font-bold text-white">My Wishlist</h1>
+              <h1 className="text-3xl font-bold text-gray-900">My Wishlist</h1>
               {items.length > 0 && (
-                <span className="text-gray-400">({items.length} items)</span>
+                <span className="text-gray-600">({items.length} items)</span>
               )}
             </div>
             {items.length > 0 && (
               <button
                 onClick={clearWishlist}
-                className="text-red-400 hover:text-red-300 transition-colors text-sm font-semibold"
+                className="text-red-600 hover:text-red-700 transition-colors text-sm font-semibold"
               >
                 Clear All
               </button>
@@ -64,15 +64,15 @@ export default function WishlistPage() {
           </div>
 
           {items.length === 0 ? (
-            <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-12 text-center">
-              <Heart className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-white mb-2">Your Wishlist is Empty</h2>
-              <p className="text-gray-400 mb-6">
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-12 text-center">
+              <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Wishlist is Empty</h2>
+              <p className="text-gray-600 mb-6">
                 Start adding items you love to your wishlist!
               </p>
               <Link
                 href="/products"
-                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                className="inline-block bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
               >
                 Browse Products
               </Link>
@@ -82,19 +82,19 @@ export default function WishlistPage() {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden hover:border-blue-500 transition-all group"
+                  className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:border-red-500 hover:shadow-md transition-all group"
                 >
                   <Link href={`/products/${item.id}`}>
-                    <div className="relative h-64 bg-gray-700">
+                    <div className="relative h-64 bg-white">
                       {item.image ? (
                         <Image
                           src={item.image}
                           alt={item.name}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="object-contain group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
-                        <div className="h-full flex items-center justify-center text-gray-500">
+                        <div className="h-full flex items-center justify-center text-gray-400">
                           No Image
                         </div>
                       )}
@@ -102,24 +102,24 @@ export default function WishlistPage() {
                   </Link>
                   <div className="p-4">
                     <Link href={`/products/${item.id}`}>
-                      <h3 className="font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">
+                      <h3 className="font-semibold text-gray-900 mb-2 group-hover:text-red-600 transition-colors line-clamp-2">
                         {item.name}
                       </h3>
                     </Link>
-                    <p className="text-blue-400 font-bold text-xl mb-4">
+                    <p className="text-gray-900 font-bold text-xl mb-4">
                       {format(item.price)}
                     </p>
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleAddToCart(item)}
-                        className="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition-colors"
                       >
                         <ShoppingCart className="w-4 h-4" />
                         Add to Cart
                       </button>
                       <button
                         onClick={() => removeItem(item.id)}
-                        className="bg-gray-700 text-gray-300 px-4 py-2 rounded-lg font-semibold hover:bg-red-600 hover:text-white transition-colors"
+                        className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-semibold hover:bg-red-600 hover:text-white transition-colors"
                         aria-label="Remove from wishlist"
                       >
                         <Trash2 className="w-4 h-4" />

@@ -20,10 +20,12 @@ const createPrismaClient = () => {
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   }
 
-  // If using Neon or a connection pooler, ensure the URL has proper parameters
-  if (databaseUrl?.includes('neon.tech') || databaseUrl?.includes('pooler')) {
-    // Neon connection string should already include pooling parameters
-    // But we can ensure proper configuration here
+  // If using Neon, Supabase, or a connection pooler, ensure the URL has proper parameters
+  // Connection pooling should be configured in the DATABASE_URL connection string itself
+  // (e.g., ?pgbouncer=true&connection_limit=1 for Supabase Transaction pooler)
+  if (databaseUrl?.includes('neon.tech') || databaseUrl?.includes('pooler') || databaseUrl?.includes('supabase')) {
+    // Connection string should already include pooling parameters
+    // No additional configuration needed here as pooling is handled via URL params
     prismaConfig.datasources = {
       db: {
         url: databaseUrl,
@@ -42,7 +44,12 @@ if (process.env.NODE_ENV !== 'production') {
 
 // Handle connection errors gracefully
 prisma.$on('error' as never, (e: any) => {
-  console.error('[Prisma] Database error:', e)
+  console.error('[Prisma] Database error:', {
+    message: e?.message || 'Unknown error',
+    code: e?.code,
+    meta: e?.meta,
+    error: e
+  })
 })
 
 // Retry wrapper for queries that fail due to connection issues
@@ -60,16 +67,23 @@ export async function withRetry<T>(
       lastError = error
       
       // Check if it's a connection error
+      // Empty error objects {} are often connection issues
+      const isEmptyError = !error?.message && !error?.code && Object.keys(error || {}).length === 0
       const isConnectionError = 
+        isEmptyError ||
         error?.message?.includes('Closed') ||
         error?.message?.includes('connection') ||
         error?.message?.includes('ECONNREFUSED') ||
         error?.code === 'P1001' || // Prisma connection error code
         error?.code === 'P1008' || // Prisma timeout error
+        error?.code === 'P1000' || // Authentication failed
         error?.kind === 'Closed'
       
       if (isConnectionError && attempt < maxRetries) {
-        console.warn(`[Prisma] Connection error (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay * (attempt + 1)}ms...`)
+        const errorMsg = isEmptyError 
+          ? 'Empty error object (likely connection issue)'
+          : error?.message || error?.code || 'Unknown connection error'
+        console.warn(`[Prisma] Connection error (attempt ${attempt + 1}/${maxRetries + 1}): ${errorMsg}, retrying in ${delay * (attempt + 1)}ms...`)
         
         // Exponential backoff
         await new Promise(resolve => setTimeout(resolve, delay * (attempt + 1)))

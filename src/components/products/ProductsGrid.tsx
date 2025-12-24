@@ -3,9 +3,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingCart, Heart } from 'lucide-react'
-import PriceDisplay from '@/components/products/PriceDisplay'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
+import { useCurrency } from '@/contexts/CurrencyContext'
 
 interface ProductsGridProps {
   products: Array<{
@@ -23,6 +23,7 @@ interface ProductsGridProps {
 export default function ProductsGrid({ products }: ProductsGridProps) {
   const addToCart = useCartStore((state) => state.addItem)
   const { toggleItem, isInWishlist } = useWishlistStore()
+  const { format } = useCurrency()
 
   const handleAddToCart = async (product: any, e: React.MouseEvent) => {
     e.preventDefault()
@@ -72,72 +73,63 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
         const inWishlist = isInWishlist(product.id)
 
         return (
-          <Link
+          <div
             key={product.id}
-            href={`/products/${product.id}`}
-            className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-visible sm:overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all group flex flex-col h-full"
+            className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col h-full"
           >
-            {product.images[0] ? (
-              <div className="relative h-64 bg-gray-800">
+            <Link href={`/products/${product.id}`} className="relative h-64 bg-white overflow-hidden">
+              {product.images[0] ? (
                 <Image
                   src={product.images[0].url}
                   alt={product.name}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="object-contain hover:scale-105 transition-transform duration-500"
                 />
-              </div>
-            ) : (
-              <div className="h-64 bg-gradient-to-br from-gray-700 to-gray-800" />
-            )}
-            <div className="p-4 sm:p-5 pb-4 sm:pb-5 flex-1 flex flex-col">
-              {product.category && (
-                <p className="text-xs sm:text-sm text-blue-400 font-semibold mb-1">
-                  {product.category.name}
-                </p>
+              ) : (
+                <div className="h-full bg-gray-50 flex items-center justify-center">
+                  <span className="text-gray-400 text-sm">No Image</span>
+                </div>
               )}
-              <h3 className="font-semibold text-white mb-2 sm:mb-3 line-clamp-2 text-sm sm:text-base group-hover:text-blue-400 transition-colors min-h-[2.5rem] sm:min-h-[3rem]">
-                {product.name}
-              </h3>
-              <div className="flex items-center justify-between mb-2 sm:mb-3">
-                <PriceDisplay
-                  price={Number(product.price)}
-                  compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
-                  size="lg"
-                />
-                {product.stock > 0 ? (
-                  <span className="text-xs bg-green-900 text-green-400 px-2 py-1 rounded-full border border-green-700 flex-shrink-0">
-                    In Stock
-                  </span>
-                ) : (
-                  <span className="text-xs bg-red-900 text-red-400 px-2 py-1 rounded-full border border-red-700 flex-shrink-0">
-                    Out of Stock
-                  </span>
-                )}
+            </Link>
+            <div className="p-4 bg-white flex-1 flex flex-col">
+              <Link href={`/products/${product.id}`}>
+                <h3 className="font-bold text-gray-900 mb-3 text-base line-clamp-2 hover:text-red-600 transition-colors">
+                  {product.name}
+                </h3>
+              </Link>
+              <div className="mb-4">
+                <div className="flex items-center gap-2">
+                  <p className="text-gray-900 font-bold text-lg">{format(Number(product.price))}</p>
+                  {product.compareAtPrice && Number(product.compareAtPrice) > Number(product.price) && (
+                    <p className="text-red-600 text-sm line-through">
+                      Was {format(Number(product.compareAtPrice))}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 mt-auto">
+              <div className="flex items-center gap-2 mt-auto">
                 <button
                   onClick={(e) => handleAddToCart(product, e)}
                   disabled={product.stock === 0}
-                  className="flex-1 inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-blue-600 text-white px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors min-w-0"
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2.5 rounded-md text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
-                  <span className="truncate hidden sm:inline">Add to Cart</span>
-                  <span className="truncate sm:hidden">Add</span>
+                  <ShoppingCart className="w-4 h-4" />
+                  Add to Cart
                 </button>
                 <button
                   onClick={(e) => handleToggleWishlist(product, e)}
-                  className={`inline-flex items-center justify-center p-2 sm:px-3 sm:py-2 rounded-lg border text-xs sm:text-sm flex-shrink-0 ${
+                  className={`inline-flex items-center justify-center p-2.5 rounded-md border transition-all ${
                     inWishlist
-                      ? 'bg-red-600 border-red-500 text-white hover:bg-red-700'
-                      : 'bg-gray-800 border-gray-600 text-gray-300 hover:bg-gray-700'
-                  } transition-colors`}
+                      ? 'bg-red-600 border-red-600 text-white hover:bg-red-700'
+                      : 'bg-white border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600'
+                  }`}
                   aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
                 >
-                  <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${inWishlist ? 'fill-current' : ''}`} />
+                  <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
                 </button>
               </div>
             </div>
-          </Link>
+          </div>
         )
       })}
     </div>

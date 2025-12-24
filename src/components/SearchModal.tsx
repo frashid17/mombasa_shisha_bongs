@@ -118,11 +118,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       }}
     >
       <div
-        className="bg-gray-900 rounded-xl shadow-2xl w-full max-w-2xl border border-gray-700 animate-fade-in-up"
+        className="bg-white rounded-lg shadow-xl w-full max-w-2xl border border-gray-200 animate-fade-in-up"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center gap-4 p-6 border-b border-gray-800">
+        <div className="flex items-center gap-4 p-6 border-b border-gray-200">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -132,17 +132,17 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Search for shisha, vapes, accessories..."
-              className="w-full pl-12 pr-12 py-4 bg-gray-800 border-2 border-gray-700 rounded-lg focus:border-blue-500 focus:outline-none text-white text-lg placeholder-gray-400"
+              className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-300 rounded-md focus:border-red-500 focus:outline-none text-gray-900 text-lg placeholder-gray-500"
             />
             {loading && (
               <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
+                <Loader2 className="w-5 h-5 text-red-600 animate-spin" />
               </div>
             )}
             {query && !loading && (
               <button
                 onClick={() => setQuery('')}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -150,10 +150,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
             aria-label="Close"
           >
-            <X className="w-6 h-6 text-gray-400" />
+            <X className="w-6 h-6 text-gray-600" />
           </button>
         </div>
 
@@ -161,8 +161,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         <div className="max-h-[60vh] overflow-y-auto">
           {/* Suggestions */}
           {query.length >= 2 && suggestions.length > 0 && (
-            <div className="p-4 border-b border-gray-800">
-              <h3 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wide">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">
                 Suggestions
               </h3>
               <div className="space-y-1">
@@ -170,10 +170,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <button
                     key={`${suggestion.type}-${suggestion.id}-${index}`}
                     onClick={() => handleSuggestionClick(suggestion.url)}
-                    className="w-full flex items-center gap-4 p-3 hover:bg-gray-800 rounded-lg transition-colors text-left"
+                    className="w-full flex items-center gap-4 p-3 hover:bg-gray-50 rounded-md transition-colors text-left"
                   >
                     {suggestion.image ? (
-                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-900 flex-shrink-0">
+                      <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                         <Image
                           src={suggestion.image}
                           alt={suggestion.title}
@@ -182,20 +182,20 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         />
                       </div>
                     ) : (
-                      <div className="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                         {suggestion.type === 'category' ? (
-                          <Tag className="w-6 h-6 text-gray-400" />
+                          <Tag className="w-6 h-6 text-gray-600" />
                         ) : suggestion.type === 'brand' ? (
-                          <Hash className="w-6 h-6 text-gray-400" />
+                          <Hash className="w-6 h-6 text-gray-600" />
                         ) : (
-                          <Package className="w-6 h-6 text-gray-400" />
+                          <Package className="w-6 h-6 text-gray-600" />
                         )}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-white font-semibold truncate">{suggestion.title}</p>
+                      <p className="text-gray-900 font-semibold truncate">{suggestion.title}</p>
                       {suggestion.subtitle && (
-                        <p className="text-sm text-gray-400 truncate">{suggestion.subtitle}</p>
+                        <p className="text-sm text-gray-600 truncate">{suggestion.subtitle}</p>
                       )}
                     </div>
                     <div className="text-xs text-gray-500 uppercase">{suggestion.type}</div>
@@ -208,7 +208,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {/* Recent Searches */}
           {query.length < 2 && recentSearches.length > 0 && (
             <div className="p-4">
-              <h3 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wide">
+              <h3 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">
                 Recent Searches
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -216,7 +216,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <button
                     key={index}
                     onClick={() => handleSearch(search)}
-                    className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors"
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm transition-colors"
                   >
                     {search}
                   </button>
@@ -227,8 +227,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
           {/* Popular Searches */}
           {query.length < 2 && (
-            <div className="p-4 border-t border-gray-800">
-              <h3 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wide">
+            <div className="p-4 border-t border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">
                 Popular Searches
               </h3>
               <div className="flex flex-wrap gap-2">
@@ -237,7 +237,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     <button
                       key={term}
                       onClick={() => handleSearch(term)}
-                      className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors"
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm transition-colors"
                     >
                       {term}
                     </button>
@@ -250,18 +250,18 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {/* No Results */}
           {query.length >= 2 && !loading && suggestions.length === 0 && (
             <div className="p-8 text-center">
-              <Package className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-              <p className="text-gray-400 mb-2">No results found for "{query}"</p>
+              <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 mb-2">No results found for "{query}"</p>
               <p className="text-sm text-gray-500">Try a different search term</p>
             </div>
           )}
 
           {/* Search Button */}
           {query.trim() && (
-            <div className="p-4 border-t border-gray-800">
+            <div className="p-4 border-t border-gray-200">
               <button
                 onClick={() => handleSearch()}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 font-semibold transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-red-600 text-white px-6 py-3 rounded-md hover:bg-red-700 font-semibold transition-colors flex items-center justify-center gap-2"
               >
                 <Search className="w-5 h-5" />
                 Search for "{query}"

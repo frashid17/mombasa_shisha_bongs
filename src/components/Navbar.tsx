@@ -5,7 +5,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
-import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield, Search } from 'lucide-react'
+import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield, Search, Phone } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import Logo from './Logo'
 import CurrencySelector from './CurrencySelector'
@@ -61,240 +61,266 @@ export default function Navbar() {
   const isAdmin = user?.publicMetadata?.role === 'admin'
 
   return (
-    <nav className="bg-gray-900/95 backdrop-blur-md text-white border-b border-gray-800 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Logo width={50} height={50} />
+    <>
+      {/* Top Header - VapeSoko Style */}
+      <nav className="bg-white text-gray-900 border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <Logo width={60} height={60} />
 
-                  <div className="hidden md:flex items-center gap-6">
-                   <Link href="/products" className="hover:text-blue-400 transition">
-                     Products
-                   </Link>
-                   <Link href="/categories" className="hover:text-blue-400 transition">
-                     Categories
-                   </Link>
-                   {isSignedIn && (
-                     <Link href="/orders" className="hover:text-blue-400 transition">
-                       My Orders
-                     </Link>
-                   )}
-                   <button
-                     onClick={() => setShowSearchModal(true)}
-                     className="hover:text-blue-400 transition flex items-center gap-2"
-                     aria-label="Search"
-                   >
-                     <Search className="w-5 h-5" />
-                     <span className="hidden lg:inline">Search</span>
-                   </button>
-                 </div>
-
-          <div className="flex items-center gap-4">
-            {/* Currency Selector */}
-            <div className="hidden md:block">
-              <CurrencySelector />
+            {/* Search Bar - Center */}
+            <div className="hidden md:flex flex-1 max-w-md mx-8">
+              <button
+                onClick={() => setShowSearchModal(true)}
+                className="w-full flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-300 rounded-md hover:border-gray-400 transition-colors text-left"
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-500">Search</span>
+              </button>
             </div>
 
-            {/* Admin Button - Only show for admin users */}
-            {isSignedIn && isAdmin && (
-              <Link
-                href="/admin"
-                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1.5 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-md hover:shadow-lg"
-                title="Admin Dashboard"
+            {/* Right Side - Phone, Cart, etc */}
+            <div className="flex items-center gap-4">
+              {/* Phone Number */}
+              <a
+                href="tel:+254719541660"
+                className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
               >
-                <Shield className="w-4 h-4" />
-                <span className="text-sm font-semibold">Admin</span>
-              </Link>
-            )}
+                <Phone className="w-5 h-5" />
+                <span className="font-medium">+2547117037140</span>
+              </a>
 
-            {isSignedIn ? (
-              <div className="hidden md:block relative" ref={profileMenuRef}>
-                <button
-                  onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                  className="flex items-center gap-2 hover:text-blue-400 transition focus:outline-none"
+              {/* Currency Selector */}
+              <div className="hidden md:block">
+                <CurrencySelector />
+              </div>
+
+              {/* Admin Button */}
+              {isSignedIn && isAdmin && (
+                <Link
+                  href="/admin"
+                  className="hidden md:flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 transition-all"
+                  title="Admin Dashboard"
                 >
-                  {user?.imageUrl ? (
-                    <img
-                      src={user.imageUrl}
-                      alt={user.fullName || 'Profile'}
-                      className="w-8 h-8 rounded-full border-2 border-blue-400 cursor-pointer"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full border-2 border-blue-400 bg-gray-700 flex items-center justify-center cursor-pointer">
-                      <User className="w-5 h-5" />
+                  <Shield className="w-4 h-4" />
+                  <span className="text-sm font-semibold">Admin</span>
+                </Link>
+              )}
+
+              {/* Profile/Login */}
+              {isSignedIn ? (
+                <div className="hidden md:block relative" ref={profileMenuRef}>
+                  <button
+                    onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+                    className="flex items-center gap-2 hover:text-red-600 transition-colors focus:outline-none"
+                  >
+                    {user?.imageUrl ? (
+                      <img
+                        src={user.imageUrl}
+                        alt={user.fullName || 'Profile'}
+                        className="w-8 h-8 rounded-full border-2 border-gray-300 cursor-pointer hover:border-red-500 transition-all"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full border-2 border-gray-300 bg-gray-100 flex items-center justify-center cursor-pointer hover:border-red-500 transition-all">
+                        <User className="w-5 h-5 text-gray-600" />
+                      </div>
+                    )}
+                    <span className="hidden lg:inline font-semibold text-gray-700">{user?.firstName || 'Profile'}</span>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {profileMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
+                      <div className="py-1">
+                        <Link
+                          href="/profile"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                        >
+                          <Settings className="w-4 h-4" />
+                          <span className="font-medium">View Profile</span>
+                        </Link>
+                        <Link
+                          href="/profile/addresses"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                        >
+                          <MapPin className="w-4 h-4" />
+                          <span className="font-medium">Delivery Addresses</span>
+                        </Link>
+                        <button
+                          onClick={handleSignOut}
+                          className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors text-left"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span className="font-medium">Logout</span>
+                        </button>
+                      </div>
                     </div>
                   )}
-                  <span className="hidden lg:inline">{user?.firstName || 'Profile'}</span>
-                </button>
+                </div>
+              ) : (
+                <Link
+                  href="/sign-in"
+                  className="hidden md:flex items-center gap-2 font-semibold text-gray-700 hover:text-red-600 transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                  <span>Login</span>
+                </Link>
+              )}
 
-                {/* Dropdown Menu */}
-                {profileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
-                    <div className="py-1">
-                      <Link
-                        href="/profile"
-                        onClick={() => setProfileMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                      >
-                        <Settings className="w-4 h-4" />
-                        <span>View Profile</span>
-                      </Link>
-                      <Link
-                        href="/profile/addresses"
-                        onClick={() => setProfileMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
-                      >
-                        <MapPin className="w-4 h-4" />
-                        <span>Delivery Addresses</span>
-                      </Link>
-                      <button
-                        onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-red-400 transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Logout</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
+              {/* Wishlist */}
               <Link
-                href="/sign-in"
-                className="hidden md:flex items-center gap-2 hover:text-blue-400 transition"
+                href="/wishlist"
+                className="relative flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
               >
-                <User className="w-5 h-5" />
-                <span>Login</span>
+                <Heart className="w-6 h-6" />
+                {isMounted && wishlistCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {wishlistCount}
+                  </span>
+                )}
               </Link>
-            )}
 
-            <Link
-              href="/wishlist"
-              className="relative flex items-center gap-2 hover:text-red-400 transition"
-            >
-              <Heart className="w-6 h-6" />
-              {isMounted && wishlistCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
-
-            <Link
-              href="/cart"
-              className="relative flex items-center gap-2 hover:text-blue-400 transition"
-            >
-              <ShoppingCart className="w-6 h-6" />
-              {isMounted && itemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {itemCount}
-                </span>
-              )}
-            </Link>
-
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-800 active:scale-95 transition"
-              aria-label="Toggle navigation"
-              aria-expanded={mobileMenuOpen}
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-
-               {mobileMenuOpen && (
-                 <div className="md:hidden py-4 border-t border-gray-800 bg-gray-900/98 backdrop-blur-md animate-fade-in-up">
-                   {/* Currency Selector for Mobile */}
-                   <div className="mb-4 pb-4 border-b border-gray-800">
-                     <CurrencySelector />
-                   </div>
-                   <Link
-                     href="/products"
-                     className="block py-2 hover:text-blue-400 transition"
-                     onClick={() => setMobileMenuOpen(false)}
-                   >
-                     Products
-                   </Link>
-                   <Link
-                     href="/categories"
-                     className="block py-2 hover:text-blue-400 transition"
-                     onClick={() => setMobileMenuOpen(false)}
-                   >
-                     Categories
-                   </Link>
-                   <Link
-                     href="/wishlist"
-                     className="block py-2 hover:text-red-400 transition"
-                     onClick={() => setMobileMenuOpen(false)}
-                   >
-                     Wishlist {isMounted && wishlistCount > 0 && `(${wishlistCount})`}
-                   </Link>
-                   {isSignedIn && (
-                     <Link
-                       href="/orders"
-                       className="block py-2 hover:text-blue-400 transition"
-                       onClick={() => setMobileMenuOpen(false)}
-                     >
-                       My Orders
-                     </Link>
-                   )}
-                   {isSignedIn && isAdmin && (
-                     <Link
-                       href="/admin"
-                       className="block py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
-                       onClick={() => setMobileMenuOpen(false)}
-                     >
-                       <span className="flex items-center gap-2">
-                         <Shield className="w-4 h-4" />
-                         Admin Dashboard
-                       </span>
-                     </Link>
-                   )}
-            {isSignedIn ? (
-              <>
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-3 py-2 hover:text-blue-400 transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Settings className="w-4 h-4" />
-                  View Profile
-                </Link>
-                <Link
-                  href="/profile/addresses"
-                  className="flex items-center gap-3 py-2 hover:text-blue-400 transition"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <MapPin className="w-4 h-4" />
-                  Manage Address
-                </Link>
-                <button
-                  onClick={() => {
-                    handleSignOut()
-                    setMobileMenuOpen(false)
-                  }}
-                  className="w-full flex items-center gap-3 py-2 text-left hover:text-red-400 transition"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Sign Out
-                </button>
-              </>
-            ) : (
+              {/* Cart */}
               <Link
-                href="/sign-in"
-                className="block py-2 hover:text-blue-400 transition"
+                href="/cart"
+                className="relative flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
+              >
+                <ShoppingCart className="w-6 h-6" />
+                {isMounted && itemCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {itemCount}
+                  </span>
+                )}
+              </Link>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Toggle navigation"
+                aria-expanded={mobileMenuOpen}
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden py-4 border-t border-gray-200">
+              <div className="mb-4 pb-4 border-b border-gray-200">
+                <CurrencySelector />
+              </div>
+              <Link
+                href="/products"
+                className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Login
+                Products
               </Link>
-            )}
+              <Link
+                href="/categories"
+                className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Categories
+              </Link>
+              {isSignedIn && (
+                <Link
+                  href="/orders"
+                  className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  My Orders
+                </Link>
+              )}
+              <Link
+                href="/wishlist"
+                className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Wishlist {isMounted && wishlistCount > 0 && `(${wishlistCount})`}
+              </Link>
+              {isSignedIn && isAdmin && (
+                <Link
+                  href="/admin"
+                  className="block py-3 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors font-bold mt-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className="flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    Admin Dashboard
+                  </span>
+                </Link>
+              )}
+              {isSignedIn ? (
+                <>
+                  <Link
+                    href="/profile"
+                    className="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Settings className="w-4 h-4" />
+                    View Profile
+                  </Link>
+                  <Link
+                    href="/profile/addresses"
+                    className="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <MapPin className="w-4 h-4" />
+                    Manage Address
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleSignOut()
+                      setMobileMenuOpen(false)
+                    }}
+                    className="w-full flex items-center gap-3 py-3 px-4 text-left text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/sign-in"
+                  className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Login
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Red Navigation Bar - Unified Card */}
+        <div className="bg-red-600 text-white">
+          <div className="container mx-auto px-4">
+            {/* Navigation Links */}
+            <div className="flex items-center justify-center gap-1 md:gap-0 border-b border-red-500/30">
+              <Link href="/products" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">
+                Products
+              </Link>
+              <Link href="/categories" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">
+                Categories
+              </Link>
+              {isSignedIn && (
+                <Link href="/orders" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">
+                  My Orders
+                </Link>
+              )}
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      </nav>
 
       {/* Search Modal */}
       <SearchModal isOpen={showSearchModal} onClose={() => setShowSearchModal(false)} />
-    </nav>
+    </>
   )
 }
-

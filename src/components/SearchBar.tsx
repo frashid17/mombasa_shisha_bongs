@@ -37,6 +37,16 @@ export default function SearchBar() {
     maxPrice: searchParams.get('maxPrice') || '',
   })
 
+  // Sync filters with URL params when they change
+  useEffect(() => {
+    setFilters({
+      category: searchParams.get('category') || '',
+      minPrice: searchParams.get('minPrice') || '',
+      maxPrice: searchParams.get('maxPrice') || '',
+    })
+    setQuery(searchParams.get('search') || '')
+  }, [searchParams])
+
   // Fetch categories on mount
   useEffect(() => {
     async function fetchCategories() {
@@ -127,12 +137,12 @@ export default function SearchBar() {
               }}
               onFocus={() => query.length >= 2 && setShowSuggestions(true)}
               placeholder="Search for shisha, vapes, accessories..."
-              className="w-full px-4 py-3 pl-12 pr-4 md:px-6 md:py-4 md:pl-14 md:pr-32 rounded-full bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700 focus:border-purple-500 focus:outline-none text-white text-base md:text-lg placeholder-gray-400"
+              className="w-full px-4 py-3 pl-12 pr-4 md:px-6 md:py-4 md:pl-14 md:pr-32 rounded-md bg-white border border-gray-300 focus:border-red-500 focus:outline-none text-gray-900 text-base md:text-lg placeholder-gray-500"
             />
-            <Search className="absolute left-3 md:left-5 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 md:w-5 md:h-5" />
+            <Search className="absolute left-3 md:left-5 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4 md:w-5 md:h-5" />
             {loading && (
               <div className="absolute right-16 md:right-20 top-1/2 transform -translate-y-1/2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-500"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
               </div>
             )}
           </div>
@@ -140,14 +150,14 @@ export default function SearchBar() {
             <button
               type="button"
               onClick={() => setShowFilters(!showFilters)}
-              className="p-2 md:p-2.5 bg-gray-700 hover:bg-gray-600 rounded-full text-white transition"
+              className="p-2 md:p-2.5 bg-gray-100 hover:bg-gray-200 rounded-md text-gray-700 transition"
               aria-label="Toggle filters"
             >
               <Filter className="w-4 h-4 md:w-5 md:h-5" />
             </button>
             <button
               type="submit"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 md:px-6 md:py-2.5 rounded-full hover:from-purple-700 hover:to-pink-700 font-semibold text-sm md:text-base transition whitespace-nowrap"
+              className="bg-red-600 text-white px-4 py-2 md:px-6 md:py-2.5 rounded-md hover:bg-red-700 font-semibold text-sm md:text-base transition whitespace-nowrap"
             >
               <span className="hidden sm:inline">Search</span>
               <Search className="w-4 h-4 sm:hidden" />
@@ -158,16 +168,16 @@ export default function SearchBar() {
 
       {/* Autocomplete Suggestions */}
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl max-h-96 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
           {suggestions.map((suggestion, index) => (
             <Link
               key={`${suggestion.type}-${suggestion.id}-${index}`}
               href={suggestion.url}
               onClick={() => setShowSuggestions(false)}
-              className="flex items-center gap-4 p-4 hover:bg-gray-700 transition-colors border-b border-gray-700 last:border-b-0"
+              className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors border-b border-gray-200 last:border-b-0"
             >
               {suggestion.image ? (
-                <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-900 flex-shrink-0">
+                <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                   <Image
                     src={suggestion.image}
                     alt={suggestion.title}
@@ -176,20 +186,20 @@ export default function SearchBar() {
                   />
                 </div>
               ) : (
-                <div className="w-12 h-12 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                   {suggestion.type === 'category' ? (
-                    <Tag className="w-6 h-6 text-gray-400" />
+                    <Tag className="w-6 h-6 text-gray-600" />
                   ) : suggestion.type === 'brand' ? (
-                    <Hash className="w-6 h-6 text-gray-400" />
+                    <Hash className="w-6 h-6 text-gray-600" />
                   ) : (
-                    <Package className="w-6 h-6 text-gray-400" />
+                    <Package className="w-6 h-6 text-gray-600" />
                   )}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-white font-semibold truncate">{suggestion.title}</p>
+                <p className="text-gray-900 font-semibold truncate">{suggestion.title}</p>
                 {suggestion.subtitle && (
-                  <p className="text-sm text-gray-400 truncate">{suggestion.subtitle}</p>
+                  <p className="text-sm text-gray-600 truncate">{suggestion.subtitle}</p>
                 )}
               </div>
             </Link>
@@ -199,23 +209,23 @@ export default function SearchBar() {
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="mt-4 bg-gray-800 border border-gray-700 rounded-lg p-4">
+        <div className="mt-4 bg-white border border-gray-200 rounded-lg p-4 shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-white font-semibold">Filters</h3>
+            <h3 className="text-gray-900 font-semibold">Filters</h3>
             <button
               onClick={() => setShowFilters(false)}
-              className="text-gray-400 hover:text-white"
+              className="text-gray-600 hover:text-gray-900"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">Category</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
               <select
                 value={filters.category}
                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-purple-500 focus:outline-none"
+                className="w-full bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-900 focus:border-red-500 focus:outline-none"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -226,38 +236,38 @@ export default function SearchBar() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">Min Price (KES)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Min Price (KES)</label>
               <input
                 type="number"
                 value={filters.minPrice}
                 onChange={(e) => setFilters({ ...filters, minPrice: e.target.value })}
                 placeholder="0"
                 min="0"
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+                className="w-full bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-900 placeholder-gray-500 focus:border-red-500 focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">Max Price (KES)</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Max Price (KES)</label>
               <input
                 type="number"
                 value={filters.maxPrice}
                 onChange={(e) => setFilters({ ...filters, maxPrice: e.target.value })}
                 placeholder="100000"
                 min="0"
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-purple-500 focus:outline-none"
+                className="w-full bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-900 placeholder-gray-500 focus:border-red-500 focus:outline-none"
               />
             </div>
           </div>
           <div className="flex gap-2 mt-4">
             <button
               onClick={handleSubmit}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-pink-700 font-semibold"
+              className="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 font-semibold"
             >
               Apply Filters
             </button>
             <button
               onClick={clearFilters}
-              className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
             >
               Clear
             </button>

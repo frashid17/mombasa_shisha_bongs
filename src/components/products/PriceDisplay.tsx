@@ -27,12 +27,12 @@ export default function PriceDisplay({
 
   return (
     <div className="flex flex-col">
-      <p className={`text-blue-400 font-bold ${sizeClasses[size]}`}>
+      <p className={`text-gray-900 font-bold ${sizeClasses[size]}`}>
         {format(price)}
       </p>
       {hasDiscount && (
-        <p className="text-gray-500 text-sm line-through">
-          {format(Number(compareAtPrice))}
+        <p className="text-red-600 text-sm line-through">
+          Was {format(Number(compareAtPrice))}
         </p>
       )}
     </div>

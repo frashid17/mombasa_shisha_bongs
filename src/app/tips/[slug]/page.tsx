@@ -134,26 +134,26 @@ export default async function TipPage({ params }: { params: Promise<{ slug: stri
         }}
       />
       <StructuredData type="BreadcrumbList" data={breadcrumbs} />
-      <div className="min-h-screen bg-gray-900">
+      <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="bg-gradient-to-br from-gray-800 to-gray-900 border-b border-gray-800">
+      <div className="bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 py-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mb-6"
+            className="inline-flex items-center gap-2 text-red-600 hover:text-red-700 transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
           
           <div className="flex items-center gap-3 mb-4">
-            <BookOpen className="w-6 h-6 text-blue-400" />
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+            <BookOpen className="w-6 h-6 text-green-600" />
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
               {article.title}
             </h1>
           </div>
           
-          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               <span>{article.date}</span>
@@ -168,7 +168,7 @@ export default async function TipPage({ params }: { params: Promise<{ slug: stri
 
       {/* Article Image */}
       <div className="container mx-auto px-4 py-8">
-        <div className="relative w-full h-64 md:h-96 lg:h-[500px] rounded-xl overflow-hidden mb-8 bg-gray-800">
+        <div className="relative w-full h-64 md:h-96 lg:h-[500px] rounded-lg overflow-hidden mb-8 bg-gray-100">
           {article.image && article.image !== '/uploads/tips/' ? (
             <Image
               src={article.image}
@@ -178,19 +178,19 @@ export default async function TipPage({ params }: { params: Promise<{ slug: stri
               priority
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
-              <BookOpen className="w-16 h-16 text-gray-600" />
+            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+              <BookOpen className="w-16 h-16 text-gray-400" />
             </div>
           )}
         </div>
 
         {/* Article Content */}
-        <article className="max-w-4xl mx-auto prose prose-invert prose-lg">
-          <div className="bg-gray-800 rounded-xl p-6 md:p-8 lg:p-12 border border-gray-700">
+        <article className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg p-6 md:p-8 lg:p-12 border border-gray-200">
             {article.content.map((paragraph, index) => (
               <p
                 key={index}
-                className="text-gray-300 leading-relaxed mb-6 text-base md:text-lg"
+                className="text-gray-700 leading-relaxed mb-6 text-base md:text-lg"
               >
                 {paragraph}
               </p>
@@ -198,8 +198,8 @@ export default async function TipPage({ params }: { params: Promise<{ slug: stri
           </div>
 
           {/* Related Articles */}
-          <div className="mt-12 pt-8 border-t border-gray-800">
-            <h2 className="text-2xl font-bold text-white mb-6">Related Articles</h2>
+          <div className="mt-12 pt-8 border-t border-gray-200">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Articles</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Object.values(articles)
                 .filter((a) => a.slug !== slug)
@@ -207,7 +207,7 @@ export default async function TipPage({ params }: { params: Promise<{ slug: stri
                   <Link
                     key={relatedArticle.slug}
                     href={`/tips/${relatedArticle.slug}`}
-                    className="group bg-gray-800 border border-gray-700 rounded-xl overflow-hidden hover:border-blue-500 transition-all hover:shadow-lg"
+                    className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-red-500 transition-all hover:shadow-lg"
                   >
                     <div className="relative h-40 overflow-hidden">
                       {relatedArticle.image && relatedArticle.image !== '/uploads/tips/' ? (
@@ -218,16 +218,16 @@ export default async function TipPage({ params }: { params: Promise<{ slug: stri
                           className="object-cover group-hover:scale-110 transition-transform duration-500"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
-                          <BookOpen className="w-12 h-12 text-gray-600" />
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                          <BookOpen className="w-12 h-12 text-gray-400" />
                         </div>
                       )}
                     </div>
                     <div className="p-6">
-                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">
                         {relatedArticle.title}
                       </h3>
-                      <p className="text-sm text-gray-400">{relatedArticle.readTime}</p>
+                      <p className="text-sm text-gray-600">{relatedArticle.readTime}</p>
                     </div>
                   </Link>
                 ))}

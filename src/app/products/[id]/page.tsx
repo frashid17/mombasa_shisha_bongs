@@ -127,7 +127,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     <>
       <StructuredData type="Product" data={product} />
       <StructuredData type="BreadcrumbList" data={breadcrumbs} />
-      <div className="min-h-screen bg-gray-900">
+      <div className="min-h-screen bg-white">
         <TrackProductView productId={id} />
       <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -139,12 +139,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           />
         </div>
 
-        {/* Product Info */}
-        <div>
+        {/* Product Info - White Background */}
+        <div className="bg-white border border-gray-200 rounded-lg p-6 md:p-8 shadow-sm">
           {product.category && (
-            <p className="text-blue-400 mb-2">{product.category.name}</p>
+            <p className="text-red-600 mb-2 uppercase text-sm font-semibold">{product.category.name}</p>
           )}
-          <h1 className="text-4xl font-bold text-white mb-4">{product.name}</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
           <div className="mb-6">
             <PriceDisplay 
               price={Number(product.price)} 
@@ -155,30 +155,21 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
           {product.description && (
             <div className="mb-6">
-              <h2 className="text-xl font-semibold text-white mb-2">Description</h2>
-              <p className="text-gray-300">{product.description}</p>
+              <h2 className="text-xl font-semibold text-gray-900 mb-2">Description</h2>
+              <p className="text-gray-700">{product.description}</p>
             </div>
           )}
 
           <div className="mb-6 space-y-2">
-            <p className="text-sm text-gray-400">SKU: {product.sku}</p>
+            <p className="text-sm text-gray-600">SKU: {product.sku}</p>
             {product.stock > 0 ? (
-              <p className="text-green-400 font-semibold">In Stock ({product.stock} available)</p>
+              <p className="text-green-600 font-semibold">In Stock ({product.stock} available)</p>
             ) : (
-              <p className="text-red-400 font-semibold">Out of Stock</p>
+              <p className="text-red-600 font-semibold">Out of Stock</p>
             )}
           </div>
 
-          <div className="mb-6">
-            <AddToWishlistButton product={serializedProduct} />
-          </div>
-
-          <SocialShareButtons
-            productName={product.name}
-            productUrl={`/products/${product.id}`}
-            productImage={product.images[0]?.url}
-          />
-
+          {/* Action Buttons - Like Screenshot */}
           {product.stock > 0 && (
             <>
               {(product.colors && product.colors.length > 0) || 
@@ -202,13 +193,21 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   )}
                 </div>
               ) : (
-                <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <div className="mt-6 flex items-center gap-3">
                   <AddToCartButton product={serializedProduct} />
-                  <BuyNowButton product={serializedProduct} />
+                  <AddToWishlistButton product={serializedProduct} />
                 </div>
               )}
             </>
           )}
+
+          <div className="mt-4">
+            <SocialShareButtons
+              productName={product.name}
+              productUrl={`/products/${product.id}`}
+              productImage={product.images[0]?.url}
+            />
+          </div>
 
           {product.stock === 0 && (
             <StockNotificationButton

@@ -83,7 +83,7 @@ export default function AddToCartButton({
     <button
       onClick={handleAdd}
       disabled={loading || product.stock === 0 || !canAdd}
-      className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
     >
       <ShoppingCart className="w-5 h-5" />
       {loading ? 'Adding...' : 'Add to Cart'}

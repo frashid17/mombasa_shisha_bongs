@@ -71,7 +71,7 @@ export default function AboutPage() {
                 <p className="mb-2">
                   <strong className="text-white">Phone:</strong>{' '}
                   <a href="tel://+254117037140" className="text-blue-400 hover:text-blue-300">
-                    +254 719 541 660
+                    +254 7117037140
                   </a>
                 </p>
                 <p className="mb-2">

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Metadata } from 'next'
-import prisma from '@/lib/prisma'
+import prisma, { withRetry } from '@/lib/prisma'
 import { Shield, Star, TrendingUp, Truck, Sparkles, Zap, Award, MessageSquare, Package, ShoppingBag } from 'lucide-react'
 import SearchBar from '@/components/SearchBar'
 import ProductCard from '@/components/home/ProductCard'
@@ -41,7 +41,7 @@ async function getFeaturedData() {
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
   // Get top-selling products for "featured" (based on order items)
-  const topSellingProducts = await prisma.orderItem.groupBy({
+  const topSellingProducts = await withRetry(() => prisma.orderItem.groupBy({
     by: ['productId'],
     _sum: {
       quantity: true,
@@ -52,7 +52,7 @@ async function getFeaturedData() {
       },
     },
     take: 8,
-  })
+  }))
 
   const featuredProductIds = topSellingProducts.map((item) => item.productId)
   const featuredProductIdMap = new Map(
@@ -60,9 +60,9 @@ async function getFeaturedData() {
   )
 
   const [categories, featuredProducts, newArrivals, stats, reviewsCount, customerReviews, allProducts] = await Promise.all([
-    prisma.category.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } }),
+    withRetry(() => prisma.category.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } })),
     // Featured products: Top-selling products (automatically determined by sales)
-    featuredProductIds.length > 0
+    withRetry(() => featuredProductIds.length > 0
       ? prisma.product.findMany({
           where: {
             isActive: true,
@@ -88,9 +88,9 @@ async function getFeaturedData() {
           include: { images: { take: 1 }, category: true },
           take: 8,
           orderBy: { createdAt: 'desc' },
-        }),
+        })),
     // New arrivals: Products created in the last 30 days (automatically determined by date)
-    prisma.product.findMany({
+    withRetry(() => prisma.product.findMany({
       where: {
         isActive: true,
         createdAt: {
@@ -107,10 +107,10 @@ async function getFeaturedData() {
       },
       take: 8,
       orderBy: { createdAt: 'desc' },
-    }),
-    prisma.product.count({ where: { isActive: true } }),
-    prisma.review.count(),
-    prisma.review.findMany({
+    })),
+    withRetry(() => prisma.product.count({ where: { isActive: true } })),
+    withRetry(() => prisma.review.count()),
+    withRetry(() => prisma.review.findMany({
       include: {
         product: {
           select: {
@@ -121,9 +121,9 @@ async function getFeaturedData() {
       },
       take: 6,
       orderBy: { createdAt: 'desc' },
-    }),
+    })),
     // Get all products for "Explore All Items" section
-    prisma.product.findMany({
+    withRetry(() => prisma.product.findMany({
       where: { isActive: true },
       include: {
         images: { take: 1 },
@@ -135,7 +135,7 @@ async function getFeaturedData() {
       },
       take: 12,
       orderBy: { createdAt: 'desc' },
-    }),
+    })),
   ])
 
   // Sort featured products by their sales order (top sellers first)
@@ -233,42 +233,29 @@ export default async function HomePage() {
   return (
     <>
       <StructuredData type="Organization" />
-      <div className="min-h-screen bg-gray-900 page-fade-in">
-        {/* Top Banner - Pay on Delivery */}
-        <div className="bg-blue-600 text-white py-2 text-center text-sm font-semibold">
-          <p>PAY ON DELIVERY IN MOMBASA</p>
-        </div>
-
+      <div className="min-h-screen bg-white page-fade-in">
         {/* Hero Section - Promotional Banner */}
-        <section className="bg-gradient-to-br from-blue-900 via-purple-900 to-gray-900 text-white py-12 md:py-20 relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500 rounded-full blur-3xl"></div>
-          </div>
-          <div className="container mx-auto px-4 relative z-10">
+        <section className="bg-white py-12 md:py-16">
+          <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               {/* Hero Text */}
-              <div className="text-center mb-10 md:mb-14 animate-fade-in-up">
-                <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs md:text-sm text-gray-200 border border-white/20 mb-4">
-                  <Sparkles className="w-4 h-4 text-yellow-300" />
-                  <span>Trusted Shisha & Vape store in Mombasa</span>
-                </p>
-                <h1 className="text-4xl md:text-6xl font-extrabold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight md:leading-[1.1]">
+              <div className="text-center mb-10 md:mb-14">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 leading-tight">
                   Premium Shisha & Vapes
           </h1>
-                <p className="text-lg md:text-2xl mb-6 text-gray-200 max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl mb-6 text-gray-600 max-w-2xl mx-auto">
                   Mix & match any flavor & strength. Fast delivery, secure payment, and authentic products in Mombasa.
                 </p>
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <Link
                     href="/products"
-                    className="inline-flex items-center justify-center bg-yellow-500 hover:bg-yellow-400 text-gray-900 font-bold px-8 py-3 rounded-lg text-base md:text-lg transition-colors shadow-lg shadow-yellow-500/30"
+                    className="inline-flex items-center justify-center bg-red-600 text-white font-bold px-8 py-3 rounded-md text-base md:text-lg transition-all duration-300 hover:bg-red-700 shadow-md hover:shadow-lg"
                   >
                     Shop Now
                   </Link>
                   <Link
                     href="#trending"
-                    className="inline-flex items-center justify-center border border-white/30 hover:border-white/60 text-white px-6 py-3 rounded-lg text-sm md:text-base bg-white/5 hover:bg-white/10 transition-colors"
+                    className="inline-flex items-center justify-center border-2 border-gray-300 hover:border-red-500 text-gray-700 hover:text-red-600 px-6 py-4 rounded-md text-sm md:text-base bg-white hover:bg-gray-50 transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
                   >
                     Browse Trending Products
                   </Link>
@@ -276,45 +263,54 @@ export default async function HomePage() {
               </div>
 
               {/* Trust Indicators */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mt-6 text-sm md:text-base animate-fade-in-up-delay">
-                <div className="bg-black/20 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3 backdrop-blur">
-                  <ShoppingBag className="w-6 h-6 text-blue-400" />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mt-8 text-sm md:text-base">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md transition-all duration-300">
+                  <div className="bg-red-600 p-3 rounded-lg">
+                    <ShoppingBag className="w-6 h-6 text-white" />
+                  </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-400">Products</p>
-                    <p className="text-white font-semibold text-lg">
+                    <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Products</p>
+                    <p className="text-gray-900 font-bold text-xl">
                       {stats}+
-                      <span className="ml-1 text-xs font-normal text-gray-300">items in stock</span>
+                      <span className="ml-1 text-sm font-medium text-gray-600">items in stock</span>
                     </p>
                   </div>
                 </div>
-                <div className="bg-black/20 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3 backdrop-blur">
-                  <Star className="w-6 h-6 text-yellow-400" />
+                <div className="bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md transition-all duration-300">
+                  <div className="bg-red-600 p-3 rounded-lg">
+                    <Star className="w-6 h-6 text-white fill-white" />
+                  </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-400">Customer Reviews</p>
-                    <p className="text-white font-semibold text-lg">
+                    <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Customer Reviews</p>
+                    <p className="text-gray-900 font-bold text-xl">
                       {reviews}+
-                      <span className="ml-1 text-xs font-normal text-gray-300">verified ratings</span>
+                      <span className="ml-1 text-sm font-medium text-gray-600">verified ratings</span>
                     </p>
                   </div>
                 </div>
-                <div className="bg-black/20 border border-white/10 rounded-xl px-4 py-3 flex items-center gap-3 backdrop-blur">
-                  <Truck className="w-6 h-6 text-green-400" />
+                <div className="bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md transition-all duration-300">
+                  <div className="bg-red-600 p-3 rounded-lg">
+                    <Truck className="w-6 h-6 text-white" />
+                  </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-400">Delivery</p>
-                    <p className="text-white font-semibold text-lg">
+                    <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Delivery</p>
+                    <p className="text-gray-900 font-bold text-xl">
                       Same-day
-                      <span className="ml-1 text-xs font-normal text-gray-300">within Mombasa</span>
-          </p>
-        </div>
+                      <span className="ml-1 text-sm font-medium text-gray-600">within Mombasa</span>
+                    </p>
+                    <p className="text-red-600 font-semibold text-sm mt-1">
+                      ✨ Pay on Delivery Available ✨
+                    </p>
+                  </div>
                 </div>
               </div>
 
               {/* Featured product strip inside hero */}
               {serializedFeatured.length > 0 && (
                 <div className="mt-10 md:mt-12">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm text-gray-300 flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-yellow-300" />
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-base md:text-lg font-bold text-gray-900 flex items-center gap-2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-md shadow-md">
+                      <TrendingUp className="w-5 h-5 text-red-600" />
                       <span>Popular right now</span>
                     </p>
                     <Link
@@ -329,16 +325,16 @@ export default async function HomePage() {
                       <Link
                         key={product.id}
                         href={`/products/${product.id}`}
-                        className="min-w-[180px] max-w-[200px] bg-black/30 border border-white/10 rounded-xl p-3 flex-shrink-0 snap-start hover:border-blue-400/60 hover:bg-black/40 transition-colors"
+                        className="min-w-[180px] max-w-[200px] bg-white/95 backdrop-blur-sm border border-white/30 rounded-lg p-3 flex-shrink-0 snap-start hover:border-white/60 hover:bg-white transition-colors shadow-lg"
                         style={{ animationDelay: `${index * 60}ms` }}
                       >
-                        <div className="relative h-28 w-full rounded-lg overflow-hidden mb-3 bg-gray-800">
+                        <div className="relative h-28 w-full rounded-md overflow-hidden mb-3 bg-gray-50">
                           {product.images?.[0]?.url ? (
             <Image
                               src={product.images[0].url}
                               alt={product.images[0].altText || product.name}
                               fill
-                              className="object-cover"
+                              className="object-contain"
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
@@ -346,13 +342,15 @@ export default async function HomePage() {
                             </div>
                           )}
                         </div>
-                        <p className="text-xs text-blue-300 mb-1 line-clamp-1">
+                        <p className="text-xs text-gray-500 mb-1 line-clamp-1 font-semibold uppercase">
                           {product.category?.name || 'Shisha & Vapes'}
                         </p>
-                        <p className="text-sm text-white font-semibold mb-1 line-clamp-2">
+                        <p className="text-sm text-gray-900 font-bold mb-1 line-clamp-2">
                           {product.name}
                         </p>
-                        <PriceDisplay price={product.price} size="sm" showCompare={false} />
+                        <p className="text-base text-gray-900 font-bold">
+                          KES {Number(product.price).toLocaleString()}
+                        </p>
                       </Link>
                     ))}
                   </div>
@@ -364,7 +362,7 @@ export default async function HomePage() {
 
       {/* Flash Sale Section */}
       {primaryFlashSale && primaryFlashSale.products.length > 0 && (
-        <section className="py-8 md:py-10 bg-gradient-to-r from-red-900 via-purple-900 to-gray-900 border-y border-red-700/50">
+        <section className="py-8 md:py-10 bg-red-600 border-y border-red-700">
           <div className="container mx-auto px-4">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 md:gap-6 mb-6 md:mb-8">
               <div className="flex items-start gap-3 md:gap-4">
@@ -412,13 +410,13 @@ export default async function HomePage() {
       )}
 
       {/* Trust Section */}
-      <section className="py-12 md:py-16 bg-gray-800 border-y border-gray-700">
+      <section className="py-12 md:py-16 bg-white border-y border-gray-200">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 text-center">
               Your trusted source for all vaping needs
             </h2>
-            <p className="text-gray-300 text-center leading-relaxed text-sm md:text-base">
+            <p className="text-gray-700 text-center leading-relaxed text-base md:text-lg">
               At Mombasa Shisha Bongs, we are committed to providing you with the highest quality shisha products, vape kits, and accessories. 
               As a leading online vape shop in Kenya, we offer the best vape kits, e-liquids, and accessories at competitive prices. 
               Our team is dedicated to ensuring you have the best shopping experience with fast delivery, secure payments, and excellent customer service.
@@ -428,18 +426,18 @@ export default async function HomePage() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-12 md:py-16 bg-gray-900">
+      <section className="py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Shop by Category</h2>
-              <p className="text-gray-400">Browse our wide selection of premium products</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Shop by Category</h2>
+              <p className="text-gray-600 font-medium">Browse our wide selection of premium products</p>
             </div>
             <Link
               href="/categories"
-              className="text-blue-400 font-semibold hover:text-blue-300 transition-colors flex items-center gap-2"
+              className="text-red-600 font-bold hover:text-red-700 transition-colors flex items-center gap-2 hover:scale-110 transform duration-300"
             >
-              View All <span>→</span>
+              View All <span className="text-xl">→</span>
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
@@ -474,21 +472,19 @@ export default async function HomePage() {
                 <Link
                   key={category.id}
                   href={`/categories/${category.id}`}
-                  className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all hover:scale-105 group relative"
+                  className="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden hover:border-red-500 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] group relative"
+                  style={{ animationDelay: `${index * 50}ms` }}
                 >
-                  <div className="relative h-48 md:h-56 bg-gray-800 overflow-hidden">
+                  <div className="relative h-48 md:h-56 bg-gray-50 overflow-hidden">
                     <CategoryImage
                       src={category.image || getCategoryImage(category.name)}
                       alt={category.name}
                       className={`object-cover group-hover:scale-110 transition-transform duration-500 ${!category.image ? 'opacity-80' : ''}`}
                       unoptimized={category.image ? (category.image.startsWith('http') && !category.image.includes('localhost')) : true}
                     />
-                    {/* Overlay on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                   </div>
-                  <div className="p-4 text-center relative z-10">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    <h3 className="text-sm font-semibold text-white relative z-10 group-hover:text-blue-400 transition-colors line-clamp-2">{category.name}</h3>
+                  <div className="p-4 text-center relative z-10 bg-white">
+                    <h3 className="text-sm font-bold text-gray-900 group-hover:text-red-600 transition-all duration-300 line-clamp-2">{category.name}</h3>
                   </div>
                 </Link>
               )
@@ -501,28 +497,30 @@ export default async function HomePage() {
       {serializedFeatured.length > 0 && (
         <section
           id="trending"
-          className="py-12 md:py-16 bg-gray-900 border-t border-gray-800"
+          className="py-12 md:py-16 bg-white border-t border-gray-200"
         >
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-3">
-                <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-yellow-400" />
+                <div className="bg-green-600 p-3 rounded-lg">
+                  <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                </div>
                 <div>
-                  <h2 className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2">
+                  <h2 className="text-3xl md:text-5xl font-bold text-green-600 mb-2 md:mb-3">
                     Trending Vape Products
                   </h2>
-                  <p className="text-gray-400 text-sm md:text-base">Most popular products right now</p>
+                  <p className="text-gray-900 text-lg md:text-xl font-bold">Most popular products right now</p>
                 </div>
               </div>
               <Link
                 href="/products"
-                className="text-blue-400 font-semibold hover:text-blue-300 transition-colors flex items-center gap-2 text-sm md:text-base"
+                className="text-blue-600 font-bold hover:text-purple-600 transition-colors flex items-center gap-2 text-sm md:text-base hover:scale-110 transform duration-300"
               >
-                View All <span>→</span>
+                View All <span className="text-xl">→</span>
               </Link>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {serializedFeatured.slice(0, 4).map((product, index) => (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+              {serializedFeatured.slice(0, 5).map((product, index) => (
                 <ProductCard key={product.id} product={product} index={index} />
               ))}
             </div>
@@ -532,23 +530,25 @@ export default async function HomePage() {
 
       {/* Explore All Items Section */}
       {serializedAllProducts.length > 0 && (
-        <section className="py-12 md:py-16 bg-gray-900 border-t border-gray-800">
+        <section className="py-12 md:py-16 bg-white border-t border-gray-200">
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-3">
-                <Package className="w-6 h-6 md:w-8 md:h-8 text-blue-400" />
+                <div className="bg-green-600 p-3 rounded-lg">
+                  <Package className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                </div>
                 <div>
-                  <h2 className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2">
+                  <h2 className="text-2xl md:text-4xl font-bold text-green-600 mb-1 md:mb-2">
                     Explore All Items
                   </h2>
-                  <p className="text-gray-400 text-sm md:text-base">Browse our complete product catalog</p>
+                  <p className="text-gray-600 text-sm md:text-base font-medium">Browse our complete product catalog</p>
                 </div>
               </div>
               <Link
                 href="/products"
-                className="text-blue-400 font-semibold hover:text-blue-300 transition-colors flex items-center gap-2 text-sm md:text-base"
+                className="text-blue-600 font-bold hover:text-cyan-600 transition-colors flex items-center gap-2 text-sm md:text-base hover:scale-110 transform duration-300"
               >
-                View All Products <span>→</span>
+                View All Products <span className="text-xl">→</span>
               </Link>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -562,16 +562,18 @@ export default async function HomePage() {
 
       {/* Customer Reviews Section */}
       {customerReviews.length > 0 && (
-        <section className="py-12 md:py-16 bg-gray-900 border-t border-gray-800">
+        <section className="py-12 md:py-16 bg-white border-t border-gray-200">
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-3">
-                <MessageSquare className="w-6 h-6 md:w-8 md:h-8 text-purple-400" />
+                <div className="bg-green-600 p-3 rounded-lg">
+                  <MessageSquare className="w-6 h-6 md:w-8 md:h-8 text-white" />
+                </div>
                 <div>
-                  <h2 className="text-2xl md:text-4xl font-bold text-white mb-1 md:mb-2">
+                  <h2 className="text-2xl md:text-4xl font-bold text-green-600 mb-1 md:mb-2">
                     Latest Customer Reviews
                   </h2>
-                  <p className="text-gray-400 text-sm md:text-base">See what our customers are saying</p>
+                  <p className="text-gray-600 text-sm md:text-base font-medium">See what our customers are saying</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -583,7 +585,7 @@ export default async function HomePage() {
                     />
                   ))}
                 </div>
-                <span className="text-gray-300 font-semibold ml-2 text-sm md:text-base">
+                <span className="text-gray-600 font-semibold ml-2 text-sm md:text-base">
                   {reviews}+ Reviews
                 </span>
               </div>

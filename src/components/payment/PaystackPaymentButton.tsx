@@ -92,23 +92,23 @@ export default function PaystackPaymentButton({
   }
 
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6 space-y-4">
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 space-y-4">
       <div className="flex items-center gap-3 mb-4">
-        <CreditCard className="w-6 h-6 text-blue-400" />
-        <h3 className="text-xl font-bold text-white">Pay with Paystack</h3>
+        <CreditCard className="w-6 h-6 text-red-600" />
+        <h3 className="text-xl font-bold text-gray-900">Pay with Paystack</h3>
       </div>
 
       <div>
-        <p className="text-sm text-gray-300 mb-2">
+        <p className="text-sm text-gray-700 mb-2">
           Pay securely with Paystack. You'll be redirected to complete your payment.
         </p>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-600">
           Supports: Cards, Mobile Money (Mpesa, Airtel), Bank Transfer
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-red-300 text-sm">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-red-700 text-sm">
           {error}
         </div>
       )}
@@ -116,7 +116,7 @@ export default function PaystackPaymentButton({
       <button
         onClick={handlePayment}
         disabled={loading || !customerEmail.trim()}
-        className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {loading ? (
           <>
@@ -131,7 +131,7 @@ export default function PaystackPaymentButton({
         )}
       </button>
 
-      <p className="text-xs text-gray-400 text-center">
+      <p className="text-xs text-gray-600 text-center">
         You'll be redirected to Paystack to complete your payment securely.
       </p>
     </div>

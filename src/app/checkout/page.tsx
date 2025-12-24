@@ -239,35 +239,35 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-white mb-4">Checkout</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Checkout</h1>
         
         {/* Account Benefits Message */}
         {!user && (
-          <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4 mb-8">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0 mt-0.5">
-                <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="flex-1">
-                <p className="text-blue-300 font-semibold mb-1">Creating an account is optional but recommended</p>
-                <p className="text-blue-400 text-sm mb-3">
+                <p className="text-red-800 font-semibold mb-1">Creating an account is optional but recommended</p>
+                <p className="text-red-700 text-sm mb-3">
                   With an account, you can track your orders, view order history, and get faster checkout next time. 
                   You can still checkout as a guest, but you'll need your order number to track your delivery.
                 </p>
                 <div className="flex gap-2">
                   <a
                     href="/sign-up"
-                    className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                    className="text-sm bg-red-600 hover:bg-red-700 text-gray-900 px-4 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Create Account
                   </a>
                   <a
                     href="/sign-in"
-                    className="text-sm bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                    className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-lg font-semibold transition-colors"
                   >
                     Sign In
                   </a>
@@ -280,35 +280,35 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Customer Information */}
-            <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-bold text-white mb-4">Customer Information</h2>
+            <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Customer Information</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Full Name *</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Full Name *</label>
                   <input
                     type="text"
                     required
                     value={formData.customerName}
                     onChange={(e) => setFormData((prev) => ({ ...prev, customerName: e.target.value }))}
-                    className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:outline-none"
                     placeholder="Enter your full name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Email *</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Email *</label>
                   <input
                     type="email"
                     required
                     value={formData.customerEmail}
                     onChange={(e) => setFormData((prev) => ({ ...prev, customerEmail: e.target.value }))}
-                    className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:outline-none"
                     placeholder="your.email@example.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Phone Number *</label>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Phone Number *</label>
                   <div className="flex items-center">
-                    <span className="bg-gray-700 text-gray-300 px-3 py-2 rounded-l-lg border border-r-0 border-gray-600">
+                    <span className="bg-gray-100 text-gray-700 px-3 py-2 rounded-l-lg border border-r-0 border-gray-300">
                       +254
                     </span>
                     <input
@@ -322,25 +322,25 @@ export default function CheckoutPage() {
                           customerPhone: value,
                         }))
                       }}
-                      className="flex-1 bg-gray-900 border border-gray-600 rounded-r-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      className="flex-1 bg-white border border-gray-300 rounded-r-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:outline-none"
                       placeholder="708786000"
                       pattern="[0-9]{9}"
                       maxLength={9}
                     />
                   </div>
-                  <p className="text-xs text-gray-400 mt-1">Enter 9 digits (e.g., 708786000)</p>
+                  <p className="text-xs text-gray-600 mt-1">Enter 9 digits (e.g., 708786000)</p>
                 </div>
               </div>
             </div>
 
             {/* Saved Addresses */}
             {user && savedAddresses.length > 0 && (
-              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold text-white">Saved Addresses</h2>
+                  <h2 className="text-xl font-bold text-gray-900">Saved Addresses</h2>
                   <Link
                     href="/profile/addresses"
-                    className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                    className="text-sm text-red-600 hover:text-red-600 flex items-center gap-1"
                   >
                     <Plus className="w-4 h-4" />
                     Manage
@@ -360,8 +360,8 @@ export default function CheckoutPage() {
                         onClick={() => handleSelectSavedAddress(address)}
                         className={`w-full text-left p-4 rounded-lg border transition-colors ${
                           selectedAddressId === address.id
-                            ? 'border-blue-500 bg-blue-900/20'
-                            : 'border-gray-600 bg-gray-900 hover:border-gray-500'
+                            ? 'border-red-500 bg-red-100/20'
+                            : 'border-gray-300 bg-white hover:border-gray-400'
                         }`}
                       >
                         <div className="flex items-start justify-between">
@@ -369,21 +369,21 @@ export default function CheckoutPage() {
                             {getIcon(address.label)}
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-semibold text-white">{address.label}</span>
+                                <span className="font-semibold text-gray-900">{address.label}</span>
                                 {address.isDefault && (
-                                  <span className="flex items-center gap-1 bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
+                                  <span className="flex items-center gap-1 bg-red-600 text-gray-900 text-xs px-2 py-0.5 rounded-full">
                                     <Star className="w-3 h-3 fill-current" />
                                     Default
                                   </span>
                                 )}
                               </div>
-                              <p className="text-sm text-gray-300">{address.fullName}</p>
-                              <p className="text-sm text-gray-400">{address.address}</p>
-                              <p className="text-sm text-gray-400">{address.city}</p>
+                              <p className="text-sm text-gray-700">{address.fullName}</p>
+                              <p className="text-sm text-gray-600">{address.address}</p>
+                              <p className="text-sm text-gray-600">{address.city}</p>
                             </div>
                           </div>
                           {selectedAddressId === address.id && (
-                            <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                            <div className="w-5 h-5 rounded-full bg-red-600 flex items-center justify-center">
                               <div className="w-2 h-2 rounded-full bg-white" />
                             </div>
                           )}
@@ -397,7 +397,7 @@ export default function CheckoutPage() {
                     setUseSavedAddress(false)
                     setSelectedAddressId(null)
                   }}
-                  className="mt-4 w-full text-center text-blue-400 hover:text-blue-300 text-sm"
+                  className="mt-4 w-full text-center text-red-600 hover:text-red-600 text-sm"
                 >
                   Use different address
                 </button>
@@ -406,8 +406,8 @@ export default function CheckoutPage() {
 
             {/* Location Picker */}
             {(!useSavedAddress || !selectedAddressId) && (
-              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
-                <h2 className="text-xl font-bold text-white mb-4">Delivery Location</h2>
+              <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Delivery Location</h2>
                 <LocationPicker 
                   onLocationSelect={handleLocationSelect}
                   initialLocation={selectedLocation || undefined}
@@ -417,11 +417,11 @@ export default function CheckoutPage() {
 
             {/* Additional Address Details */}
             {selectedLocation && (
-              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
-                <h2 className="text-xl font-bold text-white mb-4">Additional Details</h2>
+              <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Additional Details</h2>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-white mb-2">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
                       Additional Address Details (Optional)
                     </label>
                     <textarea
@@ -432,17 +432,17 @@ export default function CheckoutPage() {
                           additionalAddress: e.target.value,
                         }))
                       }}
-                      className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:outline-none"
                       rows={2}
                       placeholder="Building name, floor, apartment number, etc."
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-white mb-2">Order Notes</label>
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">Order Notes</label>
                     <textarea
                       value={formData.notes}
                       onChange={(e) => setFormData((prev) => ({ ...prev, notes: e.target.value }))}
-                      className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                      className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:outline-none"
                       rows={2}
                       placeholder="Any special instructions for delivery..."
                     />
@@ -453,14 +453,14 @@ export default function CheckoutPage() {
 
             {/* Schedule Delivery */}
             {selectedLocation && (
-              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <Calendar className="w-5 h-5" />
                   Schedule Delivery (Optional)
                 </h2>
                 <div className="space-y-3">
                   <div>
-                    <label className="block text-sm font-semibold text-white mb-2">
+                    <label className="block text-sm font-semibold text-gray-900 mb-2">
                       Preferred Delivery Date & Time
                     </label>
                     <input
@@ -484,15 +484,15 @@ export default function CheckoutPage() {
                       }}
                       min={new Date().toISOString().slice(0, 16)}
                       max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
-                      className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white focus:border-blue-500 focus:outline-none"
+                      className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 focus:border-red-500 focus:outline-none"
                     />
-                    <p className="text-xs text-gray-400 mt-2">
+                    <p className="text-xs text-gray-600 mt-2">
                       Leave empty for immediate delivery. You can schedule up to 30 days in advance.
                     </p>
                   </div>
                   {formData.scheduledDelivery && (
-                    <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-3">
-                      <p className="text-sm text-blue-300">
+                    <div className="bg-red-100/30 border border-blue-700 rounded-lg p-3">
+                      <p className="text-sm text-red-600">
                         ✓ Delivery scheduled for:{' '}
                         <span className="font-semibold">
                           {new Date(formData.scheduledDelivery).toLocaleString('en-US', {
@@ -513,8 +513,8 @@ export default function CheckoutPage() {
 
             {/* Payment Method Selection */}
             {selectedLocation && (
-              <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6">
-                <h2 className="text-xl font-bold text-white mb-4">Payment Method</h2>
+              <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Payment Method</h2>
                 <div className="space-y-3">
                   {/* Pay on Delivery - Show if within Mombasa or if checking */}
                   {(isWithinMombasa === true || isWithinMombasa === null) && (
@@ -523,8 +523,8 @@ export default function CheckoutPage() {
                         paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true
                           ? 'bg-green-900/30 border-2 border-green-500 ring-2 ring-green-500/50'
                           : isWithinMombasa === true
-                          ? 'bg-gray-900/50 border-2 border-gray-600 hover:border-gray-500'
-                          : 'bg-gray-900/30 border-2 border-gray-600 opacity-50 cursor-not-allowed'
+                          ? 'bg-white/50 border-2 border-gray-300 hover:border-gray-400'
+                          : 'bg-white/30 border-2 border-gray-300 opacity-50 cursor-not-allowed'
                       }`}
                     >
                       <div className="relative mt-1">
@@ -562,8 +562,8 @@ export default function CheckoutPage() {
                           }`} />
                           <span className={`font-semibold ${
                             paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true
-                              ? 'text-white'
-                              : 'text-gray-400'
+                              ? 'text-gray-900'
+                              : 'text-gray-600'
                           }`}>
                             Pay on Delivery
                             {paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true && (
@@ -588,7 +588,7 @@ export default function CheckoutPage() {
                         </div>
                         <p className={`text-sm ${
                           paymentMethod === 'CASH_ON_DELIVERY' && isWithinMombasa === true
-                            ? 'text-gray-300'
+                            ? 'text-gray-700'
                             : 'text-gray-500'
                         }`}>
                           {isWithinMombasa === true
@@ -605,8 +605,8 @@ export default function CheckoutPage() {
                   <label
                     className={`flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-all ${
                       paymentMethod === 'PAYSTACK'
-                        ? 'bg-blue-900/30 border-2 border-blue-500 ring-2 ring-blue-500/50'
-                        : 'bg-gray-900/50 border-2 border-gray-600 hover:border-gray-500'
+                        ? 'bg-red-50 border-2 border-red-500 ring-2 ring-red-500/50'
+                        : 'bg-white/50 border-2 border-gray-300 hover:border-gray-400'
                     }`}
                   >
                     <div className="relative mt-1">
@@ -621,7 +621,7 @@ export default function CheckoutPage() {
                       <div
                         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                           paymentMethod === 'PAYSTACK'
-                            ? 'border-blue-500 bg-blue-500'
+                            ? 'border-red-500 bg-red-500'
                             : 'border-gray-500 bg-transparent'
                         }`}
                       >
@@ -634,26 +634,26 @@ export default function CheckoutPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <CreditCard className={`w-5 h-5 ${
                           paymentMethod === 'PAYSTACK'
-                            ? 'text-blue-400'
+                            ? 'text-red-600'
                             : 'text-gray-500'
                         }`} />
                         <span className={`font-semibold ${
                           paymentMethod === 'PAYSTACK'
-                            ? 'text-white'
-                            : 'text-gray-400'
+                            ? 'text-gray-900'
+                            : 'text-gray-600'
                         }`}>
                           Paystack Payment
                           {paymentMethod === 'PAYSTACK' && (
-                            <span className="ml-2 text-blue-400">✓ Selected</span>
+                            <span className="ml-2 text-red-600">✓ Selected</span>
                           )}
                         </span>
-                        <span className="text-xs bg-blue-900 text-blue-400 px-2 py-0.5 rounded-full">
+                        <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
                           Always Available
                         </span>
                       </div>
                       <p className={`text-sm ${
                         paymentMethod === 'PAYSTACK'
-                          ? 'text-gray-300'
+                          ? 'text-gray-700'
                           : 'text-gray-500'
                       }`}>
                         Pay securely with cards, bank transfer, or mobile money via Paystack. Supports Visa, Mastercard, and Mpesa.
@@ -667,7 +667,7 @@ export default function CheckoutPage() {
             <button
               type="submit"
               disabled={loading || !selectedLocation}
-              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full bg-red-600 text-gray-900 py-3 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading
                 ? 'Processing...'
@@ -677,22 +677,22 @@ export default function CheckoutPage() {
             </button>
           </form>
 
-          <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6 h-fit">
-            <h2 className="text-xl font-bold text-white mb-4">Order Summary</h2>
+          <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 h-fit">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Order Summary</h2>
             <div className="space-y-3 mb-4">
               {items.map((item) => (
-                <div key={item.cartItemId || item.id} className="border-b border-gray-700 pb-3 last:border-b-0">
+                <div key={item.cartItemId || item.id} className="border-b border-gray-200 pb-3 last:border-b-0">
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-300 font-medium">{item.name}</span>
-                    <span className="text-white font-semibold">{format(item.price * item.quantity)}</span>
+                    <span className="text-gray-700 font-medium">{item.name}</span>
+                    <span className="text-gray-900 font-semibold">{format(item.price * item.quantity)}</span>
                   </div>
                   <div className="space-y-1">
                     {item.colorName && (
-                      <div className="flex items-center gap-2 text-xs text-gray-400">
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
                         <span>Color:</span>
                         {item.colorValue && (
                           <div
-                            className="w-3 h-3 rounded-full border border-gray-600"
+                            className="w-3 h-3 rounded-full border border-gray-300"
                             style={{ backgroundColor: item.colorValue }}
                           />
                         )}
@@ -700,8 +700,8 @@ export default function CheckoutPage() {
                       </div>
                     )}
                     {item.specName && (
-                      <div className="text-xs text-gray-400">
-                        <span>{item.specType || 'Spec'}:</span> <span className="text-gray-300">{item.specName}</span>
+                      <div className="text-xs text-gray-600">
+                        <span>{item.specType || 'Spec'}:</span> <span className="text-gray-700">{item.specName}</span>
                         {item.specValue && (
                           <span className="text-gray-500"> ({item.specValue})</span>
                         )}
@@ -714,19 +714,19 @@ export default function CheckoutPage() {
                 </div>
               ))}
             </div>
-            <div className="border-t border-gray-700 pt-4">
-              <div className="flex justify-between text-lg font-bold text-white">
+            <div className="border-t border-gray-200 pt-4">
+              <div className="flex justify-between text-lg font-bold text-gray-900">
                 <span>Total</span>
                 <span>{format(total)}</span>
               </div>
               {paymentMethod === 'CASH_ON_DELIVERY' && (
                 <div className="mt-3 space-y-2">
-                  <p className="text-sm text-green-400">
+                  <p className="text-sm text-green-600 font-semibold">
                     ✓ Pay this amount when your order is delivered
                   </p>
-                  <div className="bg-yellow-900/30 border border-yellow-700 rounded-lg p-3">
-                    <p className="text-xs text-yellow-300 font-semibold mb-1">📦 Delivery Fee Notice</p>
-                    <p className="text-xs text-yellow-400">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <p className="text-xs text-yellow-800 font-semibold mb-1">📦 Delivery Fee Notice</p>
+                    <p className="text-xs text-yellow-700">
                       Delivery fees are not included in this total. The delivery person will collect the delivery fee separately in cash based on your area (CBD/town areas may have different fees).
                     </p>
                   </div>

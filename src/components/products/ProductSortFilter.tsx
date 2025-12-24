@@ -54,8 +54,8 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <ArrowUpDown className="w-5 h-5 text-gray-400" />
-            <label className="text-sm font-semibold text-white">Sort by:</label>
+            <ArrowUpDown className="w-5 h-5 text-gray-600" />
+            <label className="text-sm font-semibold text-gray-900">Sort by:</label>
             <select
               value={`${sortBy}-${sortOrder}`}
               onChange={(e) => {
@@ -63,7 +63,7 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
                 updateFilter('sortBy', field)
                 updateFilter('sortOrder', order)
               }}
-              className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+              className="bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-900 text-sm focus:border-red-500 focus:outline-none"
             >
               <option value="createdAt-desc">Newest First</option>
               <option value="createdAt-asc">Oldest First</option>
@@ -76,10 +76,10 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
+            className={`px-4 py-2 rounded-md text-sm font-semibold transition-colors ${
               showFilters || hasActiveFilters
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'
+                ? 'bg-red-600 text-white hover:bg-red-700'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
             }`}
           >
             {showFilters ? 'Hide' : 'Show'} Filters {hasActiveFilters && '●'}
@@ -87,7 +87,7 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
           {hasActiveFilters && (
             <button
               onClick={clearAllFilters}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 text-sm font-semibold border border-gray-700"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm font-semibold border border-gray-300"
             >
               <X className="w-4 h-4" />
               Clear All
@@ -98,15 +98,15 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
 
       {/* Filters Panel */}
       {showFilters && (
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
+        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-md">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Category Filter */}
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">Category</label>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Category</label>
               <select
                 value={activeFilters.category || ''}
                 onChange={(e) => updateFilter('category', e.target.value)}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-900 text-sm focus:border-red-500 focus:outline-none"
               >
                 <option value="">All Categories</option>
                 {categories.map((cat) => (
@@ -119,11 +119,11 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
 
             {/* Brand Filter */}
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">Brand</label>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Brand</label>
               <select
                 value={activeFilters.brand || ''}
                 onChange={(e) => updateFilter('brand', e.target.value)}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-900 text-sm focus:border-red-500 focus:outline-none"
               >
                 <option value="">All Brands</option>
                 {uniqueBrands.map((brand) => (
@@ -136,11 +136,11 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
 
             {/* Stock Status Filter */}
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">Stock Status</label>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Stock Status</label>
               <select
                 value={activeFilters.stockStatus || ''}
                 onChange={(e) => updateFilter('stockStatus', e.target.value)}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-900 text-sm focus:border-red-500 focus:outline-none"
               >
                 <option value="">All</option>
                 <option value="in_stock">In Stock</option>
@@ -150,11 +150,11 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
 
             {/* Rating Filter */}
             <div>
-              <label className="block text-sm font-semibold text-white mb-2">Minimum Rating</label>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Minimum Rating</label>
               <select
                 value={activeFilters.minRating || ''}
                 onChange={(e) => updateFilter('minRating', e.target.value)}
-                className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-2 text-white text-sm focus:border-blue-500 focus:outline-none"
+                className="w-full bg-white border border-gray-300 rounded-md px-4 py-2 text-gray-900 text-sm focus:border-red-500 focus:outline-none"
               >
                 <option value="">All Ratings</option>
                 <option value="4">4+ Stars</option>
@@ -171,46 +171,46 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
       {hasActiveFilters && (
         <div className="flex flex-wrap gap-2">
           {activeFilters.category && (
-            <span className="bg-purple-900 text-purple-300 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+            <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
               Category: {categories.find((c) => c.slug === activeFilters.category)?.name || activeFilters.category}
-              <button onClick={() => updateFilter('category', '')} className="hover:text-purple-100">
+              <button onClick={() => updateFilter('category', '')} className="hover:text-red-900">
                 <X className="w-3 h-3" />
               </button>
             </span>
           )}
           {activeFilters.brand && (
-            <span className="bg-blue-900 text-blue-300 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+            <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
               Brand: {activeFilters.brand}
-              <button onClick={() => updateFilter('brand', '')} className="hover:text-blue-100">
+              <button onClick={() => updateFilter('brand', '')} className="hover:text-red-900">
                 <X className="w-3 h-3" />
               </button>
             </span>
           )}
           {activeFilters.stockStatus && (
-            <span className="bg-green-900 text-green-300 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
               Stock: {activeFilters.stockStatus === 'in_stock' ? 'In Stock' : 'Out of Stock'}
-              <button onClick={() => updateFilter('stockStatus', '')} className="hover:text-green-100">
+              <button onClick={() => updateFilter('stockStatus', '')} className="hover:text-green-900">
                 <X className="w-3 h-3" />
               </button>
             </span>
           )}
           {activeFilters.minRating && (
-            <span className="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+            <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
               Rating: {activeFilters.minRating}+ Stars
-              <button onClick={() => updateFilter('minRating', '')} className="hover:text-yellow-100">
+              <button onClick={() => updateFilter('minRating', '')} className="hover:text-yellow-900">
                 <X className="w-3 h-3" />
               </button>
             </span>
           )}
           {(activeFilters.minPrice || activeFilters.maxPrice) && (
-            <span className="bg-indigo-900 text-indigo-300 px-3 py-1 rounded-full text-sm flex items-center gap-2">
+            <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm flex items-center gap-2">
               Price: KES {activeFilters.minPrice || '0'} - {activeFilters.maxPrice || '∞'}
               <button
                 onClick={() => {
                   updateFilter('minPrice', '')
                   updateFilter('maxPrice', '')
                 }}
-                className="hover:text-indigo-100"
+                className="hover:text-red-900"
               >
                 <X className="w-3 h-3" />
               </button>

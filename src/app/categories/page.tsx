@@ -67,21 +67,21 @@ export default async function CategoriesPage() {
   return (
     <>
       <StructuredData type="BreadcrumbList" data={breadcrumbs} />
-      <div className="min-h-screen bg-gray-900">
+      <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold text-green-600 mb-4">
             All Categories
           </h1>
-          <p className="text-gray-400 text-lg">Browse our complete selection of product categories</p>
+          <p className="text-gray-600 text-lg">Browse our complete selection of product categories</p>
         </div>
 
         {categories.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-gray-400 text-lg mb-4">No categories available yet.</p>
+            <p className="text-gray-600 text-lg mb-4">No categories available yet.</p>
             <Link
               href="/products"
-              className="inline-block text-blue-400 hover:text-blue-300 font-semibold"
+              className="inline-block text-red-600 hover:text-red-700 font-semibold"
             >
               Browse All Products →
             </Link>
@@ -92,35 +92,32 @@ export default async function CategoriesPage() {
               <Link
                 key={category.id}
                 href={`/categories/${category.id}`}
-                className="bg-gray-800 border border-gray-700 rounded-xl shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all hover:scale-105 group relative"
+                className="bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden hover:border-red-500 hover:shadow-lg transition-all hover:scale-[1.02] group relative"
               >
-                <div className="relative h-64 md:h-80 bg-gray-800 overflow-hidden">
+                <div className="relative h-64 md:h-80 bg-gray-50 overflow-hidden">
                   <CategoryImage
                     src={category.image || getCategoryPlaceholderImage(category.name)}
                     alt={category.name}
                     className={`object-cover group-hover:scale-110 transition-transform duration-500 ${!category.image ? 'opacity-80' : ''}`}
                     unoptimized={category.image ? (category.image.startsWith('http') && !category.image.includes('localhost')) : true}
                   />
-                  {/* Overlay on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </div>
                 <div className="p-6 relative z-10">
-                  <h2 className="text-2xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">
                     {category.name}
                   </h2>
                   {category.description && (
-                    <p className="text-gray-400 mb-4 line-clamp-2">{category.description}</p>
+                    <p className="text-gray-600 mb-4 line-clamp-2">{category.description}</p>
                   )}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-blue-400 font-semibold">
+                    <span className="text-sm text-gray-600 font-semibold">
                       {category._count.products} product{category._count.products !== 1 ? 's' : ''}
                     </span>
-                    <span className="text-blue-400 group-hover:text-blue-300 transition-colors">
+                    <span className="text-red-600 group-hover:text-red-700 transition-colors">
                       View →
                     </span>
                   </div>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 via-purple-900/20 to-pink-900/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </Link>
             ))}
           </div>

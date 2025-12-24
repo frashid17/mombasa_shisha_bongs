@@ -35,41 +35,41 @@ export default function FrequentlyBoughtTogether({ productId }: { productId: str
 
   return (
     <div className="mt-12">
-      <h2 className="text-2xl font-bold text-white mb-6">Frequently Bought Together</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Frequently Bought Together</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {products.map((product) => (
           <div
             key={product.id}
-            className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg overflow-hidden hover:border-blue-500 hover:shadow-blue-500/20 transition-all"
+            className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:border-red-500 hover:shadow-md transition-all"
           >
             <Link href={`/products/${product.id}`}>
               {product.images[0] ? (
-                <div className="relative h-48 bg-gray-800">
+                <div className="relative h-48 bg-white">
                   <Image
                     src={product.images[0].url}
                     alt={product.name}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
                 </div>
               ) : (
-                <div className="h-48 bg-gradient-to-br from-gray-700 to-gray-800" />
+                <div className="h-48 bg-gray-50" />
               )}
             </Link>
             <div className="p-4">
               {product.category && (
-                <p className="text-sm text-blue-400 font-semibold mb-1">{product.category.name}</p>
+                <p className="text-sm text-red-600 font-semibold mb-1">{product.category.name}</p>
               )}
               <Link href={`/products/${product.id}`}>
-                <h3 className="font-semibold text-white mb-2 line-clamp-2 hover:text-blue-400 transition-colors">
+                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-red-600 transition-colors">
                   {product.name}
                 </h3>
               </Link>
               <div className="flex items-center justify-between">
-                <p className="text-blue-400 font-bold">{format(product.price)}</p>
+                <p className="text-gray-900 font-bold">{format(product.price)}</p>
                 <button
                   onClick={() => addToCart(product)}
-                  className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                   title="Add to cart"
                 >
                   <ShoppingCart className="w-4 h-4" />

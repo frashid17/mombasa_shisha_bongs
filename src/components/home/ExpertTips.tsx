@@ -41,16 +41,18 @@ export default function ExpertTips() {
   }
 
   return (
-    <section className="py-16 bg-gray-900 border-t border-gray-800">
+    <section className="py-16 bg-white border-t border-gray-200">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
-            <BookOpen className="w-8 h-8 text-blue-400" />
+            <div className="bg-green-600 p-3 rounded-lg">
+              <BookOpen className="w-8 h-8 text-white" />
+            </div>
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
+              <h2 className="text-3xl md:text-4xl font-bold text-green-600 mb-2">
                 Latest Expert Tips & Advice
               </h2>
-              <p className="text-gray-400">Learn from our experts</p>
+              <p className="text-gray-600 font-medium">Learn from our experts</p>
             </div>
           </div>
         </div>
@@ -64,9 +66,9 @@ export default function ExpertTips() {
               <Link
                 key={tip.id}
                 href={`/tips/${tip.slug}`}
-                className="group bg-gray-800 border border-gray-700 rounded-xl overflow-hidden hover:border-blue-500 transition-all hover:shadow-lg"
+                className="group bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-red-500 transition-all hover:shadow-lg"
               >
-                <div className="relative h-48 overflow-hidden bg-gray-800">
+                <div className="relative h-48 overflow-hidden bg-gray-50">
                   {!showPlaceholder ? (
                     <Image
                       src={tip.image}
@@ -76,16 +78,16 @@ export default function ExpertTips() {
                       onError={() => handleImageError(tip.id)}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
-                      <BookOpen className="w-12 h-12 text-gray-600" />
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                      <BookOpen className="w-12 h-12 text-gray-400" />
                     </div>
                   )}
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-semibold text-white mb-3 group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-red-600 transition-colors">
                     {tip.title}
                   </h3>
-                  <div className="inline-flex items-center gap-2 text-blue-400 font-semibold group-hover:gap-3 transition-all">
+                  <div className="inline-flex items-center gap-2 text-red-600 font-semibold group-hover:gap-3 transition-all">
                     <span>Read Article</span>
                     <ArrowRight className="w-4 h-4" />
                   </div>
