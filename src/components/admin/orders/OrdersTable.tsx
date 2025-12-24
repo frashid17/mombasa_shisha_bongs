@@ -5,7 +5,7 @@ import { Eye, Package, Calendar } from 'lucide-react'
 const statusColors: Record<string, string> = {
   PENDING: 'bg-yellow-100 text-yellow-800',
   CONFIRMED: 'bg-green-100 text-green-800',
-  PROCESSING: 'bg-blue-100 text-blue-800',
+  PROCESSING: 'bg-red-100 text-red-800',
   SHIPPED: 'bg-purple-100 text-purple-800',
   DELIVERED: 'bg-green-100 text-green-800',
   CANCELLED: 'bg-red-100 text-red-800',
@@ -14,7 +14,7 @@ const statusColors: Record<string, string> = {
 export default function OrdersTable({ orders }: { orders: any[] }) {
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-x-auto -mx-4 sm:mx-0">
+      <div className="overflow-x-auto">
         <div className="inline-block min-w-full align-middle">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -66,10 +66,10 @@ export default function OrdersTable({ orders }: { orders: any[] }) {
                   <td className="px-3 sm:px-6 py-4 text-right whitespace-nowrap">
                   <Link
                     href={`/admin/orders/${order.id}`}
-                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"
+                    className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm"
                   >
                     <Eye className="w-4 h-4" />
-                    View
+                    <span className="hidden sm:inline">View</span>
                   </Link>
                 </td>
               </tr>

@@ -70,12 +70,13 @@ export function useCurrency() {
   if (context === undefined) {
     // Return a default context during SSR or if provider isn't available
     // This prevents errors during initial render/hydration
+    // IMPORTANT: Use the same formatCurrency function to ensure SSR/client consistency
     if (typeof window === 'undefined') {
       return {
         currency: 'KES' as Currency,
         setCurrency: () => {},
         convert: (amount: number) => amount,
-        format: (amount: number) => `KES ${amount.toLocaleString()}`,
+        format: (amount: number) => formatCurrency(amount, 'KES'),
         symbol: 'KES',
       }
     }

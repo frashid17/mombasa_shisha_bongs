@@ -65,11 +65,11 @@ export default function ProductPagination({ currentPage, totalPages, totalProduc
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-gray-800">
-      <div className="text-sm text-gray-400">
-        Showing <span className="font-semibold text-white">{startItem}</span> to{' '}
-        <span className="font-semibold text-white">{endItem}</span> of{' '}
-        <span className="font-semibold text-white">{totalProducts}</span> products
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-6 border-t border-gray-200">
+      <div className="text-sm text-gray-600">
+        Showing <span className="font-semibold text-gray-900">{startItem}</span> to{' '}
+        <span className="font-semibold text-gray-900">{endItem}</span> of{' '}
+        <span className="font-semibold text-gray-900">{totalProducts}</span> products
       </div>
 
       <div className="flex items-center gap-2">
@@ -78,8 +78,8 @@ export default function ProductPagination({ currentPage, totalPages, totalProduc
           disabled={currentPage === 1}
           className={`p-2 rounded-lg border transition-colors ${
             currentPage === 1
-              ? 'border-gray-700 text-gray-600 cursor-not-allowed'
-              : 'border-gray-700 text-white hover:bg-gray-800 hover:border-blue-500'
+              ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+              : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-red-500'
           }`}
           aria-label="Previous page"
         >
@@ -105,8 +105,8 @@ export default function ProductPagination({ currentPage, totalPages, totalProduc
                 onClick={() => changePage(pageNum)}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
                   isActive
-                    ? 'bg-blue-600 border-blue-600 text-white font-semibold'
-                    : 'border-gray-700 text-white hover:bg-gray-800 hover:border-blue-500'
+                    ? 'bg-red-600 border-red-600 text-white font-semibold'
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-red-500'
                 }`}
                 aria-label={`Page ${pageNum}`}
                 aria-current={isActive ? 'page' : undefined}
@@ -122,8 +122,8 @@ export default function ProductPagination({ currentPage, totalPages, totalProduc
           disabled={currentPage === totalPages}
           className={`p-2 rounded-lg border transition-colors ${
             currentPage === totalPages
-              ? 'border-gray-700 text-gray-600 cursor-not-allowed'
-              : 'border-gray-700 text-white hover:bg-gray-800 hover:border-blue-500'
+              ? 'border-gray-300 text-gray-400 cursor-not-allowed'
+              : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-red-500'
           }`}
           aria-label="Next page"
         >

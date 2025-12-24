@@ -61,11 +61,11 @@ export default async function OrdersPage({
           )}
         </div>
         {customerInfo && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center justify-between">
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold text-blue-900">Customer Information</p>
-                <div className="mt-2 space-y-1 text-sm text-blue-800">
+                <p className="text-sm font-semibold text-red-900">Customer Information</p>
+                <div className="mt-2 space-y-1 text-sm text-red-800">
                   <p>
                     <strong>Name:</strong> {customerInfo.userName || 'N/A'}
                   </p>
@@ -81,7 +81,7 @@ export default async function OrdersPage({
               </div>
               <Link
                 href="/admin/customers"
-                className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700"
+                className="inline-flex items-center gap-2 text-sm text-red-600 hover:text-red-700 whitespace-nowrap"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back to Customers
@@ -96,7 +96,7 @@ export default async function OrdersPage({
           <p className="text-gray-500">No orders found for this customer.</p>
           <Link
             href="/admin/orders"
-            className="mt-4 inline-block text-blue-600 hover:text-blue-700"
+            className="mt-4 inline-block text-red-600 hover:text-red-700"
           >
             View all orders
           </Link>

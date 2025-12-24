@@ -40,6 +40,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   }, [product.id, isInWishlist])
   
   // Use currency hook - it should always be available from CurrencyProvider in layout
+  // The format function now uses formatCurrency consistently on both server and client
   const { format } = useCurrency()
   
   const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price
@@ -147,10 +148,11 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           <button
             onClick={handleQuickAddToCart}
             disabled={product.stock === 0}
-            className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2.5 rounded-md text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2.5 rounded-md text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
           >
-            <ShoppingCart className="w-4 h-4" />
-            Add to Cart
+            <ShoppingCart className="w-4 h-4 flex-shrink-0" />
+            <span className="hidden sm:inline">Add to Cart</span>
+            <span className="sm:hidden">Add</span>
           </button>
           <button
             onClick={handleToggleWishlist}

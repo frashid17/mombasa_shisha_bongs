@@ -17,7 +17,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
         <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
         {/* Main Content */}
-        <main className="flex-1 w-full min-w-0 p-3 sm:p-4 md:p-6 lg:p-8">
+        <main className="flex-1 w-full min-w-0 p-3 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden">
           <div className="max-w-7xl mx-auto w-full">
             {children}
           </div>

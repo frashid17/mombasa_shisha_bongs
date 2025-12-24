@@ -30,7 +30,7 @@ export default async function CategoriesPage() {
         </div>
         <Link
           href="/admin/categories/new"
-          className="flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm sm:text-base"
+          className="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm sm:text-base whitespace-nowrap"
         >
           <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
           <span className="hidden sm:inline">Add Category</span>

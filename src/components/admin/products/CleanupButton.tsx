@@ -133,11 +133,12 @@ export default function CleanupButton() {
       <button
         onClick={handleCleanup}
         disabled={isDeleting}
-        className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="flex items-center justify-center gap-2 bg-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base whitespace-nowrap"
         title="Delete all products and orders (test data cleanup)"
       >
-        <Trash2 className="w-5 h-5" />
-        {isDeleting ? 'Deleting...' : 'Delete All Data'}
+        <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+        <span className="hidden sm:inline">{isDeleting ? 'Deleting...' : 'Delete All Data'}</span>
+        <span className="sm:hidden">{isDeleting ? 'Deleting...' : 'Delete All'}</span>
       </button>
     </>
   )

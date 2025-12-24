@@ -5,16 +5,19 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
-import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield, Search, Phone } from 'lucide-react'
+import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield, Search, Phone, X, Globe } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import Logo from './Logo'
 import CurrencySelector from './CurrencySelector'
 import SearchModal from './SearchModal'
+import { useCurrency } from '@/contexts/CurrencyContext'
+import type { Currency } from '@/lib/currency'
 
 export default function Navbar() {
   const { user, isSignedIn } = useUser()
   const { signOut } = useClerk()
   const router = useRouter()
+  const { currency, setCurrency } = useCurrency()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [itemCount, setItemCount] = useState(0)
@@ -208,93 +211,135 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Sidebar from Right */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-gray-200">
-              <div className="mb-4 pb-4 border-b border-gray-200">
-                <CurrencySelector />
+            <>
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 bg-black/50 z-40 md:hidden animate-fade-in"
+                onClick={() => setMobileMenuOpen(false)}
+              />
+              {/* Sidebar */}
+              <div className="fixed top-0 right-0 h-full w-80 bg-red-600 text-white z-50 md:hidden shadow-2xl animate-slide-in-right">
+                <div className="flex flex-col h-full">
+                  {/* Header */}
+                  <div className="flex items-center justify-between p-4 border-b border-red-500">
+                    <span className="text-xl font-bold">Mombasa Shisha Bongs</span>
+                    <button
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-2 hover:bg-red-700 rounded-lg transition-colors"
+                      aria-label="Close menu"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="flex-1 overflow-y-auto py-4">
+                    <div className="mb-4 px-4">
+                      <div className="flex items-center gap-2">
+                        <Globe className="w-4 h-4 text-white/80" />
+                        <select
+                          value={currency}
+                          onChange={(e) => setCurrency(e.target.value as Currency)}
+                          className="bg-red-700 border border-red-500 text-white rounded-lg px-3 py-1 text-sm focus:outline-none focus:border-white/50"
+                        >
+                          <option value="KES" className="bg-red-700">KES</option>
+                          <option value="USD" className="bg-red-700">USD</option>
+                        </select>
+                      </div>
+                    </div>
+                    <Link
+                      href="/"
+                      className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Home
+                    </Link>
+                    <Link
+                      href="/products"
+                      className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Products
+                    </Link>
+                    <Link
+                      href="/categories"
+                      className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Categories
+                    </Link>
+                    {isSignedIn && (
+                      <Link
+                        href="/orders"
+                        className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        My Orders
+                      </Link>
+                    )}
+                    <Link
+                      href="/wishlist"
+                      className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Wishlist {isMounted && wishlistCount > 0 && `(${wishlistCount})`}
+                    </Link>
+                    {isSignedIn && isAdmin && (
+                      <Link
+                        href="/admin"
+                        className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors mt-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Shield className="w-5 h-5" />
+                          Admin Dashboard
+                        </span>
+                      </Link>
+                    )}
+                    {isSignedIn ? (
+                      <>
+                        <Link
+                          href="/profile"
+                          className="flex items-center gap-3 py-4 px-6 text-white hover:bg-red-700 transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Settings className="w-5 h-5" />
+                          View Profile
+                        </Link>
+                        <Link
+                          href="/profile/addresses"
+                          className="flex items-center gap-3 py-4 px-6 text-white hover:bg-red-700 transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <MapPin className="w-5 h-5" />
+                          Manage Address
+                        </Link>
+                        <button
+                          onClick={() => {
+                            handleSignOut()
+                            setMobileMenuOpen(false)
+                          }}
+                          className="w-full flex items-center gap-3 py-4 px-6 text-left text-white hover:bg-red-700 transition-colors"
+                        >
+                          <LogOut className="w-5 h-5" />
+                          Sign Out
+                        </button>
+                      </>
+                    ) : (
+                      <Link
+                        href="/sign-in"
+                        className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Login
+                      </Link>
+                    )}
+                  </div>
+                </div>
               </div>
-              <Link
-                href="/products"
-                className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Products
-              </Link>
-              <Link
-                href="/categories"
-                className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Categories
-              </Link>
-              {isSignedIn && (
-                <Link
-                  href="/orders"
-                  className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  My Orders
-                </Link>
-              )}
-              <Link
-                href="/wishlist"
-                className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Wishlist {isMounted && wishlistCount > 0 && `(${wishlistCount})`}
-              </Link>
-              {isSignedIn && isAdmin && (
-                <Link
-                  href="/admin"
-                  className="block py-3 px-4 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors font-bold mt-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span className="flex items-center gap-2">
-                    <Shield className="w-4 h-4" />
-                    Admin Dashboard
-                  </span>
-                </Link>
-              )}
-              {isSignedIn ? (
-                <>
-                  <Link
-                    href="/profile"
-                    className="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Settings className="w-4 h-4" />
-                    View Profile
-                  </Link>
-                  <Link
-                    href="/profile/addresses"
-                    className="flex items-center gap-3 py-3 px-4 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <MapPin className="w-4 h-4" />
-                    Manage Address
-                  </Link>
-                  <button
-                    onClick={() => {
-                      handleSignOut()
-                      setMobileMenuOpen(false)
-                    }}
-                    className="w-full flex items-center gap-3 py-3 px-4 text-left text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <Link
-                  href="/sign-in"
-                  className="block py-3 px-4 font-semibold text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Login
-                </Link>
-              )}
-            </div>
+            </>
           )}
         </div>
 

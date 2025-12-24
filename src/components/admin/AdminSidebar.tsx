@@ -91,7 +91,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                   flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors
                   ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700'
+                      ? 'bg-red-50 text-red-700'
                       : 'text-gray-900 hover:bg-gray-50 hover:text-gray-900'
                   }
                 `}

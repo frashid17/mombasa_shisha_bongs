@@ -25,20 +25,20 @@ export default async function ProductsPage() {
   const products = await getProducts()
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-700 mt-1">Manage your product catalog</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Products</h1>
+          <p className="text-gray-700 mt-1 text-sm sm:text-base">Manage your product catalog</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <CleanupButton />
           <Link
             href="/admin/products/new"
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            className="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm sm:text-base whitespace-nowrap"
           >
-            <Plus className="w-5 h-5" />
-            Add Product
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span>Add Product</span>
           </Link>
         </div>
       </div>

@@ -53,7 +53,7 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
   }
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-x-auto -mx-4 sm:mx-0">
+      <div className="overflow-x-auto">
         <div className="inline-block min-w-full align-middle">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -108,7 +108,7 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
                     <div className="flex items-center justify-end gap-1 sm:gap-2">
                       <Link
                         href={`/admin/products/${product.id}`}
-                        className="p-1.5 sm:p-2 text-blue-600 hover:bg-blue-50 rounded"
+                        className="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded"
                         aria-label="View product"
                       >
                         <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

@@ -83,7 +83,7 @@ export default async function StatsCards() {
       value: totalOrders.toString(),
       change: ordersChange,
       icon: ShoppingCart,
-      color: 'text-blue-600 bg-blue-100',
+      color: 'text-red-600 bg-red-100',
     },
     {
       name: 'Products',

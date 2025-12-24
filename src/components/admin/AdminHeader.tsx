@@ -78,7 +78,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
   const statusColors: Record<string, string> = {
     PENDING: 'bg-yellow-100 text-yellow-800',
-    SENT: 'bg-blue-100 text-blue-800',
+    SENT: 'bg-red-100 text-red-800',
     FAILED: 'bg-red-100 text-red-800',
     DELIVERED: 'bg-green-100 text-green-800',
   }
@@ -101,7 +101,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
             <Menu className="w-6 h-6" />
           </button>
           <Link href="/admin" className="flex items-center gap-2">
-            <Store className="w-6 h-6 lg:w-8 lg:h-8 text-primary-600" />
+            <Store className="w-6 h-6 lg:w-8 lg:h-8 text-red-600" />
             <div className="hidden sm:block">
               <h1 className="text-base lg:text-lg font-bold text-gray-900">
                 Mombasa Shisha Bongs
@@ -120,7 +120,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap"
           >
             <Store className="w-4 h-4" />
             <span className="hidden sm:inline">View Store</span>
@@ -149,7 +149,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                   <Link
                     href="/admin/notifications"
                     onClick={() => setIsOpen(false)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="text-sm text-red-600 hover:text-red-700"
                   >
                     View All
                   </Link>
@@ -172,7 +172,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                             href={`/admin/notifications/${notification.id}`}
                             onClick={() => setIsOpen(false)}
                             className={`block p-4 hover:bg-gray-50 transition-colors ${
-                              isUnread ? 'bg-blue-50/50' : ''
+                              isUnread ? 'bg-red-50/50' : ''
                             }`}
                           >
                             <div className="flex items-start gap-3">
@@ -193,7 +193,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                                     {getNotificationTitle(notification)}
                                   </p>
                                   {isUnread && (
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></span>
+                                    <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
                                   )}
                                 </div>
                                 <p className="text-xs text-gray-500 mb-1">

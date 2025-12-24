@@ -75,7 +75,7 @@ export default function FlashSalesPage() {
     const end = new Date(sale.endDate)
 
     if (!sale.isActive) return { label: 'Inactive', color: 'bg-gray-500' }
-    if (now < start) return { label: 'Upcoming', color: 'bg-blue-500' }
+    if (now < start) return { label: 'Upcoming', color: 'bg-red-500' }
     if (now >= start && now <= end) return { label: 'Active', color: 'bg-green-500' }
     return { label: 'Ended', color: 'bg-red-500' }
   }
@@ -89,21 +89,21 @@ export default function FlashSalesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Flash Sales</h1>
-          <p className="text-gray-700 mt-1">Create and manage limited-time flash sales</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Flash Sales</h1>
+          <p className="text-sm sm:text-base text-gray-700 mt-1">Create and manage limited-time flash sales</p>
         </div>
         <button
           onClick={() => {
             setEditingSale(null)
             setShowForm(true)
           }}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          className="flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 text-sm sm:text-base whitespace-nowrap"
         >
-          <Plus className="w-5 h-5" />
-          Create Flash Sale
+          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span>Create Flash Sale</span>
         </button>
       </div>
 
@@ -150,7 +150,7 @@ export default function FlashSalesPage() {
               setEditingSale(null)
               setShowForm(true)
             }}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+            className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700"
           >
             <Plus className="w-5 h-5" />
             Create Flash Sale
@@ -158,7 +158,8 @@ export default function FlashSalesPage() {
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -222,7 +223,7 @@ export default function FlashSalesPage() {
                             setEditingSale(sale)
                             setShowForm(true)
                           }}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-red-600 hover:text-red-900"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
@@ -238,7 +239,8 @@ export default function FlashSalesPage() {
                 )
               })}
             </tbody>
-          </table>
+            </table>
+          </div>
         </div>
       )}
     </div>
