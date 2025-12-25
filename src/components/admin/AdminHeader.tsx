@@ -31,16 +31,34 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
   // Fetch notifications
   useEffect(() => {
+    // Only fetch on client side
+    if (typeof window === 'undefined') return
+
     async function fetchNotifications() {
       try {
-        const res = await fetch('/api/admin/notifications?limit=5')
-        const data = await res.json()
-        if (res.ok) {
-          setNotifications(data.notifications || [])
-          setUnreadCount(data.unreadCount || 0)
+        const res = await fetch('/api/admin/notifications?limit=5', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        
+        if (!res.ok) {
+          // If not OK, set empty state and stop loading
+          setNotifications([])
+          setUnreadCount(0)
+          setLoading(false)
+          return
         }
+
+        const data = await res.json()
+        setNotifications(data.notifications || [])
+        setUnreadCount(data.unreadCount || 0)
       } catch (error) {
+        // Silently handle errors - don't show notifications if fetch fails
         console.error('Error fetching notifications:', error)
+        setNotifications([])
+        setUnreadCount(0)
       } finally {
         setLoading(false)
       }
