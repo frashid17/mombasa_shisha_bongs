@@ -28,16 +28,16 @@ export default function AgeVerification() {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="bg-gray-900 border-2 border-blue-600 rounded-xl shadow-2xl max-w-md w-full mx-4 p-8 relative">
+      <div className="bg-white border-2 border-red-600 rounded-xl shadow-2xl max-w-md w-full mx-4 p-8 relative">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-4">
-            <AlertTriangle className="w-16 h-16 text-yellow-400" />
+            <AlertTriangle className="w-16 h-16 text-red-600" />
           </div>
-          <h2 className="text-3xl font-bold text-white mb-3">Age Verification</h2>
-          <p className="text-gray-300 text-lg mb-2">
+          <h2 className="text-3xl font-bold text-gray-900 mb-3">Age Verification</h2>
+          <p className="text-gray-700 text-lg mb-2">
             You must be 21 years or older to access this website.
           </p>
-          <p className="text-gray-400 text-sm">
+          <p className="text-gray-600 text-sm">
             This website contains products intended for adults only.
           </p>
         </div>
@@ -45,13 +45,13 @@ export default function AgeVerification() {
         <div className="space-y-3">
           <button
             onClick={handleConfirm}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
+            className="w-full bg-red-600 text-white px-6 py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]"
           >
             I am 21 years or older
           </button>
           <button
             onClick={handleDecline}
-            className="w-full bg-gray-700 text-gray-300 px-6 py-4 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+            className="w-full bg-gray-200 text-gray-700 px-6 py-4 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
           >
             I am under 21
           </button>
