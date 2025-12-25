@@ -58,11 +58,13 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:static inset-y-0 left-0 z-50
+          fixed left-0 top-16 z-40
           w-64 bg-white border-r border-gray-200
+          h-[calc(100vh-4rem)]
+          overflow-y-auto
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          min-h-[calc(100vh-4rem)] lg:min-h-0
+          lg:translate-x-0
         `}
       >
         {/* Mobile Header */}
