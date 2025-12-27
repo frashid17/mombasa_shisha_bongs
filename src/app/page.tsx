@@ -581,7 +581,7 @@ export default async function HomePage() {
                 </div>
                 <div>
                   <h2 className="text-3xl md:text-5xl font-bold text-green-600 mb-2 md:mb-3">
-                    Trending Vape Products
+                    Trending Products
                   </h2>
                   <p className="text-gray-900 text-lg md:text-xl font-bold">Most popular products right now</p>
                 </div>
