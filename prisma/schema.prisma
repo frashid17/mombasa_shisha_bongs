@@ -395,6 +395,7 @@ enum NotificationType {
   PAYMENT_FAILED
   LOW_STOCK_ALERT
   ADMIN_ALERT
+  QUOTE_REQUEST
 }
 
 enum NotificationChannel {
