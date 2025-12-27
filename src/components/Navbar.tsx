@@ -66,9 +66,9 @@ export default function Navbar() {
   return (
     <>
       {/* Top Header - VapeSoko Style */}
-      <nav className="bg-white text-gray-900 border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+      <nav className="bg-white text-gray-900 border-b border-gray-200 sticky top-0 z-50 shadow-sm" style={{ overflow: 'visible' }}>
+        <div className="container mx-auto px-4 relative" style={{ overflow: 'visible' }}>
+          <div className="flex items-center justify-between h-16" style={{ overflow: 'visible' }}>
             <Logo width={60} height={60} />
 
             {/* Search Bar - Center */}
@@ -113,7 +113,7 @@ export default function Navbar() {
 
               {/* Profile/Login */}
               {isSignedIn ? (
-                <div className="hidden md:block relative" ref={profileMenuRef}>
+                <div className="hidden md:block relative" ref={profileMenuRef} style={{ zIndex: 1000, overflow: 'visible' }}>
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                     className="flex items-center gap-2 hover:text-red-600 transition-colors focus:outline-none"
@@ -134,29 +134,38 @@ export default function Navbar() {
 
                   {/* Dropdown Menu */}
                   {profileMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden">
-                      <div className="py-1">
+                    <div 
+                      className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl"
+                      style={{ 
+                        zIndex: 9999,
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        marginTop: '0.5rem'
+                      }}
+                    >
+                      <div className="py-1" style={{ overflow: 'visible', maxHeight: 'none' }}>
                         <Link
                           href="/profile"
                           onClick={() => setProfileMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors whitespace-nowrap"
                         >
-                          <Settings className="w-4 h-4" />
+                          <Settings className="w-4 h-4 flex-shrink-0" />
                           <span className="font-medium">View Profile</span>
                         </Link>
                         <Link
                           href="/profile/addresses"
                           onClick={() => setProfileMenuOpen(false)}
-                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors"
+                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors whitespace-nowrap"
                         >
-                          <MapPin className="w-4 h-4" />
+                          <MapPin className="w-4 h-4 flex-shrink-0" />
                           <span className="font-medium">Delivery Addresses</span>
                         </Link>
                         <button
                           onClick={handleSignOut}
-                          className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors text-left"
+                          className="w-full flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors text-left whitespace-nowrap"
                         >
-                          <LogOut className="w-4 h-4" />
+                          <LogOut className="w-4 h-4 flex-shrink-0" />
                           <span className="font-medium">Logout</span>
                         </button>
                       </div>
@@ -216,11 +225,11 @@ export default function Navbar() {
             <>
               {/* Backdrop */}
               <div
-                className="fixed inset-0 bg-black/50 z-40 md:hidden animate-fade-in"
+                className="fixed inset-0 bg-black/50 z-[60] md:hidden animate-fade-in"
                 onClick={() => setMobileMenuOpen(false)}
               />
               {/* Sidebar */}
-              <div className="fixed top-0 right-0 h-full w-80 bg-red-600 text-white z-50 md:hidden shadow-2xl animate-slide-in-right">
+              <div className="fixed top-0 right-0 h-full w-80 bg-red-600 text-white z-[70] md:hidden shadow-2xl animate-slide-in-right">
                 <div className="flex flex-col h-full">
                   {/* Header */}
                   <div className="flex items-center justify-between p-4 border-b border-red-500">
@@ -276,6 +285,13 @@ export default function Navbar() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Bundles
+                    </Link>
+                    <Link
+                      href="/quote"
+                      className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Request Quote
                     </Link>
                     {isSignedIn && (
                       <Link
@@ -351,7 +367,7 @@ export default function Navbar() {
         </div>
 
         {/* Red Navigation Bar - Unified Card */}
-        <div className="bg-red-600 text-white">
+        <div className={`bg-red-600 text-white ${mobileMenuOpen ? 'hidden md:block' : ''}`}>
           <div className="container mx-auto px-2 sm:px-4">
             {/* Navigation Links */}
             <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 border-b border-red-500/30 overflow-x-auto scrollbar-hide">
@@ -363,6 +379,9 @@ export default function Navbar() {
               </Link>
               <Link href="/bundles" className="font-bold uppercase px-3 sm:px-4 py-3 hover:bg-red-700 transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap flex-shrink-0">
                 Bundles
+              </Link>
+              <Link href="/quote" className="font-bold uppercase px-3 sm:px-4 py-3 hover:bg-red-700 transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap flex-shrink-0">
+                Request Quote
               </Link>
               {isSignedIn && (
                 <Link href="/orders" className="font-bold uppercase px-3 sm:px-4 py-3 hover:bg-red-700 transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap flex-shrink-0">
