@@ -72,12 +72,14 @@ async function handlePOST(req: Request) {
     }
 
     // Calculate totals with flash sale discounts applied (if any)
+    // Use price from request if provided (for bundles), otherwise use product price
     let subtotal = 0
     let discountTotal = 0
 
     for (const item of validated.items) {
       const product = productMap.get(item.productId)
-      const basePrice = product ? Number(product.price) : item.price
+      // Prioritize price from request (for bundles) over product price
+      const basePrice = item.price != null && item.price > 0 ? item.price : (product ? Number(product.price) : 0)
       const discountPercent = flashDiscountMap.get(item.productId) ?? 0
       const effectivePrice =
         discountPercent > 0 ? basePrice * (1 - discountPercent / 100) : basePrice
@@ -129,7 +131,8 @@ async function handlePOST(req: Request) {
         items: {
           create: validated.items.map((item) => {
             const product = productMap.get(item.productId)
-            const basePrice = product ? Number(product.price) : item.price
+            // Prioritize price from request (for bundles) over product price
+            const basePrice = item.price != null && item.price > 0 ? item.price : (product ? Number(product.price) : 0)
             const discountPercent = flashDiscountMap.get(item.productId) ?? 0
             const effectivePrice =
               discountPercent > 0 ? basePrice * (1 - discountPercent / 100) : basePrice

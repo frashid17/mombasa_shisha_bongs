@@ -5,7 +5,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
-import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield, Search, Phone, X, Globe } from 'lucide-react'
+import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield, Search, Phone, X, Globe, Package } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import Logo from './Logo'
 import CurrencySelector from './CurrencySelector'
@@ -14,7 +14,7 @@ import { useCurrency } from '@/contexts/CurrencyContext'
 import type { Currency } from '@/lib/currency'
 
 export default function Navbar() {
-  const { user, isSignedIn } = useUser()
+  const { user, isSignedIn, isLoaded: authLoaded } = useUser()
   const { signOut } = useClerk()
   const router = useRouter()
   const { currency, setCurrency } = useCurrency()
@@ -60,8 +60,8 @@ export default function Navbar() {
     setProfileMenuOpen(false)
   }
 
-  // Check if user is admin
-  const isAdmin = user?.publicMetadata?.role === 'admin'
+  // Check if user is admin - only after auth is loaded to prevent hydration mismatch
+  const isAdmin = authLoaded && user?.publicMetadata?.role === 'admin'
 
   return (
     <>
@@ -99,8 +99,8 @@ export default function Navbar() {
                 <CurrencySelector />
               </div>
 
-              {/* Admin Button */}
-              {isSignedIn && isAdmin && (
+              {/* Admin Button - Only show after auth is loaded to prevent hydration mismatch */}
+              {authLoaded && isSignedIn && isAdmin && (
                 <Link
                   href="/admin"
                   className="hidden md:flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 transition-all"
@@ -270,6 +270,13 @@ export default function Navbar() {
                     >
                       Categories
                     </Link>
+                    <Link
+                      href="/bundles"
+                      className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Bundles
+                    </Link>
                     {isSignedIn && (
                       <Link
                         href="/orders"
@@ -286,7 +293,7 @@ export default function Navbar() {
                     >
                       Wishlist {isMounted && wishlistCount > 0 && `(${wishlistCount})`}
                     </Link>
-                    {isSignedIn && isAdmin && (
+                    {authLoaded && isSignedIn && isAdmin && (
                       <Link
                         href="/admin"
                         className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors mt-2"
@@ -353,6 +360,9 @@ export default function Navbar() {
               </Link>
               <Link href="/categories" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">
                 Categories
+              </Link>
+              <Link href="/bundles" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">
+                Bundles
               </Link>
               {isSignedIn && (
                 <Link href="/orders" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">

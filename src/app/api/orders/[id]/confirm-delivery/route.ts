@@ -30,10 +30,17 @@ export async function POST(
       )
     }
 
-    // Only allow confirmation if order is delivered or shipped
-    if (order.status !== 'DELIVERED' && order.status !== 'SHIPPED') {
+    // Don't allow confirmation if order is already delivered, cancelled, or refunded
+    if (order.status === 'DELIVERED') {
       return createSecureResponse(
-        { success: false, error: 'Order must be shipped or delivered before confirming receipt' },
+        { success: false, error: 'Order is already marked as delivered' },
+        400
+      )
+    }
+
+    if (order.status === 'CANCELLED' || order.status === 'REFUNDED') {
+      return createSecureResponse(
+        { success: false, error: 'Cannot confirm delivery for cancelled or refunded orders' },
         400
       )
     }

@@ -9,6 +9,7 @@ import ReviewCard from '@/components/home/ReviewCard'
 import RecentlyViewed from '@/components/home/RecentlyViewed'
 import FAQ from '@/components/home/FAQ'
 import ExpertTips from '@/components/home/ExpertTips'
+import BundlesSection from '@/components/home/BundlesSection'
 import { serializeProducts } from '@/lib/prisma-serialize'
 import CategoryImage from '@/components/categories/CategoryImage'
 import CountdownTimer from '@/components/flash-sales/CountdownTimer'
@@ -206,6 +207,73 @@ async function getActiveFlashSales() {
   return flashSalesWithProducts
 }
 
+async function getActiveBundles() {
+  const bundles = await withRetry(() =>
+    prisma.productBundle.findMany({
+      where: { isActive: true },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                images: {
+                  where: { isPrimary: true },
+                  take: 1,
+                },
+                colors: { where: { isActive: true } },
+                specifications: { where: { isActive: true } },
+              },
+            },
+            color: true,
+            specification: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 6,
+    })
+  )
+
+  // Serialize Decimal values to numbers
+  return bundles.map((bundle) => ({
+    id: bundle.id,
+    name: bundle.name,
+    description: bundle.description,
+    image: bundle.image,
+    price: Number(bundle.price),
+    discount: bundle.discount ? Number(bundle.discount) : null,
+    items: bundle.items.map((item) => ({
+      id: item.id,
+      productId: item.productId,
+      quantity: item.quantity,
+      colorId: item.colorId,
+      specId: item.specId,
+      allowColorSelection: item.allowColorSelection,
+      allowSpecSelection: item.allowSpecSelection,
+      product: {
+        id: item.product.id,
+        name: item.product.name,
+        price: Number(item.product.price),
+        image: item.product.images[0]?.url || item.product.featuredImage,
+        slug: item.product.slug,
+        colors: item.product.colors.map((c) => ({
+          id: c.id,
+          name: c.name,
+          value: c.value,
+        })),
+        specifications: item.product.specifications.map((s) => ({
+          id: s.id,
+          type: s.type,
+          name: s.name,
+          value: s.value,
+        })),
+      },
+      preselectedColor: item.color,
+      preselectedSpec: item.specification,
+    })),
+  }))
+}
+
 export default async function HomePage() {
   const { categories, featuredProducts, newArrivals, stats, reviews, customerReviews, allProducts } = await getFeaturedData()
   // Compute rating meta for homepage cards (keep heavy review UI in product pages)
@@ -229,6 +297,7 @@ export default async function HomePage() {
   const serializedAllProducts = serializeProducts(mapWithRating(allProducts))
   const activeFlashSales = await getActiveFlashSales()
   const primaryFlashSale = activeFlashSales[0]
+  const activeBundles = await getActiveBundles()
 
   return (
     <>
@@ -300,8 +369,8 @@ export default async function HomePage() {
                     </p>
                     <p className="text-red-600 font-semibold text-sm mt-1">
                       ✨ Pay on Delivery Available ✨
-                    </p>
-                  </div>
+          </p>
+        </div>
                 </div>
               </div>
 
@@ -493,6 +562,11 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Bundles Section */}
+      {activeBundles.length > 0 && (
+        <BundlesSection bundles={activeBundles} />
+      )}
+
       {/* Trending Products Section */}
       {serializedFeatured.length > 0 && (
         <section
@@ -566,11 +640,11 @@ export default async function HomePage() {
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-3">
-                <div className="bg-green-600 p-3 rounded-lg">
+                <div className="bg-red-600 p-3 rounded-lg">
                   <MessageSquare className="w-6 h-6 md:w-8 md:h-8 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl md:text-4xl font-bold text-green-600 mb-1 md:mb-2">
+                  <h2 className="text-2xl md:text-4xl font-bold text-red-600 mb-1 md:mb-2">
                     Latest Customer Reviews
                   </h2>
                   <p className="text-gray-600 text-sm md:text-base font-medium">See what our customers are saying</p>

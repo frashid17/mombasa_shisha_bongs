@@ -281,12 +281,12 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
             </div>
           )}
 
-          {/* Confirm Delivery Section */}
-          {(order.status === 'SHIPPED' || order.status === 'DELIVERED') && !order.deliveredAt && (
+          {/* Confirm Delivery Section - Allow clients to mark as delivered if they received the item */}
+          {order.status !== 'DELIVERED' && !order.deliveredAt && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Confirm Delivery</h2>
               <p className="text-gray-700 mb-4">
-                Have you received your order? Please confirm delivery to unlock the ability to review your items.
+                Have you received your order? You can mark it as delivered here. This will update the order status and allow you to review your items.
               </p>
               <ConfirmDeliveryButton
                 orderId={order.id}

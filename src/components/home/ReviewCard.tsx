@@ -23,7 +23,7 @@ interface ReviewCardProps {
 export default function ReviewCard({ review, index = 0 }: ReviewCardProps) {
   return (
     <div
-      className="bg-gray-800 border border-gray-700 rounded-xl p-6 hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300"
+      className="bg-white border border-gray-200 rounded-xl p-6 hover:border-red-500 hover:shadow-lg hover:shadow-red-500/20 transition-all duration-300"
       style={{
         animationDelay: `${index * 100}ms`,
       }}
@@ -32,9 +32,9 @@ export default function ReviewCard({ review, index = 0 }: ReviewCardProps) {
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <h4 className="font-semibold text-white">{review.userName}</h4>
+            <h4 className="font-semibold text-gray-900">{review.userName}</h4>
             {review.isVerified && (
-              <span className="flex items-center gap-1 text-xs text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full border border-green-700">
+              <span className="flex items-center gap-1 text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
                 <CheckCircle className="w-3 h-3" />
                 Verified Purchase
               </span>
@@ -47,11 +47,11 @@ export default function ReviewCard({ review, index = 0 }: ReviewCardProps) {
                 className={`w-4 h-4 ${
                   i < review.rating
                     ? 'text-yellow-400 fill-yellow-400'
-                    : 'text-gray-600'
+                    : 'text-gray-300'
                 }`}
               />
             ))}
-            <span className="text-sm text-gray-400 ml-2">
+            <span className="text-sm text-gray-600 ml-2">
               {format(new Date(review.createdAt), 'MMM d, yyyy')}
             </span>
           </div>
@@ -60,16 +60,16 @@ export default function ReviewCard({ review, index = 0 }: ReviewCardProps) {
 
       {/* Product Info (if available) */}
       {review.product && (
-        <div className="mb-3 pb-3 border-b border-gray-700">
-          <p className="text-sm text-purple-400 font-medium">Product: {review.product.name}</p>
+        <div className="mb-3 pb-3 border-b border-gray-200">
+          <p className="text-sm text-red-600 font-medium">Product: {review.product.name}</p>
         </div>
       )}
 
       {/* Review Content */}
       {review.title && (
-        <h5 className="font-semibold text-white mb-2">{review.title}</h5>
+        <h5 className="font-semibold text-gray-900 mb-2">{review.title}</h5>
       )}
-      <p className="text-gray-300 text-sm leading-relaxed line-clamp-4">
+      <p className="text-gray-700 text-sm leading-relaxed line-clamp-4">
         {review.comment}
       </p>
     </div>

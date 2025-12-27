@@ -184,11 +184,48 @@ export default function CheckoutPage() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: items.map((item) => ({
+      // Expand bundles into individual items for order creation
+      const orderItems: any[] = []
+      items.forEach((item) => {
+        if (item.isBundle && item.bundleItems) {
+          // For bundles, expand into individual products
+          // Calculate total items in bundle for price distribution
+          const totalBundleItems = item.bundleItems.reduce((sum, bi) => sum + bi.quantity, 0)
+          const bundleTotalPrice = Number(item.price) * item.quantity // Total price for all bundle quantities
+          const bundlePricePerItem = bundleTotalPrice / (totalBundleItems * item.quantity)
+          
+          // Track if we need to adjust for rounding errors
+          let distributedTotal = 0
+          const bundleOrderItems: any[] = []
+          
+          item.bundleItems.forEach((bundleItem, idx) => {
+            const itemQuantity = item.quantity * bundleItem.quantity
+            const isLastItem = idx === (item.bundleItems?.length || 0) - 1
+            const itemPrice = isLastItem
+              ? (bundleTotalPrice - distributedTotal) / itemQuantity // Last item gets remainder to avoid rounding errors
+              : bundlePricePerItem
+            
+            const subtotal = itemPrice * itemQuantity
+            distributedTotal += subtotal
+            
+            bundleOrderItems.push({
+              productId: bundleItem.productId,
+              quantity: itemQuantity,
+              price: itemPrice,
+              colorId: bundleItem.colorId || null,
+              colorName: null, // Will be fetched from product
+              colorValue: null,
+              specId: bundleItem.specId || null,
+              specType: null,
+              specName: null,
+              specValue: null,
+            })
+          })
+          
+          orderItems.push(...bundleOrderItems)
+        } else {
+          // Regular product
+          orderItems.push({
             productId: item.id,
             quantity: item.quantity,
             price: Number(item.price),
@@ -199,7 +236,15 @@ export default function CheckoutPage() {
             specType: item.specType || null,
             specName: item.specName || null,
             specValue: item.specValue || null,
-          })),
+          })
+        }
+      })
+
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: orderItems,
           customerName: formData.customerName,
           customerEmail: formData.customerEmail,
           customerPhone: formData.customerPhone ? `+254${formData.customerPhone}` : formData.customerPhone,
@@ -683,34 +728,63 @@ export default function CheckoutPage() {
               {items.map((item) => (
                 <div key={item.cartItemId || item.id} className="border-b border-gray-200 pb-3 last:border-b-0">
                   <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-700 font-medium">{item.name}</span>
+                    <div className="flex-1">
+                      <span className="text-gray-700 font-medium">{item.name}</span>
+                      {item.isBundle && (
+                        <span className="ml-2 text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded font-semibold">Bundle</span>
+                      )}
+                    </div>
                     <span className="text-gray-900 font-semibold">{format(item.price * item.quantity)}</span>
                   </div>
-                  <div className="space-y-1">
-                    {item.colorName && (
-                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                        <span>Color:</span>
-                        {item.colorValue && (
-                          <div
-                            className="w-3 h-3 rounded-full border border-gray-300"
-                            style={{ backgroundColor: item.colorValue }}
-                          />
-                        )}
-                        <span>{item.colorName}</span>
+                  {item.isBundle && item.bundleItems && (
+                    <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
+                      <p className="font-semibold text-gray-700 mb-1">Includes:</p>
+                      <ul className="space-y-1">
+                        {item.bundleItems.map((bundleItem, idx) => (
+                          <li key={idx} className="text-gray-600">
+                            • Product {idx + 1} {bundleItem.quantity > 1 && `(x${bundleItem.quantity})`}
+                          </li>
+                        ))}
+                      </ul>
+                      {item.bundleDiscount && (
+                        <p className="mt-2 text-green-600 font-semibold">
+                          You saved {format(item.bundleDiscount * item.quantity)}!
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {!item.isBundle && (
+                    <div className="space-y-1">
+                      {item.colorName && (
+                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                          <span>Color:</span>
+                          {item.colorValue && (
+                            <div
+                              className="w-3 h-3 rounded-full border border-gray-300"
+                              style={{ backgroundColor: item.colorValue }}
+                            />
+                          )}
+                          <span>{item.colorName}</span>
+                        </div>
+                      )}
+                      {item.specName && (
+                        <div className="text-xs text-gray-600">
+                          <span>{item.specType || 'Spec'}:</span> <span className="text-gray-700">{item.specName}</span>
+                          {item.specValue && (
+                            <span className="text-gray-500"> ({item.specValue})</span>
+                          )}
+                        </div>
+                      )}
+                      <div className="text-xs text-gray-500">
+                        Qty: {item.quantity} × {format(item.price)}
                       </div>
-                    )}
-                    {item.specName && (
-                      <div className="text-xs text-gray-600">
-                        <span>{item.specType || 'Spec'}:</span> <span className="text-gray-700">{item.specName}</span>
-                        {item.specValue && (
-                          <span className="text-gray-500"> ({item.specValue})</span>
-                        )}
-                      </div>
-                    )}
-                    <div className="text-xs text-gray-500">
+                    </div>
+                  )}
+                  {item.isBundle && (
+                    <div className="text-xs text-gray-500 mt-1">
                       Qty: {item.quantity} × {format(item.price)}
                     </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>

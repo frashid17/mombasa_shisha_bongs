@@ -20,6 +20,7 @@ import {
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Products', href: '/admin/products', icon: Package },
+  { name: 'Bundles', href: '/admin/bundles', icon: Package },
   { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
   { name: 'Scheduled Deliveries', href: '/admin/orders/scheduled', icon: Calendar },
   { name: 'Categories', href: '/admin/categories', icon: FolderTree },

@@ -50,81 +50,152 @@ export default function CartPage() {
             {items.length > 0 && (
               <div className="space-y-4">
                 {items.map((item) => (
-                  <div key={item.cartItemId || item.id} className="bg-white border border-gray-200 rounded-lg shadow-md p-4 flex gap-4 hover:border-red-300 transition-all duration-300">
-                    {item.image ? (
-                      <Image src={item.image} alt={item.name} width={100} height={100} className="rounded-lg object-cover" />
-                    ) : (
-                      <div className="w-24 h-24 bg-gray-100 rounded-lg" />
-                    )}
-                    <div className="flex-1">
-                      <h3 className="font-bold text-gray-900 mb-2">{item.name}</h3>
-                      <div className="space-y-1 mb-2">
-                        {item.colorName && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600 font-medium">Color:</span>
-                            <div className="flex items-center gap-2">
-                              {item.colorValue && (
-                                <div
-                                  className="w-4 h-4 rounded-full border-2 border-gray-300"
-                                  style={{ backgroundColor: item.colorValue }}
-                                />
-                              )}
-                              <span className="text-sm text-gray-800 font-semibold">{item.colorName}</span>
+                  <div key={item.cartItemId || item.id} className="bg-white border border-gray-200 rounded-lg shadow-md p-4 hover:border-red-300 transition-all duration-300">
+                    {item.isBundle ? (
+                      // Bundle Item Display
+                      <div className="space-y-4">
+                        <div className="flex gap-4">
+                          {item.image ? (
+                            <Image src={item.image} alt={item.name} width={100} height={100} className="rounded-lg object-cover" />
+                          ) : (
+                            <div className="w-24 h-24 bg-gray-100 rounded-lg" />
+                          )}
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h3 className="font-bold text-gray-900 mb-1">{item.name}</h3>
+                                <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-semibold">Bundle</span>
+                              </div>
+                              <p className="font-bold text-red-600 text-lg">
+                                {format(item.price * item.quantity)}
+                              </p>
+                            </div>
+                            {item.bundleDiscount && (
+                              <p className="text-sm text-green-600 font-semibold mb-2">
+                                You saved {format(item.bundleDiscount * item.quantity)}!
+                              </p>
+                            )}
+                            {item.bundleItems && item.bundleItems.length > 0 && (
+                              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                                <p className="text-xs font-semibold text-gray-700 mb-2">Bundle includes:</p>
+                                <ul className="space-y-1">
+                                  {item.bundleItems.map((bundleItem, idx) => (
+                                    <li key={idx} className="text-xs text-gray-600 flex items-center gap-2">
+                                      <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span>
+                                      Product {idx + 1} {bundleItem.quantity > 1 && `(x${bundleItem.quantity})`}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mt-4">
+                              <div className="flex items-center gap-2 border-2 border-gray-300 rounded-lg bg-gray-50">
+                                <button
+                                  onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity - 1)}
+                                  className="p-2 hover:bg-gray-200 text-gray-700 rounded-l-md transition-colors"
+                                  aria-label="Decrease quantity"
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className="px-4 py-2 text-gray-900 font-bold min-w-[3rem] text-center">{item.quantity}</span>
+                                <button
+                                  onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity + 1)}
+                                  className="p-2 hover:bg-gray-200 text-gray-700 rounded-r-md transition-colors"
+                                  aria-label="Increase quantity"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                              <button
+                                onClick={() => removeItem(item.cartItemId || item.id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                aria-label="Remove bundle"
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
                             </div>
                           </div>
+                        </div>
+                      </div>
+                    ) : (
+                      // Regular Product Item Display
+                      <div className="flex gap-4">
+                        {item.image ? (
+                          <Image src={item.image} alt={item.name} width={100} height={100} className="rounded-lg object-cover" />
+                        ) : (
+                          <div className="w-24 h-24 bg-gray-100 rounded-lg" />
                         )}
-                        {item.specName && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600 font-medium">{item.specType}:</span>
-                            <span className="text-sm text-gray-800 font-semibold">{item.specName}</span>
-                            {item.specValue && (
-                              <span className="text-xs text-gray-500">({item.specValue})</span>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-gray-900 mb-2">{item.name}</h3>
+                          <div className="space-y-1 mb-2">
+                            {item.colorName && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-600 font-medium">Color:</span>
+                                <div className="flex items-center gap-2">
+                                  {item.colorValue && (
+                                    <div
+                                      className="w-4 h-4 rounded-full border-2 border-gray-300"
+                                      style={{ backgroundColor: item.colorValue }}
+                                    />
+                                  )}
+                                  <span className="text-sm text-gray-800 font-semibold">{item.colorName}</span>
+                                </div>
+                              </div>
+                            )}
+                            {item.specName && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-600 font-medium">{item.specType}:</span>
+                                <span className="text-sm text-gray-800 font-semibold">{item.specName}</span>
+                                {item.specValue && (
+                                  <span className="text-xs text-gray-500">({item.specValue})</span>
+                                )}
+                              </div>
                             )}
                           </div>
-                        )}
-                      </div>
-                      <p className="text-red-600 font-bold text-lg mb-4">{format(item.price)}</p>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                        <div className="flex items-center gap-2 border-2 border-gray-300 rounded-lg bg-gray-50">
-                          <button
-                            onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity - 1)}
-                            className="p-2 hover:bg-gray-200 text-gray-700 rounded-l-md transition-colors"
-                            aria-label="Decrease quantity"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <span className="px-4 py-2 text-gray-900 font-bold min-w-[3rem] text-center">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity + 1)}
-                            className="p-2 hover:bg-gray-200 text-gray-700 rounded-r-md transition-colors"
-                            aria-label="Increase quantity"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
+                          <p className="text-red-600 font-bold text-lg mb-4">{format(item.price)}</p>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                            <div className="flex items-center gap-2 border-2 border-gray-300 rounded-lg bg-gray-50">
+                              <button
+                                onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity - 1)}
+                                className="p-2 hover:bg-gray-200 text-gray-700 rounded-l-md transition-colors"
+                                aria-label="Decrease quantity"
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+                              <span className="px-4 py-2 text-gray-900 font-bold min-w-[3rem] text-center">{item.quantity}</span>
+                              <button
+                                onClick={() => updateQuantity(item.cartItemId || item.id, item.quantity + 1)}
+                                className="p-2 hover:bg-gray-200 text-gray-700 rounded-r-md transition-colors"
+                                aria-label="Increase quantity"
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => saveForLater(item.cartItemId || item.id)}
+                                className="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                              >
+                                <Bookmark className="w-4 h-4" />
+                                Save for later
+                              </button>
+                              <button
+                                onClick={() => removeItem(item.cartItemId || item.id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                aria-label="Remove item"
+                              >
+                                <Trash2 className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => saveForLater(item.cartItemId || item.id)}
-                            className="flex items-center gap-2 px-3 py-2 text-xs sm:text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                          >
-                            <Bookmark className="w-4 h-4" />
-                            Save for later
-                          </button>
-                          <button
-                            onClick={() => removeItem(item.cartItemId || item.id)}
-                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                            aria-label="Remove item"
-                          >
-                            <Trash2 className="w-5 h-5" />
-                          </button>
+                        <div className="text-right">
+                          <p className="font-bold text-red-600 text-lg">
+                            {format(item.price * item.quantity)}
+                          </p>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-red-600 text-lg">
-                        {format(item.price * item.quantity)}
-                      </p>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>

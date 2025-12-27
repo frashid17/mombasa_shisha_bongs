@@ -20,7 +20,8 @@ export default function ConfirmDeliveryButton({
   const [error, setError] = useState('')
   const router = useRouter()
 
-  const canConfirm = orderStatus === 'SHIPPED' || orderStatus === 'DELIVERED'
+  // Allow clients to confirm delivery for any status except CANCELLED or REFUNDED
+  const canConfirm = orderStatus !== 'CANCELLED' && orderStatus !== 'REFUNDED' && orderStatus !== 'DELIVERED'
 
   const handleConfirm = async () => {
     if (!canConfirm) return
@@ -55,12 +56,12 @@ export default function ConfirmDeliveryButton({
 
   if (confirmed) {
     return (
-      <div className="bg-green-900/30 border border-green-700 rounded-lg p-4">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-center gap-3">
-          <CheckCircle className="w-5 h-5 text-green-400" />
+          <CheckCircle className="w-5 h-5 text-green-600" />
           <div>
-            <p className="text-green-300 font-semibold">Delivery Confirmed!</p>
-            <p className="text-green-400 text-sm">
+            <p className="text-green-800 font-semibold">Delivery Confirmed!</p>
+            <p className="text-green-700 text-sm">
               You can now review your items below.
             </p>
           </div>
@@ -78,7 +79,7 @@ export default function ConfirmDeliveryButton({
       <button
         onClick={handleConfirm}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? (
           <>
@@ -93,8 +94,8 @@ export default function ConfirmDeliveryButton({
         )}
       </button>
       {error && (
-        <div className="bg-red-900/30 border border-red-700 rounded-lg p-3">
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+          <p className="text-red-800 text-sm">{error}</p>
         </div>
       )}
     </div>

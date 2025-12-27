@@ -75,12 +75,12 @@ export default function ReviewForm({
 
   if (submitted) {
     return (
-      <div className="bg-green-900/30 border border-green-700 rounded-lg p-4">
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
         <div className="flex items-center gap-3">
-          <CheckCircle className="w-5 h-5 text-green-400" />
+          <CheckCircle className="w-5 h-5 text-green-600" />
           <div>
-            <p className="text-green-300 font-semibold">Review Submitted!</p>
-            <p className="text-green-400 text-sm">
+            <p className="text-green-800 font-semibold">Review Submitted!</p>
+            <p className="text-green-700 text-sm">
               Your review is now visible to other customers.
             </p>
           </div>
@@ -92,7 +92,7 @@ export default function ReviewForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-semibold text-white mb-2">
+        <label className="block text-sm font-semibold text-gray-900 mb-2">
           Rating *
         </label>
         <div className="flex items-center gap-2">
@@ -109,13 +109,13 @@ export default function ReviewForm({
                 className={`w-8 h-8 ${
                   star <= (hoveredRating || rating)
                     ? 'text-yellow-400 fill-yellow-400'
-                    : 'text-gray-600'
+                    : 'text-gray-300'
                 }`}
               />
             </button>
           ))}
           {rating > 0 && (
-            <span className="text-gray-400 text-sm ml-2">
+            <span className="text-gray-600 text-sm ml-2">
               {rating} {rating === 1 ? 'star' : 'stars'}
             </span>
           )}
@@ -123,7 +123,7 @@ export default function ReviewForm({
       </div>
 
       <div>
-        <label htmlFor="review-title" className="block text-sm font-semibold text-white mb-2">
+        <label htmlFor="review-title" className="block text-sm font-semibold text-gray-900 mb-2">
           Review Title (Optional)
         </label>
         <input
@@ -132,13 +132,13 @@ export default function ReviewForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={255}
-          className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+          className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-red-500 focus:outline-none"
           placeholder="e.g., Great product!"
         />
       </div>
 
       <div>
-        <label htmlFor="review-comment" className="block text-sm font-semibold text-white mb-2">
+        <label htmlFor="review-comment" className="block text-sm font-semibold text-gray-900 mb-2">
           Your Review * (min. 10 characters)
         </label>
         <textarea
@@ -149,10 +149,10 @@ export default function ReviewForm({
           minLength={10}
           maxLength={5000}
           required
-          className="w-full px-4 py-2 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none resize-none"
+          className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-red-500 focus:outline-none resize-none"
           placeholder="Share your experience with this product..."
         />
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-gray-600 mt-1">
           {comment.length}/5000 characters
         </p>
       </div>
@@ -163,23 +163,23 @@ export default function ReviewForm({
           id="is-anonymous"
           checked={isAnonymous}
           onChange={(e) => setIsAnonymous(e.target.checked)}
-          className="w-4 h-4 text-blue-600 bg-gray-800 border-gray-600 rounded focus:ring-blue-500"
+          className="w-4 h-4 text-red-600 bg-white border-gray-300 rounded focus:ring-red-500"
         />
-        <label htmlFor="is-anonymous" className="text-sm text-gray-300 cursor-pointer">
+        <label htmlFor="is-anonymous" className="text-sm text-gray-700 cursor-pointer">
           Post as Anonymous
         </label>
       </div>
 
       {error && (
-        <div className="bg-red-900/30 border border-red-700 rounded-lg p-3">
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+          <p className="text-red-800 text-sm">{error}</p>
         </div>
       )}
 
       <button
         type="submit"
         disabled={loading || rating === 0 || comment.length < 10}
-        className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full flex items-center justify-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? (
           <>

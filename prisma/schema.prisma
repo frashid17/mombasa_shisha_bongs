@@ -105,6 +105,7 @@ model ProductColor {
   updatedAt  DateTime    @updatedAt
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
+  bundleItems ProductBundleItem[]
 
   @@index([productId])
   @@index([isActive])
@@ -123,6 +124,7 @@ model ProductSpecification {
   updatedAt  DateTime    @updatedAt
   product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
+  bundleItems ProductBundleItem[]
 
   @@index([productId])
   @@index([type])
@@ -134,6 +136,7 @@ model ProductBundle {
   id          String   @id @default(cuid())
   name        String
   description String?  @db.Text
+  image       String?  // Bundle featured image
   price       Decimal  @db.Decimal(10, 2) // Bundle price (usually discounted)
   discount    Decimal? @db.Decimal(10, 2) // Discount amount
   isActive    Boolean  @default(true)
@@ -150,12 +153,20 @@ model ProductBundleItem {
   bundleId    String
   productId   String
   quantity    Int           @default(1)
+  colorId     String?      // Optional: pre-selected color
+  specId      String?      // Optional: pre-selected spec
+  allowColorSelection Boolean @default(true) // Allow customer to choose color
+  allowSpecSelection  Boolean @default(true) // Allow customer to choose spec
   bundle      ProductBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
   product     Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  color       ProductColor? @relation(fields: [colorId], references: [id], onDelete: SetNull)
+  specification ProductSpecification? @relation(fields: [specId], references: [id], onDelete: SetNull)
 
   @@unique([bundleId, productId])
   @@index([bundleId])
   @@index([productId])
+  @@index([colorId])
+  @@index([specId])
   @@map("product_bundle_items")
 }
 
