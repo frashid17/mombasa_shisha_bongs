@@ -18,8 +18,8 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content - Scrollable with left margin for sidebar */}
-      <main className="lg:ml-64 min-h-screen" style={{ paddingTop: '5rem' }}>
-        <div className="max-w-7xl mx-auto w-full p-3 sm:p-4 md:p-6 lg:p-8">
+      <main className="lg:ml-64 min-h-screen" style={{ paddingTop: '4rem' }}>
+        <div className="max-w-7xl mx-auto w-full p-2 sm:p-3 md:p-4 lg:p-6 xl:p-8">
           {children}
         </div>
       </main>

@@ -59,9 +59,9 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed left-0 top-16 z-40
+          fixed left-0 top-14 sm:top-16 z-40
           w-64 bg-white border-r border-gray-200
-          h-[calc(100vh-4rem)]
+          h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)]
           overflow-y-auto
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}
           transform transition-transform duration-300 ease-in-out
@@ -69,18 +69,18 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
         `}
       >
         {/* Mobile Header */}
-        <div className="lg:hidden flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900">Menu</h2>
+        <div className="lg:hidden flex items-center justify-between p-3 sm:p-4 border-b border-gray-200">
+          <h2 className="text-base sm:text-lg font-bold text-gray-900">Menu</h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+            className="p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
             aria-label="Close menu"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
 
-        <nav className="p-4 space-y-1">
+        <nav className="p-2 sm:p-4 space-y-1">
           {navigation.map((item) => {
             const isActive = pathname === item.href || pathname?.startsWith(item.href + '/')
             const Icon = item.icon
@@ -91,7 +91,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={`
-                  flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-colors
+                  flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-colors
                   ${
                     isActive
                       ? 'bg-red-50 text-red-700'
@@ -99,7 +99,7 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
                   }
                 `}
               >
-                <Icon className="w-5 h-5" />
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                 {item.name}
               </Link>
             )

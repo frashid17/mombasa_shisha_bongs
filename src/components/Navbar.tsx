@@ -352,20 +352,20 @@ export default function Navbar() {
 
         {/* Red Navigation Bar - Unified Card */}
         <div className="bg-red-600 text-white">
-          <div className="container mx-auto px-4">
+          <div className="container mx-auto px-2 sm:px-4">
             {/* Navigation Links */}
-            <div className="flex items-center justify-center gap-1 md:gap-0 border-b border-red-500/30">
-              <Link href="/products" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">
+            <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 border-b border-red-500/30 overflow-x-auto scrollbar-hide">
+              <Link href="/products" className="font-bold uppercase px-3 sm:px-4 py-3 hover:bg-red-700 transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap flex-shrink-0">
                 Products
               </Link>
-              <Link href="/categories" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">
+              <Link href="/categories" className="font-bold uppercase px-3 sm:px-4 py-3 hover:bg-red-700 transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap flex-shrink-0">
                 Categories
               </Link>
-              <Link href="/bundles" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">
+              <Link href="/bundles" className="font-bold uppercase px-3 sm:px-4 py-3 hover:bg-red-700 transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap flex-shrink-0">
                 Bundles
               </Link>
               {isSignedIn && (
-                <Link href="/orders" className="font-bold uppercase px-4 py-3 hover:bg-red-700 transition-colors text-sm md:text-base">
+                <Link href="/orders" className="font-bold uppercase px-3 sm:px-4 py-3 hover:bg-red-700 transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap flex-shrink-0">
                   My Orders
                 </Link>
               )}

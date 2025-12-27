@@ -108,39 +108,39 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
   return (
     <header className="bg-white border-b border-gray-200 z-50">
-      <div className="flex items-center justify-between h-16 px-4 lg:px-8">
+      <div className="flex items-center justify-between h-14 sm:h-16 px-2 sm:px-4 lg:px-8">
         {/* Mobile Menu Button & Logo */}
-        <div className="flex items-center gap-3 lg:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+            className="lg:hidden p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
             aria-label="Open menu"
           >
-            <Menu className="w-6 h-6" />
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
-          <Link href="/admin" className="flex items-center gap-2">
-            <Store className="w-6 h-6 lg:w-8 lg:h-8 text-red-600" />
+          <Link href="/admin" className="flex items-center gap-1.5 sm:gap-2">
+            <Store className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-red-600" />
             <div className="hidden sm:block">
-              <h1 className="text-base lg:text-lg font-bold text-gray-900">
+              <h1 className="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
                 Mombasa Shisha Bongs
               </h1>
-              <p className="text-xs text-gray-500">Admin Dashboard</p>
+              <p className="text-[10px] sm:text-xs text-gray-500">Admin Dashboard</p>
             </div>
             <div className="sm:hidden">
-              <h1 className="text-sm font-bold text-gray-900">MSB Admin</h1>
+              <h1 className="text-xs sm:text-sm font-bold text-gray-900">MSB Admin</h1>
             </div>
           </Link>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-2 lg:gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-4">
           {/* View Store Button */}
           <Link
             href="/"
             // target="_blank"
-            className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap"
+            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 bg-red-600 text-white text-xs sm:text-sm font-medium rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap"
           >
-            <Store className="w-4 h-4" />
+            <Store className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="hidden sm:inline">View Store</span>
           </Link>
 
@@ -148,12 +148,12 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              className="relative p-1.5 sm:p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Notifications"
             >
-              <Bell className="w-5 h-5" />
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-semibold">
+                <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 w-4 h-4 sm:w-5 sm:h-5 bg-red-500 text-white text-[10px] sm:text-xs rounded-full flex items-center justify-center font-semibold">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -251,7 +251,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
             afterSignOutUrl="/sign-in"
             appearance={{
               elements: {
-                avatarBox: 'w-10 h-10',
+                avatarBox: 'w-8 h-8 sm:w-10 sm:h-10',
               },
             }}
           />

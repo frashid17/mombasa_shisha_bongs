@@ -141,6 +141,7 @@ export default async function RootLayout({
     >
       <html lang="en" suppressHydrationWarning>
         <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
           <link rel="icon" href="/uploads/hookah.svg" type="image/svg+xml" />
           <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
           <link rel="apple-touch-icon" href="/uploads/hookah.svg" />

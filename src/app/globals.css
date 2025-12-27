@@ -69,11 +69,55 @@
 
 /* Light theme by default - no dark mode override */
 
+/* Prevent horizontal scrolling and layout shifts on mobile */
+html {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+  /* Prevent bounce/rubber band effect on iOS */
+  overscroll-behavior: none;
+  /* Prevent page from moving with finger - only allow vertical scrolling */
+  touch-action: pan-y pinch-zoom;
+}
+
 body {
   background: #ffffff !important;
   color: #1a1a1a !important;
   font-family: var(--font-geist-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.6;
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+  /* Prevent page from moving with finger - only allow vertical scrolling */
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+* {
+  box-sizing: border-box;
+  /* Prevent text selection on touch drag (but allow normal selection) */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Ensure containers don't exceed viewport width */
+.container,
+.container-fluid {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Prevent images from causing horizontal scroll */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure main content area doesn't move with touch */
+main,
+[role="main"] {
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-y: contain;
 }
 
 /* Ensure light mode has white background everywhere */

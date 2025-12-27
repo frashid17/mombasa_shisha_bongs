@@ -91,12 +91,12 @@ async function getAnalytics() {
     withRetry(() =>
       prisma.$queryRaw<Array<{ month: string; revenue: number }>>`
         SELECT 
-          TO_CHAR(created_at, 'YYYY-MM') as month,
+          TO_CHAR("createdAt", 'YYYY-MM') as month,
           COALESCE(SUM(total), 0)::decimal as revenue
         FROM orders
-        WHERE payment_status = 'PAID'
-          AND created_at >= NOW() - INTERVAL '6 months'
-        GROUP BY TO_CHAR(created_at, 'YYYY-MM')
+        WHERE "paymentStatus" = 'PAID'
+          AND "createdAt" >= NOW() - INTERVAL '6 months'
+        GROUP BY TO_CHAR("createdAt", 'YYYY-MM')
         ORDER BY month DESC
         LIMIT 6
       `
@@ -155,6 +155,12 @@ async function getAnalytics() {
       ? ((ordersLast30Days - ordersPrevious30Days) / ordersPrevious30Days) * 100
       : 0
 
+  // Convert revenueByMonth Decimal values to numbers
+  const revenueByMonthSerialized = revenueByMonth.map((item) => ({
+    month: item.month,
+    revenue: Number(item.revenue),
+  }))
+
   return {
     totalRevenue: totalRevenueValue,
     totalOrders,
@@ -166,7 +172,7 @@ async function getAnalytics() {
     ordersGrowth,
     averageOrderValue: Number(averageOrderValue._avg.total || 0),
     topProducts: topProductsWithDetails,
-    revenueByMonth: revenueByMonth.reverse(),
+    revenueByMonth: revenueByMonthSerialized.reverse(),
   }
 }
 
@@ -174,25 +180,25 @@ export default async function AnalyticsPage() {
   const analytics = await getAnalytics()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Advanced Analytics</h1>
-        <p className="text-gray-700 mt-1">Comprehensive insights into your business performance</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Advanced Analytics</h1>
+        <p className="text-sm sm:text-base text-gray-700 mt-1">Comprehensive insights into your business performance</p>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-semibold text-gray-600 mb-2">Total Revenue</h3>
-          <p className="text-2xl font-bold text-gray-900">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-5 md:p-6">
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2">Total Revenue</h3>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900">
             KES {analytics.totalRevenue.toLocaleString()}
           </p>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
             Last 30 days: KES {analytics.revenueLast30Days.toLocaleString()}
           </p>
           {analytics.revenueGrowth !== 0 && (
             <p
-              className={`text-sm mt-1 font-semibold ${
+              className={`text-xs sm:text-sm mt-1 font-semibold ${
                 analytics.revenueGrowth > 0 ? 'text-green-600' : 'text-red-600'
               }`}
             >
@@ -201,15 +207,15 @@ export default async function AnalyticsPage() {
             </p>
           )}
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-semibold text-gray-600 mb-2">Total Orders</h3>
-          <p className="text-2xl font-bold text-gray-900">{analytics.totalOrders}</p>
-          <p className="text-sm text-gray-500 mt-1">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-5 md:p-6">
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2">Total Orders</h3>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.totalOrders}</p>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">
             Last 30 days: {analytics.ordersLast30Days}
           </p>
           {analytics.ordersGrowth !== 0 && (
             <p
-              className={`text-sm mt-1 font-semibold ${
+              className={`text-xs sm:text-sm mt-1 font-semibold ${
                 analytics.ordersGrowth > 0 ? 'text-green-600' : 'text-red-600'
               }`}
             >
@@ -218,17 +224,17 @@ export default async function AnalyticsPage() {
             </p>
           )}
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-semibold text-gray-600 mb-2">Average Order Value</h3>
-          <p className="text-2xl font-bold text-gray-900">
+        <div className="bg-white rounded-lg shadow p-4 sm:p-5 md:p-6">
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2">Average Order Value</h3>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900">
             KES {analytics.averageOrderValue.toLocaleString()}
           </p>
-          <p className="text-sm text-gray-500 mt-1">Per order</p>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">Per order</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-sm font-semibold text-gray-600 mb-2">Active Products</h3>
-          <p className="text-2xl font-bold text-gray-900">{analytics.totalProducts}</p>
-          <p className="text-sm text-gray-500 mt-1">Currently available</p>
+        <div className="bg-white rounded-lg shadow p-4 sm:p-5 md:p-6">
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-600 mb-1 sm:mb-2">Active Products</h3>
+          <p className="text-xl sm:text-2xl font-bold text-gray-900">{analytics.totalProducts}</p>
+          <p className="text-xs sm:text-sm text-gray-500 mt-1">Currently available</p>
         </div>
       </div>
 
