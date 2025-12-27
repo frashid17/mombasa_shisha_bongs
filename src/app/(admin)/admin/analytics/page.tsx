@@ -119,9 +119,26 @@ async function getAnalytics() {
 
   const topProductsWithDetails = topProducts.map((item) => {
     const product = products.find((p) => p.id === item.productId)
+    // Handle Prisma Decimal types and null values
+    const quantity = item._sum.quantity ?? 0
+    const price = item._sum.price ? Number(item._sum.price) : 0
+    const count = item._count.productId ?? 0
+    
     return {
-      ...item,
-      product: product || null,
+      productId: item.productId,
+      _sum: {
+        quantity,
+        price,
+      },
+      _count: {
+        productId: count,
+      },
+      product: product ? {
+        id: product.id,
+        name: product.name,
+        featuredImage: product.featuredImage,
+        price: Number(product.price),
+      } : null,
     }
   })
 
