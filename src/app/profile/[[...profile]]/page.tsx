@@ -10,20 +10,20 @@ export default function ProfilePage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-gray-900">Loading...</div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <p className="text-white mb-4">Please sign in to view your profile</p>
+          <p className="text-gray-900 mb-4">Please sign in to view your profile</p>
           <Link
             href="/sign-in"
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
+            className="inline-block bg-red-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700"
           >
             Sign In
           </Link>
@@ -33,19 +33,19 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="mb-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 mb-4 transition-colors"
+            className="inline-flex items-center gap-2 text-red-600 hover:text-red-700 mb-4 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
-          <h1 className="text-3xl font-bold text-white mb-2">My Profile</h1>
-          <p className="text-gray-400">Manage your account settings, profile information, and security</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Profile</h1>
+          <p className="text-gray-600">Manage your account settings, profile information, and security</p>
         </div>
 
         {/* Clerk UserProfile Component */}
@@ -62,9 +62,9 @@ export default function ProfilePage() {
                 // Navigation
                 navbar: 'bg-white border-gray-200',
                 navbarButton: 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-colors rounded-lg',
-                navbarButtonActive: 'text-blue-600 bg-gray-50 border-blue-600',
+                navbarButtonActive: 'text-red-600 bg-red-50 border-red-600',
                 navbarButtonText: 'text-gray-600',
-                navbarButtonTextActive: 'text-blue-600',
+                navbarButtonTextActive: 'text-red-600',
                 
                 // Page content
                 page: 'bg-white',
@@ -77,8 +77,8 @@ export default function ProfilePage() {
                 // Forms
                 form: 'bg-white',
                 formField: 'bg-white',
-                formFieldInput: 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500',
-                formFieldInputShowPasswordButton: 'text-blue-600 hover:text-blue-700',
+                formFieldInput: 'bg-white border-gray-300 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:ring-red-500',
+                formFieldInputShowPasswordButton: 'text-red-600 hover:text-red-700',
                 formFieldLabel: 'text-gray-700 font-semibold',
                 formFieldLabelText: 'text-gray-700',
                 formFieldSuccessText: 'text-green-600',
@@ -87,25 +87,25 @@ export default function ProfilePage() {
                 formFieldInputGroup: 'bg-white border-gray-300',
                 
                 // Buttons
-                formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors',
+                formButtonPrimary: 'bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors',
                 formButtonSecondary: 'bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg transition-colors',
                 formButtonReset: 'text-red-600 hover:text-red-700 rounded-lg transition-colors',
                 formButtonText: 'text-white',
                 
                 // Avatar
-                avatarBox: 'w-24 h-24 border-2 border-blue-400',
+                avatarBox: 'w-24 h-24 border-2 border-red-400',
                 avatarImage: 'rounded-full',
                 
                 // Identity preview
                 identityPreview: 'bg-gray-50 border-gray-200 rounded-lg',
                 identityPreviewText: 'text-gray-900',
-                identityPreviewEditButton: 'text-blue-600 hover:text-blue-700 bg-white hover:bg-gray-50 rounded-lg',
+                identityPreviewEditButton: 'text-red-600 hover:text-red-700 bg-white hover:bg-gray-50 rounded-lg',
                 identityPreviewTextIdentifier: 'text-gray-600',
                 
                 // Links
-                formResendCodeLink: 'text-blue-600 hover:text-blue-700',
-                linkButton: 'text-blue-600 hover:text-blue-700',
-                linkButtonText: 'text-blue-600',
+                formResendCodeLink: 'text-red-600 hover:text-red-700',
+                linkButton: 'text-red-600 hover:text-red-700',
+                linkButtonText: 'text-red-600',
                 
                 // Dividers
                 dividerLine: 'bg-gray-200',
@@ -118,7 +118,7 @@ export default function ProfilePage() {
                 alertTextWarning: 'text-yellow-600',
                 
                 // Badges
-                badge: 'bg-blue-600 text-white rounded-full',
+                badge: 'bg-red-600 text-white rounded-full',
                 badgeText: 'text-white',
                 
                 // Sections
@@ -158,8 +158,8 @@ export default function ProfilePage() {
                 selectOption: 'bg-white text-gray-900 hover:bg-gray-50',
                 
                 // Checkboxes and radios
-                formFieldInputRadio: 'text-blue-600',
-                formFieldInputCheckbox: 'text-blue-600',
+                formFieldInputRadio: 'text-red-600',
+                formFieldInputCheckbox: 'text-red-600',
                 
                 // Footer
                 footer: 'hidden',
@@ -169,7 +169,7 @@ export default function ProfilePage() {
                 
                 // Additional elements
                 breadcrumbs: 'text-gray-500',
-                breadcrumbItem: 'text-gray-500 hover:text-blue-600',
+                breadcrumbItem: 'text-gray-500 hover:text-red-600',
                 breadcrumbItemText: 'text-gray-500',
                 breadcrumbItemTextActive: 'text-gray-900',
                 
@@ -182,11 +182,11 @@ export default function ProfilePage() {
                 phoneInputInput: 'text-gray-900',
                 
                 // Code input
-                otpCodeFieldInput: 'bg-white border-gray-300 text-gray-900 focus:border-blue-500',
+                otpCodeFieldInput: 'bg-white border-gray-300 text-gray-900 focus:border-red-500',
                 
                 // File upload
                 fileDropAreaBox: 'bg-gray-50 border-gray-300 border-dashed',
-                fileDropAreaButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-white',
+                fileDropAreaButtonPrimary: 'bg-red-600 hover:bg-red-700 text-white',
               },
             }}
             routing="path"
@@ -195,8 +195,8 @@ export default function ProfilePage() {
         </div>
 
         {/* Info Note */}
-        <div className="mt-6 bg-blue-900/20 border border-blue-700 rounded-lg p-4">
-          <p className="text-blue-300 text-sm">
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800 text-sm">
             <strong>Note:</strong> You can update your name, email, password, and profile picture using the tabs above. 
             Account deletion is available in the "Account" section under "Danger Zone".
           </p>
