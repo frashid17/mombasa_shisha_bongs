@@ -5,8 +5,9 @@ import { headers } from "next/headers";
 import { Suspense } from "react";
 import "./globals.css";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
-import Footer from "@/components/Footer";
+import ConditionalFooter from "@/components/ConditionalFooter";
 import AgeVerification from "@/components/AgeVerification";
+import prisma from "@/lib/prisma";
 import FloatingContactButtons from "@/components/FloatingContactButtons";
 import PageLoader from "@/components/PageLoader";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
@@ -118,18 +119,25 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let pathname = ''
   let isAdminRoute = false
   
   try {
     const headersList = await headers()
-    pathname = headersList.get('x-pathname') || ''
+    // Get pathname from middleware header
+    const pathname = headersList.get('x-pathname') || ''
+    
+    // Check if it's an admin route
     isAdminRoute = pathname.startsWith('/admin')
   } catch (error) {
     // Fallback if headers() fails - assume not admin route
-    console.error('Error reading headers:', error)
     isAdminRoute = false
   }
+
+  // Fetch categories for footer (only if not admin route)
+  const categories = !isAdminRoute ? await prisma.category.findMany({
+    take: 6,
+    orderBy: { name: 'asc' },
+  }) : []
 
   return (
     <ClerkProvider
@@ -160,7 +168,7 @@ export default async function RootLayout({
             {children}
             {!isAdminRoute && (
               <Suspense fallback={<div className="h-64 bg-gray-900" />}>
-                <Footer />
+                <ConditionalFooter categories={categories} />
               </Suspense>
             )}
             {!isAdminRoute && <InstallPrompt />}
