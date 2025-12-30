@@ -31,6 +31,11 @@ export function serializeProduct(product: any) {
     length: product.length ? decimalToNumber(product.length) : null,
     width: product.width ? decimalToNumber(product.width) : null,
     height: product.height ? decimalToNumber(product.height) : null,
+    // Serialize specifications with price
+    specifications: product.specifications ? product.specifications.map((spec: any) => ({
+      ...spec,
+      price: spec.price ? decimalToNumber(spec.price) : null,
+    })) : [],
     // Keep other fields as-is
     images: product.images || [],
     category: product.category || null,
