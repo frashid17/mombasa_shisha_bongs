@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { ArrowLeft, X } from 'lucide-react'
 
 async function getOrders(userId?: string) {
-  return prisma.order.findMany({
+  const orders = await prisma.order.findMany({
     where: userId ? { userId } : undefined,
     include: {
       items: true,
@@ -13,6 +13,25 @@ async function getOrders(userId?: string) {
     orderBy: { createdAt: 'desc' },
     take: 200, // Limit to the 200 most recent orders to avoid unbounded queries
   })
+
+  // Serialize Decimal values to numbers for client component
+  return orders.map(order => ({
+    ...order,
+    subtotal: Number(order.subtotal),
+    deliveryFee: Number(order.deliveryFee),
+    tax: Number(order.tax),
+    discount: Number(order.discount),
+    total: Number(order.total),
+    items: order.items.map(item => ({
+      ...item,
+      price: Number(item.price),
+      subtotal: Number(item.subtotal),
+    })),
+    payment: order.payment ? {
+      ...order.payment,
+      amount: Number(order.payment.amount),
+    } : null,
+  }))
 }
 
 async function getCustomerInfo(userId: string) {
