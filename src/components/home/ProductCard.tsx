@@ -8,6 +8,15 @@ import { useCurrency } from '@/contexts/CurrencyContext'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
 
+interface Specification {
+  id: string
+  type: string
+  name: string
+  value: string | null
+  price: number | null
+  isActive: boolean
+}
+
 interface ProductCardProps {
   product: {
     id: string
@@ -22,6 +31,7 @@ interface ProductCardProps {
     slug?: string
     averageRating?: number
     reviewCount?: number
+    specifications?: Specification[]
   }
   index?: number
 }
@@ -43,9 +53,18 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   // The format function now uses formatCurrency consistently on both server and client
   const { format } = useCurrency()
   
-  const hasDiscount = product.compareAtPrice && product.compareAtPrice > product.price
+  // Calculate display price - use lowest spec price if available, otherwise base price
+  const priceAllowedTypes = ['Size', 'Weight', 'Volume']
+  const specPrices = product.specifications
+    ?.filter(s => s.isActive && priceAllowedTypes.includes(s.type) && s.price !== null)
+    .map(s => s.price!) || []
+  
+  const lowestSpecPrice = specPrices.length > 0 ? Math.min(...specPrices) : null
+  const displayPrice = lowestSpecPrice !== null ? lowestSpecPrice : product.price
+  
+  const hasDiscount = product.compareAtPrice && product.compareAtPrice > displayPrice
   const discountPercent = hasDiscount
-    ? Math.round(((Number(product.compareAtPrice) - product.price) / Number(product.compareAtPrice)) * 100)
+    ? Math.round(((Number(product.compareAtPrice) - displayPrice) / Number(product.compareAtPrice)) * 100)
     : 0
 
   const handleQuickAddToCart = async (e: React.MouseEvent) => {
@@ -134,7 +153,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         {/* Price - VapeSoko Style */}
         <div className="mb-4">
           <div className="flex items-center gap-2">
-            <p className="text-gray-900 font-bold text-lg">{format(product.price)}</p>
+            <p className="text-gray-900 font-bold text-lg">{format(displayPrice)}</p>
             {hasDiscount && (
               <p className="text-red-600 text-sm line-through">
                 Was {format(Number(product.compareAtPrice))}
