@@ -118,6 +118,7 @@ model ProductSpecification {
   type       String      // e.g., "Size", "Flavor", "Weight"
   name       String      // e.g., "250g", "Mint", "Gum with Mint"
   value      String?     // Optional value (e.g., "250" for size)
+  price      Decimal?    @db.Decimal(10, 2) // Optional price override for this spec (for Size, Weight, Volume)
   isActive   Boolean     @default(true)
   position   Int         @default(0) // For ordering
   createdAt  DateTime    @default(now())
