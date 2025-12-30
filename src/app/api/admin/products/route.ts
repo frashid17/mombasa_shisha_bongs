@@ -11,12 +11,22 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { images, ...productData } = body
     
-    // Generate slug from name if not provided
+    // Generate unique slug from name if not provided
     if (!productData.slug && productData.name) {
-      productData.slug = productData.name
+      let baseSlug = productData.name
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
+      
+      // Ensure slug is unique
+      let slug = baseSlug
+      let counter = 1
+      while (await prisma.product.findUnique({ where: { slug } })) {
+        slug = `${baseSlug}-${counter}`
+        counter++
+      }
+      
+      productData.slug = slug
     }
     
     const data = createProductSchema.parse(productData)
