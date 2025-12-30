@@ -12,18 +12,29 @@ interface Color {
   isActive: boolean
 }
 
+interface Specification {
+  id: string
+  type: string
+  name: string
+  value: string | null
+  price: number | null
+  isActive: boolean
+}
+
 export default function BuyNowButton({ 
   product, 
   colors = [],
   selectedColorId = null,
   selectedSpecId = null,
-  specs = []
+  specs = [],
+  overridePrice = null
 }: { 
   product: any
   colors?: Color[]
   selectedColorId?: string | null
   selectedSpecId?: string | null
-  specs?: Array<{ id: string; type: string; name: string; value: string | null }>
+  specs?: Specification[]
+  overridePrice?: number | null
 }) {
   const [loading, setLoading] = useState(false)
   const [selectedColor, setSelectedColor] = useState<Color | null>(null)
@@ -60,11 +71,15 @@ export default function BuyNowButton({
     }
 
     setLoading(true)
+    
+    // Use override price (from spec) if available, otherwise use product price
+    const finalPrice = overridePrice !== null ? overridePrice : Number(product.price)
+    
     // Add item to cart
     addItem({
       id: product.id,
       name: product.name,
-      price: product.price,
+      price: finalPrice,
       image: product.images[0]?.url,
       colorId: selectedColorId || null,
       colorName: selectedColor?.name || null,
