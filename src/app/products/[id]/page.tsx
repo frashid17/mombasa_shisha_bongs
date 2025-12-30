@@ -13,7 +13,7 @@ import CustomersAlsoBought from '@/components/products/CustomersAlsoBought'
 import StockNotificationButton from '@/components/products/StockNotificationButton'
 import SocialShareButtons from '@/components/products/SocialShareButtons'
 import TrackProductView from '@/components/products/TrackProductView'
-import PriceDisplay from '@/components/products/PriceDisplay'
+import ProductPriceWrapper from '@/components/products/ProductPriceWrapper'
 import ProductImageCarousel from '@/components/products/ProductImageCarousel'
 import { getRecommendedProducts } from '@/lib/recommendations'
 import { serializeProduct, serializeProducts } from '@/lib/prisma-serialize'
@@ -115,6 +115,16 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
   // Serialize product to convert Decimal fields to numbers for Client Components
   const serializedProduct = serializeProduct(product)
   const serializedRecommendations = serializeProducts(recommendations)
+  
+  // Ensure specifications include price field
+  const serializedSpecs = product.specifications?.map((spec: any) => ({
+    id: spec.id,
+    type: spec.type,
+    name: spec.name,
+    value: spec.value,
+    price: spec.price ? Number(spec.price) : null,
+    isActive: spec.isActive,
+  })) || []
 
   const breadcrumbs = [
     { name: 'Home', url: '/' },
@@ -145,13 +155,12 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <p className="text-red-600 mb-2 uppercase text-sm font-semibold">{product.category.name}</p>
           )}
           <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.name}</h1>
-          <div className="mb-6">
-            <PriceDisplay 
-              price={Number(product.price)} 
-              compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
-              size="xl"
-            />
-          </div>
+          <ProductPriceWrapper
+            basePrice={Number(product.price)}
+            compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
+            specs={serializedSpecs}
+          >
+          </ProductPriceWrapper>
 
           {product.description && (
             <div className="mb-6">
@@ -171,23 +180,27 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
           {/* Action Buttons - Like Screenshot */}
           {product.stock > 0 && (
-            <>
+            <ProductPriceWrapper
+              basePrice={Number(product.price)}
+              compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
+              specs={serializedSpecs}
+            >
               {(product.colors && product.colors.length > 0) || 
-               (product.specifications && product.specifications.length > 0) ? (
+               (serializedSpecs && serializedSpecs.length > 0) ? (
                 <div className="mt-6">
                   {product.colors && product.colors.length > 0 && (
                     <ProductColorSelectorWrapper
                       productId={product.id}
                       colors={product.colors || []}
                       product={serializedProduct}
-                      specs={product.specifications || []}
+                      specs={serializedSpecs}
                     />
                   )}
-                  {product.specifications && product.specifications.length > 0 && 
+                  {serializedSpecs && serializedSpecs.length > 0 && 
                    (!product.colors || product.colors.length === 0) && (
                     <ProductSpecSelectorWrapper
                       productId={product.id}
-                      specs={product.specifications || []}
+                      specs={serializedSpecs}
                       product={serializedProduct}
                     />
                   )}
@@ -198,7 +211,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   <AddToWishlistButton product={serializedProduct} />
                 </div>
               )}
-            </>
+            </ProductPriceWrapper>
           )}
 
           <div className="mt-4">
