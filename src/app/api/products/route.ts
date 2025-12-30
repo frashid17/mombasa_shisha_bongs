@@ -53,7 +53,14 @@ export async function GET(req: Request) {
         image: product.images[0]?.url || product.featuredImage,
         category: product.category,
         colors: product.colors,
-        specifications: product.specifications,
+        specifications: product.specifications.map((spec: any) => ({
+          id: spec.id,
+          type: spec.type,
+          name: spec.name,
+          value: spec.value,
+          price: spec.price ? Number(spec.price) : null,
+          isActive: spec.isActive,
+        })),
       })),
     })
   } catch (error: any) {
