@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useCurrency } from '@/contexts/CurrencyContext'
 
 interface Specification {
   id: string
   type: string
   name: string
   value: string | null
+  price: number | null
   isActive: boolean
 }
 
@@ -15,6 +17,7 @@ interface SpecSelectorProps {
   specs: Specification[]
   selectedSpecId: string | null
   onSpecChange: (specId: string | null) => void
+  onPriceChange?: (price: number | null) => void
   required?: boolean
 }
 
@@ -23,9 +26,14 @@ export default function SpecSelector({
   specs,
   selectedSpecId,
   onSpecChange,
+  onPriceChange,
   required = false,
 }: SpecSelectorProps) {
   const [selectedId, setSelectedId] = useState<string | null>(selectedSpecId || null)
+  const { format } = useCurrency()
+  
+  // Types that allow pricing
+  const priceAllowedTypes = ['Size', 'Weight', 'Volume']
 
   useEffect(() => {
     setSelectedId(selectedSpecId || null)
@@ -47,6 +55,12 @@ export default function SpecSelector({
   const handleSpecSelect = (specId: string) => {
     setSelectedId(specId)
     onSpecChange(specId)
+    
+    // Notify parent of price change if callback provided
+    if (onPriceChange) {
+      const selectedSpec = specs.find(s => s.id === specId)
+      onPriceChange(selectedSpec?.price ?? null)
+    }
   }
 
   return (
@@ -71,10 +85,17 @@ export default function SpecSelector({
                   }
                 `}
               >
-                {spec.name}
-                {spec.value && (
-                  <span className="text-xs opacity-75 ml-1">({spec.value})</span>
-                )}
+                <div className="flex items-center gap-2">
+                  <span>{spec.name}</span>
+                  {spec.value && (
+                    <span className="text-xs opacity-75">({spec.value})</span>
+                  )}
+                  {spec.price !== null && priceAllowedTypes.includes(spec.type) && (
+                    <span className="text-xs font-semibold text-green-600 ml-1">
+                      {format(spec.price)}
+                    </span>
+                  )}
+                </div>
                 {selectedId === spec.id && (
                   <svg
                     className="w-4 h-4 inline ml-2 text-red-600"
