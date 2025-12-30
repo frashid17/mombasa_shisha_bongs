@@ -33,6 +33,7 @@ type DraftSpec = {
   type: string
   name: string
   value: string | null
+  price: number | null
   position: number
 }
 
@@ -249,6 +250,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
                       type: spec.type,
                       name: spec.name,
                       value: spec.value,
+                      price: spec.price,
                       position: spec.position + index,
                     }),
                   })
@@ -717,6 +719,7 @@ function DraftSpecsManager({
     type: 'Size', 
     name: '', 
     value: '',
+    price: '',
     position: 0 
   })
 
@@ -745,16 +748,20 @@ function DraftSpecsManager({
       return
     }
 
+    // Determine if price should be allowed for this type
+    const priceValue = allowPrice && formData.price.trim() ? parseFloat(formData.price.trim()) : null
+
     // Add all specifications
     const newSpecs = names.map((name, index) => ({
       type: formData.type,
       name: name,
       value: formData.value.trim() || null,
+      price: priceValue,
       position: formData.position + index,
     }))
 
     onSpecsChange([...specs, ...newSpecs])
-    setFormData({ type: 'Size', name: '', value: '', position: 0 })
+    setFormData({ type: 'Size', name: '', value: '', price: '', position: 0 })
     setShowAddForm(false)
   }
 
@@ -764,6 +771,10 @@ function DraftSpecsManager({
 
   const selectedType = specTypes.find(t => t.value === formData.type)
   const commonValues = selectedType?.commonValues || []
+  
+  // Types that allow pricing
+  const priceAllowedTypes = ['Size', 'Weight', 'Volume']
+  const allowPrice = priceAllowedTypes.includes(formData.type)
 
   // Group specs by type
   const specsByType = specs.reduce((acc, spec) => {
@@ -828,18 +839,40 @@ function DraftSpecsManager({
               </div>
             </div>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Value (Optional)
-              <span className="text-gray-500 font-normal ml-1">- Additional info</span>
-            </label>
-            <input
-              type="text"
-              value={formData.value}
-              onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-              placeholder="Optional value"
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Value (Optional)
+                <span className="text-gray-500 font-normal ml-1">- Additional info</span>
+              </label>
+              <input
+                type="text"
+                value={formData.value}
+                onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                placeholder="Optional value"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
+              />
+            </div>
+            {allowPrice && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Price (Optional)
+                  <span className="text-gray-500 font-normal ml-1">- Override product price</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  placeholder="e.g., 1500.00"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave empty to use product base price
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
             <button
@@ -853,7 +886,7 @@ function DraftSpecsManager({
               type="button"
               onClick={() => {
                 setShowAddForm(false)
-                setFormData({ type: 'Size', name: '', value: '', position: 0 })
+                setFormData({ type: 'Size', name: '', value: '', price: '', position: 0 })
               }}
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-sm font-medium hover:bg-gray-300"
             >
@@ -876,7 +909,14 @@ function DraftSpecsManager({
                     className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg"
                   >
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{spec.name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-gray-900">{spec.name}</p>
+                        {spec.price !== null && priceAllowedTypes.includes(spec.type) && (
+                          <span className="text-xs font-semibold text-green-600">
+                            KES {spec.price.toLocaleString()}
+                          </span>
+                        )}
+                      </div>
                       {spec.value && (
                         <p className="text-xs text-gray-500">{spec.value}</p>
                       )}
