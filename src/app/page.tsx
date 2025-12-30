@@ -72,6 +72,10 @@ async function getFeaturedData() {
           include: {
             images: { take: 1 },
             category: true,
+            specifications: {
+              where: { isActive: true },
+              orderBy: [{ type: 'asc' }, { position: 'asc' }],
+            },
             _count: {
               select: {
                 orderItems: true,
@@ -86,7 +90,19 @@ async function getFeaturedData() {
       : // Fallback: If no sales yet, show recently created products
         prisma.product.findMany({
           where: { isActive: true },
-          include: { images: { take: 1 }, category: true },
+          include: { 
+            images: { take: 1 }, 
+            category: true,
+            specifications: {
+              where: { isActive: true },
+              orderBy: [{ type: 'asc' }, { position: 'asc' }],
+            },
+            _count: {
+              select: {
+                orderItems: true,
+              },
+            },
+          },
           take: 8,
           orderBy: { createdAt: 'desc' },
         })),
@@ -129,6 +145,10 @@ async function getFeaturedData() {
       include: {
         images: { take: 1 },
         category: true,
+        specifications: {
+          where: { isActive: true },
+          orderBy: [{ type: 'asc' }, { position: 'asc' }],
+        },
         reviews: {
           where: { isApproved: true },
           select: { rating: true },
@@ -266,6 +286,7 @@ async function getActiveBundles() {
           type: s.type,
           name: s.name,
           value: s.value,
+          price: s.price ? Number(s.price) : null,
         })),
       },
       preselectedColor: item.color,
