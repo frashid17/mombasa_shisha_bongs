@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { requireAdmin } from '@/utils/auth'
 import prisma from '@/lib/prisma'
+import { Decimal } from '@prisma/client/runtime/library'
 
 // PUT - Update a specification
 export async function PUT(
@@ -13,7 +14,7 @@ export async function PUT(
 
     const { id, specId } = await params
     const body = await req.json()
-    const { type, name, value, position, isActive } = body
+    const { type, name, value, price, position, isActive } = body
 
     // Verify specification belongs to product
     const existingSpec = await prisma.productSpecification.findFirst({
@@ -27,12 +28,21 @@ export async function PUT(
       )
     }
 
+    // Only allow price for Size, Weight, Volume types
+    const priceAllowedTypes = ['Size', 'Weight', 'Volume']
+    const finalPrice = price !== undefined 
+      ? (priceAllowedTypes.includes(type || existingSpec.type) && price !== null && price !== '' 
+          ? new Decimal(price)
+          : null)
+      : undefined
+
     const spec = await prisma.productSpecification.update({
       where: { id: specId },
       data: {
         ...(type && { type }),
         ...(name && { name }),
         ...(value !== undefined && { value: value || null }),
+        ...(finalPrice !== undefined && { price: finalPrice }),
         ...(position !== undefined && { position }),
         ...(isActive !== undefined && { isActive }),
       },
