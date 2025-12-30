@@ -13,7 +13,14 @@ async function getCategoryProducts(categoryId: string) {
     include: {
       products: {
         where: { isActive: true },
-        include: { images: { take: 1 }, category: true },
+        include: { 
+          images: { take: 1 }, 
+          category: true,
+          specifications: {
+            where: { isActive: true },
+            orderBy: [{ type: 'asc' }, { position: 'asc' }],
+          },
+        },
         orderBy: { createdAt: 'desc' },
         take: 24, // Limit to first 24 products to avoid loading huge lists
       },
@@ -125,6 +132,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
                       name: product.category.name,
                     } : null,
                     stock: product.stock,
+                    specifications: product.specifications?.map((spec: any) => ({
+                      id: spec.id,
+                      type: spec.type,
+                      name: spec.name,
+                      value: spec.value,
+                      price: spec.price ? Number(spec.price) : null,
+                      isActive: spec.isActive,
+                    })) || [],
                   }}
                 />
               ))}
