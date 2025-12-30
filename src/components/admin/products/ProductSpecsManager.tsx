@@ -8,6 +8,7 @@ interface Specification {
   type: string
   name: string
   value: string | null
+  price: number | null
   isActive: boolean
   position: number
 }
@@ -35,6 +36,7 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
     type: 'Size', 
     name: '', 
     value: '',
+    price: '',
     position: 0 
   })
 
@@ -74,6 +76,11 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
         return
       }
 
+      // Determine if price should be allowed for this type
+      const priceAllowedTypes = ['Size', 'Weight', 'Volume']
+      const allowPrice = priceAllowedTypes.includes(formData.type)
+      const priceValue = allowPrice && formData.price.trim() ? parseFloat(formData.price.trim()) : null
+
       // Create all specifications
       const promises = names.map((name, index) =>
         fetch(`/api/admin/products/${productId}/specs`, {
@@ -83,6 +90,7 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
             type: formData.type,
             name: name,
             value: formData.value.trim() || null,
+            price: priceValue,
             position: formData.position + index,
           }),
         })
@@ -92,11 +100,30 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
       const errors = results.filter(r => !r.ok)
 
       if (errors.length > 0) {
-        const errorData = await errors[0].json()
-        alert(errorData.error || 'Failed to add some specifications')
+        let errorData
+        try {
+          errorData = await errors[0].json()
+        } catch (e) {
+          const text = await errors[0].text()
+          console.error('Failed to parse error response:', text)
+          errorData = { error: text || 'Failed to add some specifications' }
+        }
+        
+        const errorMessage = errorData.error || 'Failed to add some specifications'
+        console.error('Error creating specification:', errorData)
+        console.error('Full error response:', errors[0])
+        
+        // Show more helpful error message if it's a schema issue
+        if (errorMessage.includes('Database schema error') || errorMessage.includes('Unknown argument')) {
+          alert(`Database Error: ${errorMessage}\n\nPlease run: npx prisma db push && npx prisma generate`)
+        } else {
+          const details = errorData.details ? `\n\nDetails: ${errorData.details}` : ''
+          const code = errorData.code ? `\n\nError Code: ${errorData.code}` : ''
+          alert(`${errorMessage}${details}${code}`)
+        }
       } else {
         await loadSpecs()
-        setFormData({ type: 'Size', name: '', value: '', position: 0 })
+        setFormData({ type: 'Size', name: '', value: '', price: '', position: 0 })
         setShowAddForm(false)
         if (names.length > 1) {
           alert(`Successfully added ${names.length} specifications`)
@@ -118,6 +145,11 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
 
     setLoading(true)
     try {
+      // Determine if price should be allowed for this type
+      const priceAllowedTypes = ['Size', 'Weight', 'Volume']
+      const allowPrice = priceAllowedTypes.includes(formData.type)
+      const priceValue = allowPrice && formData.price.trim() ? parseFloat(formData.price.trim()) : null
+
       const res = await fetch(`/api/admin/products/${productId}/specs/${specId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -125,13 +157,14 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
           type: formData.type,
           name: formData.name.trim(),
           value: formData.value.trim() || null,
+          price: priceValue,
           position: formData.position,
         }),
       })
 
       if (res.ok) {
         await loadSpecs()
-        setFormData({ type: 'Size', name: '', value: '', position: 0 })
+        setFormData({ type: 'Size', name: '', value: '', price: '', position: 0 })
         setEditingId(null)
       } else {
         const error = await res.json()
@@ -174,6 +207,7 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
       type: spec.type, 
       name: spec.name, 
       value: spec.value || '',
+      price: spec.price ? spec.price.toString() : '',
       position: spec.position 
     })
     setShowAddForm(false)
@@ -181,12 +215,16 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
 
   const cancelEdit = () => {
     setEditingId(null)
-    setFormData({ type: 'Size', name: '', value: '', position: 0 })
+    setFormData({ type: 'Size', name: '', value: '', price: '', position: 0 })
     setShowAddForm(false)
   }
 
   const selectedType = specTypes.find(t => t.value === formData.type)
   const commonValues = selectedType?.commonValues || []
+  
+  // Types that allow pricing
+  const priceAllowedTypes = ['Size', 'Weight', 'Volume']
+  const allowPrice = priceAllowedTypes.includes(formData.type)
 
   // Group specs by type
   const specsByType = specs.reduce((acc, spec) => {
@@ -264,18 +302,40 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
               </div>
             </div>
           </div>
-          <div>
-            <label className="block text-xs font-medium text-gray-700 mb-1">
-              Value (Optional)
-              <span className="text-gray-500 font-normal ml-1">- Additional info</span>
-            </label>
-            <input
-              type="text"
-              value={formData.value}
-              onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-              placeholder="Optional value"
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Value (Optional)
+                <span className="text-gray-500 font-normal ml-1">- Additional info</span>
+              </label>
+              <input
+                type="text"
+                value={formData.value}
+                onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                placeholder="Optional value"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
+              />
+            </div>
+            {allowPrice && (
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Price (Optional)
+                  <span className="text-gray-500 font-normal ml-1">- Override product price</span>
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  placeholder="e.g., 1500.00"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave empty to use product base price
+                </p>
+              </div>
+            )}
           </div>
           <div className="flex gap-2">
             <button
@@ -309,7 +369,14 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
                   className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg"
                 >
                   <div className="flex-1">
-                    <p className="font-medium text-gray-900">{spec.name}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-gray-900">{spec.name}</p>
+                      {spec.price !== null && priceAllowedTypes.includes(spec.type) && (
+                        <span className="text-xs font-semibold text-green-600">
+                          KES {spec.price.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
                     {spec.value && (
                       <p className="text-xs text-gray-500">{spec.value}</p>
                     )}
