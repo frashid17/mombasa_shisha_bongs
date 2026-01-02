@@ -1,5 +1,5 @@
 import { EMAIL_CONFIG } from '@/utils/constants'
-import prisma from '@/lib/prisma'
+import prisma, { withRetry } from '@/lib/prisma'
 import { NotificationType, NotificationChannel, NotificationStatus } from '@/generated/prisma'
 import nodemailer from 'nodemailer'
 
@@ -27,18 +27,21 @@ export async function sendEmail({
   metadata,
 }: SendEmailOptions): Promise<{ success: boolean; notificationId?: string; error?: string }> {
   // Create notification record first
-  const notification = await prisma.notification.create({
-    data: {
-      orderId: orderId || null,
-      recipientEmail: to,
-      type,
-      channel: NotificationChannel.EMAIL,
-      subject,
-      message: text || html,
-      status: NotificationStatus.PENDING,
-      metadata: metadata ? JSON.stringify(metadata) : null,
-    },
-  })
+  // Use withRetry to handle connection pool timeouts
+  const notification = await withRetry(() =>
+    prisma.notification.create({
+      data: {
+        orderId: orderId || null,
+        recipientEmail: to,
+        type,
+        channel: NotificationChannel.EMAIL,
+        subject,
+        message: text || html,
+        status: NotificationStatus.PENDING,
+        metadata: metadata ? JSON.stringify(metadata) : null,
+      },
+    })
+  )
 
   try {
     // If no Gmail credentials, log in development mode
@@ -71,14 +74,17 @@ export async function sendEmail({
       }
 
       // Mark as failed if in production, sent if in development
-      await prisma.notification.update({
-        where: { id: notification.id },
-        data: {
-          status: process.env.NODE_ENV === 'development' ? NotificationStatus.SENT : NotificationStatus.FAILED,
-          sentAt: process.env.NODE_ENV === 'development' ? new Date() : null,
-          errorMessage: errorMsg, // Always include error message for visibility
-        },
-      })
+      // Use withRetry to handle connection pool timeouts
+      await withRetry(() =>
+        prisma.notification.update({
+          where: { id: notification.id },
+          data: {
+            status: process.env.NODE_ENV === 'development' ? NotificationStatus.SENT : NotificationStatus.FAILED,
+            sentAt: process.env.NODE_ENV === 'development' ? new Date() : null,
+            errorMessage: errorMsg, // Always include error message for visibility
+          },
+        })
+      )
 
       return { 
         success: process.env.NODE_ENV === 'development', 
@@ -114,25 +120,36 @@ export async function sendEmail({
     const info = await transporter.sendMail(mailOptions)
 
     // Update notification as sent
-    await prisma.notification.update({
-      where: { id: notification.id },
-      data: {
-        status: NotificationStatus.SENT,
-        sentAt: new Date(),
-        metadata: JSON.stringify({ ...metadata, messageId: info.messageId }),
-      },
-    })
+    // Use withRetry to handle connection pool timeouts
+    await withRetry(() =>
+      prisma.notification.update({
+        where: { id: notification.id },
+        data: {
+          status: NotificationStatus.SENT,
+          sentAt: new Date(),
+          metadata: JSON.stringify({ ...metadata, messageId: info.messageId }),
+        },
+      })
+    )
 
     return { success: true, notificationId: notification.id }
   } catch (error: any) {
     // Update notification as failed
-    await prisma.notification.update({
-      where: { id: notification.id },
-      data: {
-        status: NotificationStatus.FAILED,
-        errorMessage: error.message || 'Unknown error',
-      },
-    })
+    // Use withRetry to handle connection pool timeouts
+    try {
+      await withRetry(() =>
+        prisma.notification.update({
+          where: { id: notification.id },
+          data: {
+            status: NotificationStatus.FAILED,
+            errorMessage: error.message || 'Unknown error',
+          },
+        })
+      )
+    } catch (updateError) {
+      // If updating notification fails, log it but don't fail the whole operation
+      console.error('Failed to update notification status:', updateError)
+    }
 
     console.error('Email sending error:', error)
     return { success: false, notificationId: notification.id, error: error.message }
