@@ -334,7 +334,12 @@ View order: ${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com
       orderId,
       type: 'ORDER_CONFIRMATION',
       metadata: { orderNumber: data.orderNumber, recipient: 'admin' },
-    }).catch(err => console.error('Admin email send failed:', err))
+    }).catch(err => {
+      console.error('❌ Admin email send failed for order:', data.orderNumber)
+      console.error('   Error:', err)
+      console.error('   Admin email:', adminEmail)
+      console.error('   Check /admin/notifications for details')
+    })
   }
 }
 
@@ -426,7 +431,12 @@ export async function sendPaymentReceivedNotification(
         receiptNumber: data.receiptNumber,
         recipient: 'admin',
       },
-    }).catch(err => console.error('Admin email send failed:', err))
+    }).catch(err => {
+      console.error('❌ Admin payment notification email failed for order:', data.orderNumber)
+      console.error('   Error:', err)
+      console.error('   Admin email:', adminEmail)
+      console.error('   Check /admin/notifications for details')
+    })
   }
 }
 

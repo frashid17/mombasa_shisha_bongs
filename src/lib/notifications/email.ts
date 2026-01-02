@@ -47,7 +47,7 @@ export async function sendEmail({
     const gmailPassword = EMAIL_CONFIG.GMAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD
     
     if (!gmailUser || !gmailPassword) {
-      const errorMsg = 'Gmail credentials not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables.'
+      const errorMsg = 'Gmail credentials not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables. See PRODUCTION-EMAIL-SETUP.md for setup instructions.'
       
       if (process.env.NODE_ENV === 'development') {
         console.log('📧 Email (Development Mode - No Gmail Credentials):')
@@ -57,10 +57,17 @@ export async function sendEmail({
         console.log('---')
         console.warn('⚠️', errorMsg)
       } else {
-        // In production, log error but don't mark as sent
-        console.error('❌ Email sending failed:', errorMsg)
-        console.error('   GMAIL_USER:', gmailUser ? 'Set' : 'NOT SET')
-        console.error('   GMAIL_APP_PASSWORD:', gmailPassword ? 'Set' : 'NOT SET')
+        // In production, log detailed error
+        console.error('❌ EMAIL SENDING FAILED - Gmail credentials missing')
+        console.error('   Error:', errorMsg)
+        console.error('   GMAIL_USER:', gmailUser ? 'Set' : '❌ NOT SET')
+        console.error('   GMAIL_APP_PASSWORD:', gmailPassword ? 'Set' : '❌ NOT SET')
+        console.error('   Recipient:', to)
+        console.error('   Subject:', subject)
+        console.error('   Notification ID:', notification.id)
+        console.error('   ---')
+        console.error('   ACTION REQUIRED: Set GMAIL_USER and GMAIL_APP_PASSWORD environment variables')
+        console.error('   See PRODUCTION-EMAIL-SETUP.md for setup instructions')
       }
 
       // Mark as failed if in production, sent if in development
@@ -69,14 +76,14 @@ export async function sendEmail({
         data: {
           status: process.env.NODE_ENV === 'development' ? NotificationStatus.SENT : NotificationStatus.FAILED,
           sentAt: process.env.NODE_ENV === 'development' ? new Date() : null,
-          errorMessage: process.env.NODE_ENV === 'production' ? errorMsg : null,
+          errorMessage: errorMsg, // Always include error message for visibility
         },
       })
 
       return { 
         success: process.env.NODE_ENV === 'development', 
         notificationId: notification.id,
-        error: process.env.NODE_ENV === 'production' ? errorMsg : undefined
+        error: errorMsg
       }
     }
 
