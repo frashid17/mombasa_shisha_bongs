@@ -76,27 +76,69 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     }
   }
 
-  const productImage = product.images[0]?.url || '/logo.png'
+  // Ensure image URL is absolute
+  const getAbsoluteImageUrl = (imageUrl: string) => {
+    if (!imageUrl) return `${siteUrl}/logo.png`
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl
+    }
+    if (imageUrl.startsWith('/')) {
+      return `${siteUrl}${imageUrl}`
+    }
+    // If it's a relative path without leading slash, add it
+    return `${siteUrl}/${imageUrl}`
+  }
+
+  const productImage = getAbsoluteImageUrl(product.images[0]?.url || '/logo.png')
   const productUrl = `${siteUrl}/products/${id}`
+  const productDescription = product.description 
+    ? product.description.substring(0, 200).replace(/<[^>]*>/g, '') // Strip HTML and limit length
+    : `${product.name} - Premium quality ${product.category?.name?.toLowerCase() || 'product'} from Mombasa Shisha Bongs. Shop now with fast delivery in Mombasa, Kenya.`
 
   return {
     title: `${product.name} - Mombasa Shisha Bongs`,
-    description: product.description || `${product.name} - Premium quality ${product.category?.name?.toLowerCase() || 'product'} from Mombasa Shisha Bongs. Shop now with fast delivery in Mombasa, Kenya.`,
+    description: productDescription,
     openGraph: {
-      title: product.name,
-      description: product.description || `${product.name} - Premium quality product`,
-      url: productUrl,
-      images: [productImage.startsWith('http') ? productImage : `${siteUrl}${productImage}`],
       type: 'website',
+      url: productUrl,
+      title: product.name,
+      description: productDescription,
+      siteName: 'Mombasa Shisha Bongs',
+      locale: 'en_KE',
+      images: [
+        {
+          url: productImage,
+          width: 1200,
+          height: 630,
+          alt: product.name,
+          type: 'image/jpeg',
+          secureUrl: productImage, // Explicit secure URL for Snapchat
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: product.name,
-      description: product.description || `${product.name} - Premium quality product`,
-      images: [productImage.startsWith('http') ? productImage : `${siteUrl}${productImage}`],
+      description: productDescription,
+      images: [
+        {
+          url: productImage,
+          alt: product.name,
+        },
+      ],
     },
     alternates: {
       canonical: productUrl,
+    },
+    // Additional meta tags for better social sharing (Snapchat, Instagram, etc.)
+    other: {
+      'og:image:secure_url': productImage,
+      'og:image:type': 'image/jpeg',
+      'og:image:width': '1200',
+      'og:image:height': '630',
+      'og:image:alt': product.name,
+      // Additional tags for Snapchat
+      'snapchat:image': productImage,
     },
   }
 }
@@ -132,6 +174,20 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     { name: product.category?.name || 'Product', url: product.category ? `/categories/${product.category.id}` : '/products' },
     { name: product.name, url: `/products/${id}` },
   ]
+
+  // Get absolute image URL for sharing
+  const getAbsoluteImageUrl = (imageUrl: string) => {
+    if (!imageUrl) return `${siteUrl}/logo.png`
+    if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+      return imageUrl
+    }
+    if (imageUrl.startsWith('/')) {
+      return `${siteUrl}${imageUrl}`
+    }
+    return `${siteUrl}/${imageUrl}`
+  }
+
+  const shareImageUrl = getAbsoluteImageUrl(product.images[0]?.url || '/logo.png')
 
   return (
     <>
