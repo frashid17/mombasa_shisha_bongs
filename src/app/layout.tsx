@@ -61,12 +61,16 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/logo.png', type: 'image/png', sizes: '512x512' },
+      { url: '/logo.png', type: 'image/png', sizes: '192x192' },
+      { url: '/logo.png', type: 'image/png', sizes: '32x32' },
       { url: '/uploads/hookah.svg', type: 'image/svg+xml' },
-      { url: '/logo.png', type: 'image/png' },
-      { url: '/favicon.ico', type: 'image/x-icon' },
     ],
-    apple: '/uploads/hookah.svg',
-    shortcut: '/uploads/hookah.svg',
+    apple: [
+      { url: '/logo.png', sizes: '180x180', type: 'image/png' },
+      { url: '/uploads/hookah.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/logo.png',
   },
   openGraph: {
     type: 'website',
@@ -150,11 +154,18 @@ export default async function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+          {/* Favicon for Google Search */}
+          <link rel="icon" href="/logo.png" type="image/png" sizes="512x512" />
+          <link rel="icon" href="/logo.png" type="image/png" sizes="192x192" />
+          <link rel="icon" href="/logo.png" type="image/png" sizes="32x32" />
           <link rel="icon" href="/uploads/hookah.svg" type="image/svg+xml" />
-          <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
-          <link rel="apple-touch-icon" href="/uploads/hookah.svg" />
+          <link rel="apple-touch-icon" href="/logo.png" sizes="180x180" />
           <link rel="manifest" href="/manifest.json" />
           <meta name="theme-color" content="#ffffff" />
+          {/* Additional meta tags for Google Search */}
+          <meta name="application-name" content="Mombasa Shisha Bongs" />
+          <meta name="msapplication-TileImage" content="/logo.png" />
+          <meta name="msapplication-TileColor" content="#ffffff" />
         </head>
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
