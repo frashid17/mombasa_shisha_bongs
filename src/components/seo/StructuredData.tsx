@@ -25,7 +25,13 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
           '@type': 'Organization',
           name: 'Mombasa Shisha Bongs',
           url: siteUrl,
-          logo: `${siteUrl}/logo.png`,
+          logo: {
+            '@type': 'ImageObject',
+            url: `${siteUrl}/logo.png`,
+            width: 512,
+            height: 512,
+          },
+          image: `${siteUrl}/logo.png`,
           description: 'Premium shisha, vapes, and smoking accessories in Mombasa, Kenya',
           address: {
             '@type': 'PostalAddress',
