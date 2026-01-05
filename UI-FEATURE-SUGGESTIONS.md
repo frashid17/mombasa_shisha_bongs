@@ -181,3 +181,4 @@
 4. **Quick View**: Modal component with product data passed as props
 5. **Sticky Bar**: Use `useEffect` + `window.scrollY` + `position: sticky`
 
+

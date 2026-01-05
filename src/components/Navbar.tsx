@@ -36,6 +36,9 @@ export default function Navbar() {
     setItemCount(cartItems.length)
     setWishlistCount(wishlistItems.length)
   }, [cartItems.length, wishlistItems.length])
+  
+  // Check if user is admin - only after mount to prevent hydration mismatch
+  const isAdmin = isMounted && authLoaded && user?.publicMetadata?.role === 'admin'
 
   // Close profile menu when clicking outside
   useEffect(() => {
@@ -59,9 +62,6 @@ export default function Navbar() {
     router.push('/')
     setProfileMenuOpen(false)
   }
-
-  // Check if user is admin - only after auth is loaded to prevent hydration mismatch
-  const isAdmin = authLoaded && user?.publicMetadata?.role === 'admin'
 
   // Ensure navbar is always visible - don't wait for auth to load
   return (
@@ -100,8 +100,8 @@ export default function Navbar() {
                 <CurrencySelector />
               </div>
 
-              {/* Admin Button - Only show after auth is loaded to prevent hydration mismatch */}
-              {authLoaded && isSignedIn && isAdmin && (
+              {/* Admin Button - Only show after mount and auth is loaded to prevent hydration mismatch */}
+              {isMounted && authLoaded && isSignedIn && isAdmin && (
                 <Link
                   href="/admin"
                   className="hidden md:flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-md hover:bg-red-700 transition-all"
@@ -310,7 +310,7 @@ export default function Navbar() {
                     >
                       Wishlist {isMounted && wishlistCount > 0 && `(${wishlistCount})`}
                     </Link>
-                    {authLoaded && isSignedIn && isAdmin && (
+                    {isMounted && authLoaded && isSignedIn && isAdmin && (
                       <Link
                         href="/admin"
                         className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors mt-2"
