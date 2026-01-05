@@ -16,6 +16,7 @@ import CountdownTimer from '@/components/flash-sales/CountdownTimer'
 import Image from 'next/image'
 import StructuredData from '@/components/seo/StructuredData'
 import PriceDisplay from '@/components/products/PriceDisplay'
+import AnimatedIcon from '@/components/home/AnimatedIcon'
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
@@ -323,9 +324,9 @@ export default async function HomePage() {
   return (
     <>
       <StructuredData type="Organization" />
-      <div className="min-h-screen bg-white page-fade-in">
+      <div className="min-h-screen animated-gradient-bg page-fade-in">
         {/* Hero Section - Promotional Banner */}
-        <section className="bg-white py-12 md:py-16">
+        <section className="py-12 md:py-16 relative z-10">
           <div className="container mx-auto px-4">
             <div className="max-w-6xl mx-auto">
               {/* Hero Text */}
@@ -344,19 +345,21 @@ export default async function HomePage() {
                     Shop Now
                   </Link>
                   <Link
-                    href="#trending"
+                    href="/products"
                     className="inline-flex items-center justify-center border-2 border-gray-300 hover:border-red-500 text-gray-700 hover:text-red-600 px-6 py-4 rounded-md text-sm md:text-base bg-white hover:bg-gray-50 transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg"
                   >
-                    Browse Trending Products
+                    Browse All Products
                   </Link>
                 </div>
               </div>
 
               {/* Trust Indicators */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mt-8 text-sm md:text-base">
-                <div className="bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md transition-all duration-300">
+                <Link href="#explore-all-items" className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md hover:border-red-500 transition-all duration-300 cursor-pointer">
                   <div className="bg-red-600 p-3 rounded-lg">
-                    <ShoppingBag className="w-6 h-6 text-white" />
+                    <AnimatedIcon animationType="pulse">
+                      <ShoppingBag className="w-6 h-6 text-white" />
+                    </AnimatedIcon>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Products</p>
@@ -365,10 +368,12 @@ export default async function HomePage() {
                       <span className="ml-1 text-sm font-medium text-gray-600">items in stock</span>
                     </p>
                   </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md transition-all duration-300">
+                </Link>
+                <Link href="#customer-reviews" className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md hover:border-red-500 transition-all duration-300 cursor-pointer">
                   <div className="bg-red-600 p-3 rounded-lg">
-                    <Star className="w-6 h-6 text-white fill-white" />
+                    <AnimatedIcon animationType="pulse">
+                      <Star className="w-6 h-6 text-white fill-white" />
+                    </AnimatedIcon>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Customer Reviews</p>
@@ -377,10 +382,12 @@ export default async function HomePage() {
                       <span className="ml-1 text-sm font-medium text-gray-600">verified ratings</span>
                     </p>
                   </div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md transition-all duration-300">
+                </Link>
+                <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md transition-all duration-300">
                   <div className="bg-red-600 p-3 rounded-lg">
-                    <Truck className="w-6 h-6 text-white" />
+                    <AnimatedIcon animationType="bounce">
+                      <Truck className="w-6 h-6 text-white" />
+                    </AnimatedIcon>
                   </div>
                   <div>
                     <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Delivery</p>
@@ -395,52 +402,73 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              {/* Featured product strip inside hero */}
+              {/* Featured product strip inside hero - Modern & Prominent */}
               {serializedFeatured.length > 0 && (
-                <div className="mt-10 md:mt-12">
-                  <div className="flex items-center justify-between mb-4">
-                    <p className="text-base md:text-lg font-bold text-gray-900 flex items-center gap-2 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-md shadow-md">
-                      <TrendingUp className="w-5 h-5 text-red-600" />
-                      <span>Popular right now</span>
-                    </p>
+                <div className="mt-12 md:mt-16">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-gradient-to-br from-red-600 to-red-700 p-3 rounded-xl shadow-lg shadow-red-500/30">
+                        <TrendingUp className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+                          Popular Right Now
+                        </h2>
+                        <p className="text-sm md:text-base text-gray-600 font-medium">
+                          Trending products everyone's buying
+                        </p>
+                      </div>
+                    </div>
                     <Link
                       href="/products"
-                      className="text-xs md:text-sm text-blue-300 hover:text-blue-200 transition-colors"
+                      className="group flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2.5 md:px-6 md:py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 text-sm md:text-base whitespace-nowrap"
                     >
-                      View all products →
+                      <span>View All Products</span>
+                      <span className="text-lg md:text-xl group-hover:translate-x-1 transition-transform duration-300">→</span>
                     </Link>
                   </div>
-                  <div className="flex gap-4 overflow-x-auto scrollbar-hide pt-1 pb-3 -mx-4 px-4 snap-x snap-mandatory">
+                  <div className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pt-2 pb-4 -mx-4 px-4 snap-x snap-mandatory">
                     {serializedFeatured.slice(0, 10).map((product, index) => (
                       <Link
                         key={product.id}
                         href={`/products/${product.id}`}
-                        className="min-w-[180px] max-w-[200px] bg-white/95 backdrop-blur-sm border border-white/30 rounded-lg p-3 flex-shrink-0 snap-start hover:border-white/60 hover:bg-white transition-colors shadow-lg"
+                        className="min-w-[220px] md:min-w-[260px] bg-white/98 backdrop-blur-sm border-2 border-gray-200 rounded-xl p-4 md:p-5 flex-shrink-0 snap-start hover:border-red-500 hover:shadow-xl hover:scale-[1.02] transition-all duration-300 shadow-lg group"
                         style={{ animationDelay: `${index * 60}ms` }}
                       >
-                        <div className="relative h-28 w-full rounded-md overflow-hidden mb-3 bg-gray-50">
+                        <div className="relative h-40 md:h-48 w-full rounded-lg overflow-hidden mb-4 bg-gradient-to-br from-gray-50 to-gray-100 group-hover:from-gray-100 group-hover:to-gray-200 transition-all duration-300">
                           {product.images?.[0]?.url ? (
-            <Image
+                            <Image
                               src={product.images[0].url}
                               alt={product.images[0].altText || product.name}
                               fill
-                              className="object-contain"
+                              className="object-contain p-2 group-hover:scale-110 transition-transform duration-300"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
+                            <div className="w-full h-full flex items-center justify-center text-sm text-gray-400">
                               No image
                             </div>
                           )}
+                          {/* Badge overlay */}
+                          <div className="absolute top-2 right-2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+                            HOT
+                          </div>
                         </div>
-                        <p className="text-xs text-gray-500 mb-1 line-clamp-1 font-semibold uppercase">
-                          {product.category?.name || 'Shisha & Vapes'}
-                        </p>
-                        <p className="text-sm text-gray-900 font-bold mb-1 line-clamp-2">
-                          {product.name}
-                        </p>
-                        <p className="text-base text-gray-900 font-bold">
-                          KES {Number(product.price).toLocaleString()}
-                        </p>
+                        <div className="space-y-2">
+                          <p className="text-xs text-red-600 mb-1 line-clamp-1 font-bold uppercase tracking-wide">
+                            {product.category?.name || 'Shisha & Vapes'}
+                          </p>
+                          <p className="text-sm md:text-base text-gray-900 font-bold mb-2 line-clamp-2 group-hover:text-red-600 transition-colors">
+                            {product.name}
+                          </p>
+                          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                            <p className="text-lg md:text-xl text-gray-900 font-bold">
+                              KES {Number(product.price).toLocaleString()}
+                            </p>
+                            <div className="bg-red-50 text-red-600 px-2 py-1 rounded-md text-xs font-semibold">
+                              Shop Now
+                            </div>
+                          </div>
+                        </div>
                       </Link>
                     ))}
                   </div>
@@ -516,7 +544,7 @@ export default async function HomePage() {
       </section>
 
       {/* Categories Section */}
-      <section className="py-12 md:py-16 bg-white">
+      <section className="py-12 md:py-16 bg-white/80 backdrop-blur-sm relative z-10">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <div>
@@ -583,49 +611,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Bundles Section */}
-      {activeBundles.length > 0 && (
-        <BundlesSection bundles={activeBundles} />
-      )}
-
-      {/* Trending Products Section */}
-      {serializedFeatured.length > 0 && (
-        <section
-          id="trending"
-          className="py-12 md:py-16 bg-white border-t border-gray-200"
-        >
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-green-600 p-3 rounded-lg">
-                  <TrendingUp className="w-6 h-6 md:w-8 md:h-8 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-3xl md:text-5xl font-bold text-green-600 mb-2 md:mb-3">
-                    Trending Products
-                  </h2>
-                  <p className="text-gray-900 text-lg md:text-xl font-bold">Most popular products right now</p>
-                </div>
-              </div>
-              <Link
-                href="/products"
-                className="text-blue-600 font-bold hover:text-purple-600 transition-colors flex items-center gap-2 text-sm md:text-base hover:scale-110 transform duration-300"
-              >
-                View All <span className="text-xl">→</span>
-              </Link>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
-              {serializedFeatured.slice(0, 5).map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Explore All Items Section */}
       {serializedAllProducts.length > 0 && (
-        <section className="py-12 md:py-16 bg-white border-t border-gray-200">
+        <section id="explore-all-items" className="py-12 md:py-16 bg-white/80 backdrop-blur-sm border-t border-gray-200 relative z-10">
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-3">
@@ -655,9 +643,17 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Bundles Section */}
+      {activeBundles.length > 0 && (
+        <BundlesSection bundles={activeBundles} />
+      )}
+
+      {/* Expert Tips Section */}
+      <ExpertTips />
+
       {/* Customer Reviews Section */}
       {customerReviews.length > 0 && (
-        <section className="py-12 md:py-16 bg-white border-t border-gray-200">
+        <section id="customer-reviews" className="py-12 md:py-16 bg-white/80 backdrop-blur-sm border-t border-gray-200 relative z-10">
           <div className="container mx-auto px-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 md:mb-8 gap-4">
               <div className="flex items-center gap-3">
@@ -693,9 +689,6 @@ export default async function HomePage() {
           </div>
         </section>
       )}
-
-      {/* Expert Tips Section */}
-      <ExpertTips />
 
       {/* FAQs Section */}
       <FAQ />
