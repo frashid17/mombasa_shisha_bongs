@@ -169,17 +169,25 @@ async function handlePOST(req: Request) {
     })
 
     // Reduce stock for each product in the order
+    // Always decrement stock when an order is created, regardless of trackInventory flag
     for (const item of validated.items) {
       const product = productMap.get(item.productId)
-      if (product && product.trackInventory) {
-        await prisma.product.update({
-          where: { id: item.productId },
-          data: {
-            stock: {
-              decrement: item.quantity,
+      if (product) {
+        try {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
             },
-          },
-        })
+          })
+          console.log(`✅ Stock decremented for product ${product.name}: ${product.stock} -> ${product.stock - item.quantity}`)
+        } catch (error: any) {
+          console.error(`❌ Failed to decrement stock for product ${product.name}:`, error)
+          // Log error but don't fail the order creation
+          // Stock will need to be manually adjusted
+        }
       }
     }
 
