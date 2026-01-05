@@ -12,7 +12,6 @@ import FloatingContactButtons from "@/components/FloatingContactButtons";
 import PageLoader from "@/components/PageLoader";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
-import InstallPrompt from "@/components/pwa/InstallPrompt";
 import { Toaster } from "react-hot-toast";
 import { Analytics } from "@vercel/analytics/next";
 
@@ -182,7 +181,6 @@ export default async function RootLayout({
                 <ConditionalFooter categories={categories} />
               </Suspense>
             )}
-            {!isAdminRoute && <InstallPrompt />}
             {!isAdminRoute && <FloatingContactButtons />}
             <Toaster
               position="top-right"
