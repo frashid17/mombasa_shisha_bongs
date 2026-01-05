@@ -18,6 +18,7 @@ import ProductImageCarousel from '@/components/products/ProductImageCarousel'
 import { getRecommendedProducts } from '@/lib/recommendations'
 import { serializeProduct, serializeProducts } from '@/lib/prisma-serialize'
 import StructuredData from '@/components/seo/StructuredData'
+import StockProgressBar from '@/components/products/StockProgressBar'
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
@@ -193,9 +194,14 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     <>
       <StructuredData type="Product" data={product} />
       <StructuredData type="BreadcrumbList" data={breadcrumbs} />
-      <div className="min-h-screen bg-white">
-        <TrackProductView productId={id} />
-      <div className="container mx-auto px-4 py-8">
+      <ProductPriceWrapper
+        basePrice={Number(product.price)}
+        compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
+        specs={serializedSpecs}
+      >
+        <div className="min-h-screen bg-white">
+          <TrackProductView productId={id} />
+        <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Images */}
         <div>
@@ -225,10 +231,13 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
           )}
 
-          <div className="mb-6 space-y-2">
+          <div className="mb-6 space-y-3">
             <p className="text-sm text-gray-600">SKU: {product.sku}</p>
             {product.stock > 0 ? (
-              <p className="text-green-600 font-semibold">In Stock ({product.stock} available)</p>
+              <div>
+                <p className="text-green-600 font-semibold mb-2">In Stock ({product.stock} available)</p>
+                <StockProgressBar stock={product.stock} showText={true} />
+              </div>
             ) : (
               <p className="text-red-600 font-semibold">Out of Stock</p>
             )}
@@ -302,8 +311,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
       {/* Recommendations */}
       <ProductRecommendations products={serializedRecommendations} />
-      </div>
-    </div>
+        </div>
+        </div>
+      </ProductPriceWrapper>
     </>
   )
 }
