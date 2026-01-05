@@ -7,6 +7,8 @@ import { Sparkles, ShoppingCart, Heart } from 'lucide-react'
 import { useCurrency } from '@/contexts/CurrencyContext'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
+import ProductBadges from '@/components/products/ProductBadges'
+import StockProgressBar from '@/components/products/StockProgressBar'
 
 interface Specification {
   id: string
@@ -32,6 +34,7 @@ interface ProductCardProps {
     averageRating?: number
     reviewCount?: number
     specifications?: Specification[]
+    createdAt?: Date | string
   }
   index?: number
 }
@@ -62,7 +65,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const lowestSpecPrice = specPrices.length > 0 ? Math.min(...specPrices) : null
   const displayPrice = lowestSpecPrice !== null ? lowestSpecPrice : product.price
   
-  const hasDiscount = product.compareAtPrice && product.compareAtPrice > displayPrice
+  const hasDiscount = Boolean(product.compareAtPrice && product.compareAtPrice > displayPrice)
   const discountPercent = hasDiscount
     ? Math.round(((Number(product.compareAtPrice) - displayPrice) / Number(product.compareAtPrice)) * 100)
     : 0
@@ -116,6 +119,16 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     <div className="group relative bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col h-full">
       {/* Image Container */}
       <Link href={`/products/${product.id}`} className="relative h-64 bg-white overflow-hidden">
+        {/* Badges */}
+        <ProductBadges
+          isNewArrival={product.isNewArrival}
+          isFeatured={product.isFeatured}
+          hasDiscount={hasDiscount}
+          stock={product.stock}
+          compareAtPrice={product.compareAtPrice}
+          price={displayPrice}
+          createdAt={product.createdAt}
+        />
         {product.images[0] ? (
           <>
             {/* Skeleton shimmer while image loads */}
@@ -151,7 +164,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
         </Link>
 
         {/* Price - VapeSoko Style */}
-        <div className="mb-4">
+        <div className="mb-3">
           <div className="flex items-center gap-2">
             <p className="text-gray-900 font-bold text-lg">{format(displayPrice)}</p>
             {hasDiscount && (
@@ -161,6 +174,13 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             )}
           </div>
         </div>
+
+        {/* Stock Progress Bar */}
+        {product.stock > 0 && (
+          <div className="mb-3">
+            <StockProgressBar stock={product.stock} showText={false} />
+          </div>
+        )}
 
         {/* Action Buttons - Only Add to Cart and Wishlist */}
         <div className="flex items-center gap-2 mt-auto">
