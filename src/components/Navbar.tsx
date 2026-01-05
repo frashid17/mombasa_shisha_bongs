@@ -63,10 +63,11 @@ export default function Navbar() {
   // Check if user is admin - only after auth is loaded to prevent hydration mismatch
   const isAdmin = authLoaded && user?.publicMetadata?.role === 'admin'
 
+  // Ensure navbar is always visible - don't wait for auth to load
   return (
     <>
       {/* Top Header - VapeSoko Style */}
-      <nav className="bg-white text-gray-900 border-b border-gray-200 sticky top-0 z-50 shadow-sm" style={{ overflow: 'visible' }}>
+      <nav className="bg-white text-gray-900 border-b border-gray-200 sticky top-0 z-50 shadow-sm" style={{ overflow: 'visible', visibility: 'visible', display: 'block' }}>
         <div className="container mx-auto px-4 relative" style={{ overflow: 'visible' }}>
           <div className="flex items-center justify-between h-16" style={{ overflow: 'visible' }}>
             <Logo width={60} height={60} />
