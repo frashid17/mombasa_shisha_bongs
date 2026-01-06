@@ -119,7 +119,7 @@ export const createOrderSchema = z.object({
   deliveryLongitude: z.coerce.number().min(-180).max(180).optional(),
   city: z.string().min(2).max(100),
   notes: z.string().max(1000).optional(),
-  paymentMethod: z.enum(['PAYSTACK', 'CASH_ON_DELIVERY']).default('PAYSTACK'),
+  paymentMethod: z.enum(['MPESA', 'CASH_ON_DELIVERY']).default('MPESA'),
   deliveryAddressId: z.string().optional(), // Reference to saved delivery address
   scheduledDelivery: z.coerce.date().optional().refine(
     (date) => {
