@@ -254,6 +254,7 @@ model Payment {
   mpesaReceiptNumber        String?       @unique
   mpesaTransactionId        String?       @unique
   mpesaCheckoutRequestId    String?       @unique
+  mpesaSenderName           String?
   paystackReference         String?       @unique
   paystackAuthorizationCode String?
   paystackCustomerCode      String?
