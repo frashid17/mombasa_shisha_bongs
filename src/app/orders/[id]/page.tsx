@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma'
 import { format } from 'date-fns'
 import Image from 'next/image'
 import Link from 'next/link'
-import PaystackPaymentButton from '@/components/payment/PaystackPaymentButton'
+import MpesaManualPayment from '@/components/payment/MpesaManualPayment'
 import ConfirmDeliveryButton from '@/components/orders/ConfirmDeliveryButton'
 import ReviewForm from '@/components/orders/ReviewForm'
 import CartClearer from '@/components/orders/CartClearer'
@@ -219,12 +219,11 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
 
           {needsPayment && !isCOD && (
             <div className="mb-6">
-              {/* Paystack Payment Option */}
-              <PaystackPaymentButton
+              {/* M-Pesa Manual Payment Option */}
+              <MpesaManualPayment
                 orderId={order.id}
                 amount={Number(order.total)}
                 orderNumber={order.orderNumber}
-                customerEmail={order.userEmail}
               />
             </div>
           )}
@@ -241,11 +240,10 @@ export default async function OrderPage({ params }: { params: Promise<{ id: stri
                 </div>
               </div>
               <div className="mt-4">
-                <PaystackPaymentButton
+                <MpesaManualPayment
                   orderId={order.id}
                   amount={Number(order.total)}
                   orderNumber={order.orderNumber}
-                  customerEmail={order.userEmail}
                 />
               </div>
             </div>
