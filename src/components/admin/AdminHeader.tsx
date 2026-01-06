@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { UserButton } from '@clerk/nextjs'
+import { UserButton, useUser } from '@clerk/nextjs'
 import { Bell, Store, Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock, Menu } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { format } from 'date-fns'
@@ -23,6 +23,7 @@ interface Notification {
 }
 
 export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
+  const { isLoaded } = useUser()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
@@ -246,15 +247,17 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
             )}
           </div>
 
-          {/* User Menu */}
-          <UserButton
-            afterSignOutUrl="/sign-in"
-            appearance={{
-              elements: {
-                avatarBox: 'w-8 h-8 sm:w-10 sm:h-10',
-              },
-            }}
-          />
+          {/* User Menu - Only render after Clerk is loaded */}
+          {isLoaded && (
+            <UserButton
+              afterSignOutUrl="/sign-in"
+              appearance={{
+                elements: {
+                  avatarBox: 'w-8 h-8 sm:w-10 sm:h-10',
+                },
+              }}
+            />
+          )}
         </div>
       </div>
     </header>
