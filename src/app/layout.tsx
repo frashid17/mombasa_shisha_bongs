@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     default: "Mombasa Shisha Bongs - Premium Shisha & Vapes in Mombasa, Kenya",
     template: "%s | Mombasa Shisha Bongs"
   },
-  description: "Premium shisha, vapes, and smoking accessories in Mombasa, Kenya. Fast delivery, authentic products, secure payment with Mpesa and Paystack. Shop the best shisha flavors, hookahs, disposable vapes, and e-liquids.",
+  description: "Premium shisha, vapes, and smoking accessories in Mombasa, Kenya. Fast delivery, authentic products, secure payment with M-Pesa. Shop the best shisha flavors, hookahs, disposable vapes, and e-liquids.",
   keywords: [
     "shisha",
     "hookah",
