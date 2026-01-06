@@ -140,7 +140,11 @@ export function getPaymentReceivedEmail(data: PaymentData): { subject: string; h
               ${data.receiptNumber ? `<p><strong>Mpesa Receipt:</strong> ${data.receiptNumber}</p>` : ''}
               ${data.transactionId ? `<p><strong>Transaction ID:</strong> ${data.transactionId}</p>` : ''}
             </div>
-            <p>Your payment has been successfully received. We're now processing your order.</p>
+            <p>Your payment has been successfully received and approved! 🎉</p>
+            <p style="margin-top: 15px; padding: 15px; background: #f0fdf4; border-left: 4px solid #10b981; border-radius: 5px;">
+              <strong>✅ Payment Status:</strong> Approved<br>
+              Your order is now confirmed and will be sent to your delivery location. We'll notify you once your order is on the way!
+            </p>
             <a href="${process.env.NEXT_PUBLIC_APP_URL}/orders/${data.orderNumber}" class="button" style="display: inline-block; padding: 12px 30px; background: #10b981; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px;">View Order</a>
           </div>
         </div>
@@ -149,19 +153,21 @@ export function getPaymentReceivedEmail(data: PaymentData): { subject: string; h
   `
 
   const text = `
-Payment Received - Order #${data.orderNumber}
+Payment Approved - Order #${data.orderNumber}
 
 Amount: KES ${data.amount.toLocaleString()}
 ${data.receiptNumber ? `Mpesa Receipt: ${data.receiptNumber}` : ''}
 ${data.transactionId ? `Transaction ID: ${data.transactionId}` : ''}
 
-Your payment has been successfully received. We're now processing your order.
+✅ Payment Status: Approved
+
+Your payment has been successfully received and approved! Your order is now confirmed and will be sent to your delivery location. We'll notify you once your order is on the way!
 
 View order: ${process.env.NEXT_PUBLIC_APP_URL}/orders/${data.orderNumber}
   `.trim()
 
   return {
-    subject: `Payment Received - Order #${data.orderNumber}`,
+    subject: `✅ Payment Approved - Order #${data.orderNumber}`,
     html,
     text,
   }
