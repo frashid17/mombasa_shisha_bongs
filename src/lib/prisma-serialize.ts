@@ -66,6 +66,18 @@ export function serializeOrderItem(item: any) {
 }
 
 /**
+ * Serialize a payment (has Decimal fields in amount)
+ */
+export function serializePayment(payment: any) {
+  if (!payment) return null
+
+  return {
+    ...payment,
+    amount: decimalToNumber(payment.amount),
+  }
+}
+
+/**
  * Serialize an order (has Decimal fields in total, subtotal, etc.)
  */
 export function serializeOrder(order: any) {
@@ -79,10 +91,7 @@ export function serializeOrder(order: any) {
     deliveryFee: decimalToNumber(order.deliveryFee),
     discount: decimalToNumber(order.discount),
     items: order.items ? order.items.map(serializeOrderItem) : [],
-    payment: order.payment ? {
-      ...order.payment,
-      amount: decimalToNumber(order.payment.amount),
-    } : null,
+    payment: order.payment ? serializePayment(order.payment) : null,
   }
 }
 
