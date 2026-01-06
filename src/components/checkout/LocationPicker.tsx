@@ -604,14 +604,14 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <label className="block text-sm font-semibold text-white mb-2">
+        <label className="block text-sm font-semibold text-gray-900 mb-2">
           Delivery Location *
         </label>
         <button
           type="button"
           onClick={getCurrentLocation}
           disabled={loading}
-          className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
         >
           <Navigation className="w-4 h-4" />
           {loading ? 'Getting location...' : 'Use My Location'}
@@ -621,7 +621,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       <div className="relative">
         <div 
           ref={mapRef} 
-          className="w-full h-64 rounded-lg border border-gray-600 bg-gray-800"
+          className="w-full h-64 rounded-lg border-2 border-gray-300 bg-gray-100"
           style={{ 
             minHeight: '256px', 
             height: '256px',
@@ -632,29 +632,29 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
           }}
         />
         {!location && !error && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-800/80 rounded-lg pointer-events-none z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-white/90 rounded-lg pointer-events-none z-10">
             <div className="text-center">
-              <p className="text-gray-400 text-sm mb-2">Loading map...</p>
-              <p className="text-gray-500 text-xs">Click on map or use "Use My Location" to select</p>
+              <p className="text-gray-700 text-sm mb-2 font-medium">Loading map...</p>
+              <p className="text-gray-600 text-xs">Click on map or use "Use My Location" to select</p>
             </div>
           </div>
         )}
       </div>
 
       {error && (
-        <div className="bg-red-900/20 border border-red-700 rounded-lg p-3">
-          <p className="text-red-400 text-sm">{error}</p>
+        <div className="bg-red-50 border-2 border-red-300 rounded-lg p-3">
+          <p className="text-red-700 text-sm font-medium">{error}</p>
         </div>
       )}
 
       {location && (
         <div className="space-y-2">
           <div className="flex items-start gap-2">
-            <MapPin className="w-5 h-5 text-blue-400 mt-0.5" />
+            <MapPin className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1">
-              <p className="text-white text-sm font-semibold">Selected Location:</p>
-              <p className="text-gray-300 text-sm">{address || 'Location selected'}</p>
-              <p className="text-gray-400 text-xs mt-1">
+              <p className="text-gray-900 text-sm font-semibold mb-1">Selected Location:</p>
+              <p className="text-gray-700 text-sm mb-1">{address || 'Location selected'}</p>
+              <p className="text-gray-600 text-xs">
                 Coordinates: {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
               </p>
             </div>
@@ -664,16 +664,16 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
             <div
               className={`rounded-lg p-3 ${
                 isWithinMombasa
-                  ? 'bg-green-900/20 border border-green-700'
-                  : 'bg-yellow-900/20 border border-yellow-700'
+                  ? 'bg-green-50 border-2 border-green-500'
+                  : 'bg-yellow-50 border-2 border-yellow-500'
               }`}
             >
               {isWithinMombasa ? (
-                <p className="text-green-400 text-sm font-semibold">
+                <p className="text-green-700 text-sm font-semibold">
                   ✓ Location is within Mombasa - Pay on Delivery available!
                 </p>
               ) : (
-                <p className="text-yellow-400 text-sm">
+                <p className="text-yellow-700 text-sm font-medium">
                   ⚠ Location is outside Mombasa. Pay on Delivery not available. Please use Mpesa payment.
                 </p>
               )}
