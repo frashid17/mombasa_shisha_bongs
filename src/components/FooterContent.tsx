@@ -141,12 +141,6 @@ export function FooterContent({ categories }: FooterContentProps) {
                 </div>
                 <span className="text-gray-700 dark:text-gray-400 text-sm font-medium">Mobile Money</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-red-600 text-white px-3 py-2 rounded-md font-semibold text-sm">
-                  Paystack
-                </div>
-                <span className="text-gray-700 dark:text-gray-400 text-sm font-medium">Cards & Bank Transfer</span>
-              </div>
             </div>
           </div>
         </div>
