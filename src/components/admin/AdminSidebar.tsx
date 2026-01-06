@@ -15,6 +15,7 @@ import {
   X,
   Zap,
   Calendar,
+  CreditCard,
 } from 'lucide-react'
 
 const navigation = [
@@ -22,6 +23,7 @@ const navigation = [
   { name: 'Products', href: '/admin/products', icon: Package },
   { name: 'Bundles', href: '/admin/bundles', icon: Package },
   { name: 'Orders', href: '/admin/orders', icon: ShoppingCart },
+  { name: 'Payments', href: '/admin/payments', icon: CreditCard },
   { name: 'Scheduled Deliveries', href: '/admin/orders/scheduled', icon: Calendar },
   { name: 'Categories', href: '/admin/categories', icon: FolderTree },
   { name: 'Flash Sales', href: '/admin/flash-sales', icon: Zap },
