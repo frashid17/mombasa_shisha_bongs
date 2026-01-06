@@ -36,7 +36,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     if (error.name === 'ZodError') {
       return createSecureResponse(
-        { success: false, error: error.errors[0].message },
+        { success: false, error: error.issues[0].message },
         400
       )
     }
