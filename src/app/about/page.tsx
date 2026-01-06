@@ -59,7 +59,7 @@ export default function AboutPage() {
                 <li>100% authentic products guaranteed</li>
                 <li>Fast same-day delivery in Mombasa</li>
                 <li>Competitive pricing with regular discounts</li>
-                <li>Secure payment options (Paystack, Mpesa, Cash on Delivery)</li>
+                <li>Secure payment options (M-Pesa, Cash on Delivery)</li>
                 <li>Excellent customer support</li>
                 <li>Wide selection of premium products</li>
               </ul>

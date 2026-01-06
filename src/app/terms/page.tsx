@@ -64,7 +64,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-2xl font-bold text-white mb-4">4. Payment</h2>
               <p>
-                We accept payment via Paystack (cards and bank transfer), Mpesa, and Cash on Delivery. 
+                We accept payment via M-Pesa and Cash on Delivery. 
                 Payment must be received before or upon delivery. We reserve the right to refuse or cancel 
                 any order at our discretion.
               </p>
