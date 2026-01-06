@@ -80,8 +80,6 @@ export async function sendOrderConfirmationNotification(
       ? 'Payment on Delivery' 
       : data.paymentMethod === 'MPESA' 
       ? 'M-Pesa' 
-      : data.paymentMethod === 'PAYSTACK' 
-      ? 'M-Pesa / Paystack' 
       : data.paymentMethod || 'Not specified'
     
     // Format payment status for display
@@ -400,23 +398,94 @@ export async function sendPaymentReceivedNotification(
     const deliveryLocation = deliveryInfo.length > 0 ? deliveryInfo.join('<br>') : 'Not specified'
 
     const adminTemplate = {
-      subject: `Payment Received - Order #${data.orderNumber}`,
+      subject: `✅ Payment Approved - Order #${data.orderNumber}`,
       html: `
-        <h1>Payment Received</h1>
-        <p><strong>Order Number:</strong> #${data.orderNumber}</p>
-        <p><strong>Customer:</strong> ${order?.userName || 'Customer'}</p>
-        <p><strong>Customer Email:</strong> ${order?.userEmail || data.customerEmail}</p>
-        <p><strong>Customer Phone:</strong> ${order?.userPhone || data.customerPhone || 'Not provided'}</p>
-        <p><strong>Amount:</strong> KES ${data.amount.toLocaleString()}</p>
-        ${data.receiptNumber ? `<p><strong>Mpesa Receipt:</strong> ${data.receiptNumber}</p>` : ''}
-        ${data.transactionId ? `<p><strong>Transaction ID:</strong> ${data.transactionId}</p>` : ''}
-        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
-        <h2>Delivery Location</h2>
-        <p>${deliveryLocation}</p>
-        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
-        <p><a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/orders/${orderId}">View Order in Admin Panel</a></p>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #16a34a 0%, #15803d 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+            .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+            .section { background: white; padding: 15px; margin-bottom: 15px; border-radius: 5px; border-left: 4px solid #16a34a; }
+            .section h2 { margin-top: 0; color: #16a34a; font-size: 18px; }
+            .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+            .info-row:last-child { border-bottom: none; }
+            .info-label { font-weight: bold; color: #555; }
+            .info-value { color: #333; }
+            .button { display: inline-block; background: #16a34a; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>✅ Payment Approved</h1>
+              <p style="margin: 0; font-size: 18px;">Order #${data.orderNumber}</p>
+            </div>
+            
+            <div class="content">
+              <div class="section">
+                <h2>Payment Information</h2>
+                <div class="info-row">
+                  <span class="info-label">Order Number:</span>
+                  <span class="info-value">#${data.orderNumber}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Amount:</span>
+                  <span class="info-value" style="font-weight: bold; font-size: 18px; color: #16a34a;">KES ${data.amount.toLocaleString()}</span>
+                </div>
+                ${data.receiptNumber ? `
+                <div class="info-row">
+                  <span class="info-label">M-Pesa Receipt:</span>
+                  <span class="info-value" style="font-family: monospace; font-weight: bold;">${data.receiptNumber}</span>
+                </div>
+                ` : ''}
+                ${data.transactionId ? `
+                <div class="info-row">
+                  <span class="info-label">Transaction ID:</span>
+                  <span class="info-value" style="font-family: monospace;">${data.transactionId}</span>
+                </div>
+                ` : ''}
+              </div>
+
+              <div class="section">
+                <h2>Customer Information</h2>
+                <div class="info-row">
+                  <span class="info-label">Name:</span>
+                  <span class="info-value">${order?.userName || 'Customer'}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Email:</span>
+                  <span class="info-value">${order?.userEmail || data.customerEmail}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Phone:</span>
+                  <span class="info-value">${order?.userPhone || data.customerPhone || 'Not provided'}</span>
+                </div>
+              </div>
+
+              <div class="section">
+                <h2>Delivery Location</h2>
+                <p>${deliveryLocation}</p>
+              </div>
+
+              <div style="text-align: center;">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/orders/${orderId}" class="button">
+                  View Order in Admin Panel
+                </a>
+              </div>
+
+              <p style="margin-top: 20px; padding: 15px; background: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 5px; color: #166534;">
+                <strong>✅ Payment Status:</strong> The order has been confirmed and is ready for processing. The customer has been notified via email.
+              </p>
+            </div>
+          </div>
+        </body>
+        </html>
       `,
-      text: `Payment received for Order #${data.orderNumber}. Amount: KES ${data.amount.toLocaleString()}. ${data.receiptNumber ? `Receipt: ${data.receiptNumber}` : ''}\n\nCustomer: ${order?.userName || 'Customer'}\nEmail: ${order?.userEmail || data.customerEmail}\nPhone: ${order?.userPhone || data.customerPhone || 'Not provided'}\n\nDelivery Location:\n${order?.deliveryAddress || 'Not specified'}${order?.deliveryCity ? `, ${order.deliveryCity}` : ''}${order?.deliveryLatitude && order?.deliveryLongitude ? `\nCoordinates: ${order.deliveryLatitude}, ${order.deliveryLongitude}\nView on Google Maps: https://www.google.com/maps?q=${order.deliveryLatitude},${order.deliveryLongitude}` : ''}`,
+      text: `Payment Approved for Order #${data.orderNumber}\n\nAmount: KES ${data.amount.toLocaleString()}\n${data.receiptNumber ? `M-Pesa Receipt: ${data.receiptNumber}\n` : ''}${data.transactionId ? `Transaction ID: ${data.transactionId}\n` : ''}\nCustomer: ${order?.userName || 'Customer'}\nEmail: ${order?.userEmail || data.customerEmail}\nPhone: ${order?.userPhone || data.customerPhone || 'Not provided'}\n\nDelivery Location:\n${order?.deliveryAddress || 'Not specified'}${order?.deliveryCity ? `, ${order.deliveryCity}` : ''}${order?.deliveryLatitude && order?.deliveryLongitude ? `\nCoordinates: ${order.deliveryLatitude}, ${order.deliveryLongitude}\nView on Google Maps: https://www.google.com/maps?q=${order.deliveryLatitude},${order.deliveryLongitude}` : ''}\n\n✅ Payment Status: Approved - Order confirmed and ready for processing. Customer has been notified.`,
     }
 
     await sendEmail({
