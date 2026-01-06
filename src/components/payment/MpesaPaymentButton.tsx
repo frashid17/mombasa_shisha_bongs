@@ -108,18 +108,18 @@ export default function MpesaPaymentButton({
   }
 
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg p-6 space-y-4">
+    <div className="bg-white border-2 border-red-600 rounded-lg shadow-lg p-6 space-y-4">
       <div className="flex items-center gap-3 mb-4">
-        <Smartphone className="w-6 h-6 text-blue-400" />
-        <h3 className="text-xl font-bold text-white">Pay with Mpesa</h3>
+        <Smartphone className="w-6 h-6 text-red-600" />
+        <h3 className="text-xl font-bold text-gray-900">Pay with Mpesa</h3>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-white mb-2">
+        <label className="block text-sm font-semibold text-gray-900 mb-2">
           Phone Number *
         </label>
         <div className="flex items-center">
-          <span className="bg-gray-700 text-gray-300 px-3 py-3 rounded-l-lg border border-r-0 border-gray-600">
+          <span className="bg-red-50 text-gray-700 px-3 py-3 rounded-l-lg border-2 border-r-0 border-red-600 font-semibold">
             +254
           </span>
           <input
@@ -132,19 +132,19 @@ export default function MpesaPaymentButton({
               setError('')
             }}
             placeholder="708786000"
-            className="flex-1 bg-gray-900 border border-gray-600 rounded-r-lg px-4 py-3 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+            className="flex-1 bg-white border-2 border-red-600 rounded-r-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/20"
             disabled={loading}
             pattern="[0-9]{9}"
             maxLength={9}
           />
         </div>
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-xs text-gray-600 mt-1">
           Enter 9 digits (e.g., 708786000). The +254 prefix is added automatically.
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 text-red-300 text-sm">
+        <div className="bg-red-50 border-2 border-red-600 rounded-lg p-3 text-red-700 text-sm font-medium">
           {error}
         </div>
       )}
@@ -152,7 +152,7 @@ export default function MpesaPaymentButton({
       <button
         onClick={handlePayment}
         disabled={loading || !phoneNumber.trim()}
-        className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 transition-colors"
       >
         {loading ? (
           <>
@@ -167,7 +167,7 @@ export default function MpesaPaymentButton({
         )}
       </button>
 
-      <p className="text-xs text-gray-400 text-center">
+      <p className="text-xs text-gray-600 text-center">
         You will receive an STK Push notification on your phone. Enter your Mpesa PIN to complete
         the payment.
       </p>
