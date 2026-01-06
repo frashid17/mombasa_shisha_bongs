@@ -5,7 +5,7 @@ import { useUser, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
-import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield, Search, Phone, X, Globe, Package } from 'lucide-react'
+import { ShoppingCart, User, Menu, LogOut, Settings, Heart, MapPin, Shield, Search, Phone, X, Globe, Package, CreditCard } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import Logo from './Logo'
 import CurrencySelector from './CurrencySelector'
@@ -88,11 +88,11 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
               {/* Phone Number */}
               <a
-                href="tel:+254719541660"
+                href="tel:+254117037140"
                 className="hidden lg:flex items-center gap-2 text-gray-700 hover:text-red-600 transition-colors"
               >
                 <Phone className="w-5 h-5" />
-                <span className="font-medium">+2547117037140</span>
+                <span className="font-medium">0117037140</span>
               </a>
 
               {/* Currency Selector */}
@@ -112,8 +112,8 @@ export default function Navbar() {
                 </Link>
               )}
 
-              {/* Profile/Login */}
-              {isSignedIn ? (
+              {/* Profile/Login - Only render after mount and auth is loaded to prevent hydration mismatch */}
+              {isMounted && authLoaded && isSignedIn ? (
                 <div className="hidden md:block relative" ref={profileMenuRef} style={{ zIndex: 1000, overflow: 'visible' }}>
                   <button
                     onClick={() => setProfileMenuOpen(!profileMenuOpen)}
@@ -161,6 +161,14 @@ export default function Navbar() {
                         >
                           <MapPin className="w-4 h-4 flex-shrink-0" />
                           <span className="font-medium">Delivery Addresses</span>
+                        </Link>
+                        <Link
+                          href="/payments"
+                          onClick={() => setProfileMenuOpen(false)}
+                          className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-red-600 transition-colors whitespace-nowrap"
+                        >
+                          <CreditCard className="w-4 h-4 flex-shrink-0" />
+                          <span className="font-medium">Payment History</span>
                         </Link>
                         <button
                           onClick={handleSignOut}
@@ -294,7 +302,7 @@ export default function Navbar() {
                     >
                       Request Quote
                     </Link>
-                    {isSignedIn && (
+                    {isMounted && authLoaded && isSignedIn && (
                       <Link
                         href="/orders"
                         className="block py-4 px-6 font-semibold text-white hover:bg-red-700 transition-colors"
@@ -322,7 +330,7 @@ export default function Navbar() {
                         </span>
                       </Link>
                     )}
-                    {isSignedIn ? (
+                    {isMounted && authLoaded && isSignedIn ? (
                       <>
                         <Link
                           href="/profile"
@@ -339,6 +347,14 @@ export default function Navbar() {
                         >
                           <MapPin className="w-5 h-5" />
                           Manage Address
+                        </Link>
+                        <Link
+                          href="/payments"
+                          className="flex items-center gap-3 py-4 px-6 text-white hover:bg-red-700 transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <CreditCard className="w-5 h-5" />
+                          Payment History
                         </Link>
                         <button
                           onClick={() => {
@@ -384,7 +400,7 @@ export default function Navbar() {
               <Link href="/quote" className="font-bold uppercase px-3 sm:px-4 py-3 hover:bg-red-700 transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap flex-shrink-0">
                 Request Quote
               </Link>
-              {isSignedIn && (
+              {isMounted && authLoaded && isSignedIn && (
                 <Link href="/orders" className="font-bold uppercase px-3 sm:px-4 py-3 hover:bg-red-700 transition-colors text-xs sm:text-sm md:text-base whitespace-nowrap flex-shrink-0">
                   My Orders
                 </Link>
