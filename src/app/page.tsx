@@ -324,7 +324,7 @@ export default async function HomePage() {
   return (
     <>
       <StructuredData type="Organization" />
-      <div className="min-h-screen animated-gradient-bg page-fade-in">
+      <div className="min-h-screen animated-gradient-bg">
         {/* Hero Section - Promotional Banner */}
         <section className="py-12 md:py-16 relative z-10">
           <div className="container mx-auto px-4">
@@ -354,51 +354,68 @@ export default async function HomePage() {
               </div>
 
               {/* Trust Indicators */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mt-8 text-sm md:text-base">
-                <Link href="#explore-all-items" className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md hover:border-red-500 transition-all duration-300 cursor-pointer">
-                  <div className="bg-red-600 p-3 rounded-lg">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4 mt-8">
+                <Link href="#explore-all-items" className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-2.5 flex items-center gap-2 hover:shadow-md hover:border-red-500 transition-all duration-300 cursor-pointer">
+                  <div className="bg-red-600 p-2 rounded-lg">
                     <AnimatedIcon animationType="pulse">
-                      <ShoppingBag className="w-6 h-6 text-white" />
+                      <ShoppingBag className="w-5 h-5 text-white" />
                     </AnimatedIcon>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Products</p>
-                    <p className="text-gray-900 font-bold text-xl">
+                    <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">Products</p>
+                    <p className="text-gray-900 font-bold text-base">
                       {stats}+
-                      <span className="ml-1 text-sm font-medium text-gray-600">items in stock</span>
+                      <span className="ml-1 text-xs font-medium text-gray-600">items in stock</span>
                     </p>
                   </div>
                 </Link>
-                <Link href="#customer-reviews" className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md hover:border-red-500 transition-all duration-300 cursor-pointer">
-                  <div className="bg-red-600 p-3 rounded-lg">
+                <Link href="#customer-reviews" className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-2.5 flex items-center gap-2 hover:shadow-md hover:border-red-500 transition-all duration-300 cursor-pointer">
+                  <div className="bg-red-600 p-2 rounded-lg">
                     <AnimatedIcon animationType="pulse">
-                      <Star className="w-6 h-6 text-white fill-white" />
+                      <Star className="w-5 h-5 text-white fill-white" />
                     </AnimatedIcon>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Customer Reviews</p>
-                    <p className="text-gray-900 font-bold text-xl">
+                    <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">Customer Reviews</p>
+                    <p className="text-gray-900 font-bold text-base">
                       {reviews}+
-                      <span className="ml-1 text-sm font-medium text-gray-600">verified ratings</span>
+                      <span className="ml-1 text-xs font-medium text-gray-600">verified ratings</span>
                     </p>
                   </div>
                 </Link>
-                <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-5 py-4 flex items-center gap-3 hover:shadow-md transition-all duration-300">
-                  <div className="bg-red-600 p-3 rounded-lg">
-                    <AnimatedIcon animationType="bounce">
-                      <Truck className="w-6 h-6 text-white" />
-                    </AnimatedIcon>
+                <div className="bg-white/90 backdrop-blur-sm border border-gray-200 rounded-lg px-3 py-2.5 hover:shadow-md transition-all duration-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="bg-red-600 p-2 rounded-lg">
+                      <AnimatedIcon animationType="bounce">
+                        <Truck className="w-5 h-5 text-white" />
+                      </AnimatedIcon>
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">Delivery</p>
+                      <p className="text-gray-900 font-bold text-base">
+                        Same-day
+                        <span className="ml-1 text-xs font-medium text-gray-600">within Mombasa</span>
+                      </p>
+                      <p className="text-red-600 font-semibold text-xs mt-0.5">
+                        ✨ Pay on Delivery Available ✨
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Delivery</p>
-                    <p className="text-gray-900 font-bold text-xl">
-                      Same-day
-                      <span className="ml-1 text-sm font-medium text-gray-600">within Mombasa</span>
-                    </p>
-                    <p className="text-red-600 font-semibold text-sm mt-1">
-                      ✨ Pay on Delivery Available ✨
-          </p>
-        </div>
+                  {/* M-Pesa Trust Badges */}
+                  <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                    <div className="flex items-center gap-1.5">
+                      <div className="bg-green-600 text-white px-2 py-0.5 rounded text-[10px] font-bold shadow-sm">
+                        M-PESA
+                      </div>
+                      <span className="text-[10px] text-gray-600 font-medium">Secure Payment</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-500">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-[10px]">Verified</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
