@@ -9,7 +9,7 @@ import { MapPin, CreditCard, Wallet, Loader2, Star, Home, Building2, Briefcase, 
 import { useCurrency } from '@/contexts/CurrencyContext'
 import Link from 'next/link'
 
-type PaymentMethod = 'PAYSTACK' | 'CASH_ON_DELIVERY'
+type PaymentMethod = 'MPESA' | 'CASH_ON_DELIVERY'
 
 interface LocationData {
   lat: number
@@ -24,7 +24,7 @@ export default function CheckoutPage() {
   const { items, getTotal, clearCart } = useCartStore()
   const { format } = useCurrency()
   const [loading, setLoading] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('PAYSTACK')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('MPESA')
   const [selectedLocation, setSelectedLocation] = useState<LocationData | null>(null)
   const [isWithinMombasa, setIsWithinMombasa] = useState<boolean | null>(null)
   const [savedAddresses, setSavedAddresses] = useState<any[]>([])
@@ -145,7 +145,7 @@ export default function CheckoutPage() {
       if (location.isWithinMombasa) {
         setPaymentMethod('CASH_ON_DELIVERY')
       } else {
-        setPaymentMethod('PAYSTACK')
+        setPaymentMethod('MPESA')
       }
     } else {
       // Fallback: Check if location is within Mombasa via API
@@ -162,109 +162,15 @@ export default function CheckoutPage() {
         if (data.isWithinMombasa) {
           setPaymentMethod('CASH_ON_DELIVERY')
         } else {
-          setPaymentMethod('PAYSTACK')
+          setPaymentMethod('MPESA')
         }
       } catch (error) {
         console.error('Error checking location:', error)
-        // Default to Paystack if check fails
+        // Default to M-Pesa if check fails
         setIsWithinMombasa(false)
-        setPaymentMethod('PAYSTACK')
+        setPaymentMethod('MPESA')
       }
     }
-  }
-
-  function generateWhatsAppMessage() {
-    // Build order items list
-    let itemsList = ''
-    items.forEach((item, index) => {
-      itemsList += `${index + 1}. ${item.name}`
-      if (item.isBundle) {
-        itemsList += ' (Bundle)'
-        if (item.bundleItems) {
-          itemsList += '\n   Includes:'
-          item.bundleItems.forEach((bi: any, biIdx: number) => {
-            itemsList += `\n   - Item ${biIdx + 1} (Qty: ${bi.quantity})`
-          })
-        }
-      }
-      if (item.colorName) {
-        itemsList += `\n   Color: ${item.colorName}`
-        if (item.colorValue) {
-          itemsList += ` (${item.colorValue})`
-        }
-      }
-      if (item.specName) {
-        itemsList += `\n   ${item.specType || 'Spec'}: ${item.specName}`
-        if (item.specValue) {
-          itemsList += ` (${item.specValue})`
-        }
-      }
-      itemsList += `\n   Quantity: ${item.quantity} × ${format(item.price)} = ${format(item.price * item.quantity)}\n\n`
-    })
-
-    // Build delivery address - handle saved addresses
-    let fullAddress = ''
-    if (useSavedAddress && selectedAddressId) {
-      const selectedAddress = savedAddresses.find(addr => addr.id === selectedAddressId)
-      if (selectedAddress) {
-        fullAddress = selectedAddress.address
-        if (formData.additionalAddress) {
-          fullAddress += `, ${formData.additionalAddress}`
-        }
-        if (selectedAddress.city) {
-          fullAddress += `, ${selectedAddress.city}`
-        }
-      }
-    } else {
-      fullAddress = formData.additionalAddress
-        ? `${formData.deliveryAddress}, ${formData.additionalAddress}`
-        : formData.deliveryAddress
-      if (formData.city) {
-        fullAddress += `, ${formData.city}`
-      }
-    }
-    
-    const locationLink = selectedLocation
-      ? `https://www.google.com/maps?q=${selectedLocation.lat},${selectedLocation.lng}`
-      : ''
-
-    // Build scheduled delivery info
-    const scheduledInfo = formData.scheduledDelivery
-      ? `\nScheduled Delivery: ${new Date(formData.scheduledDelivery).toLocaleString('en-US', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        })}`
-      : ''
-
-    // Build notes
-    const notesInfo = formData.notes ? `\nOrder Notes: ${formData.notes}` : ''
-
-    const message = `*NEW ORDER REQUEST*
-
-*CUSTOMER INFORMATION:*
-Name: ${formData.customerName}
-Email: ${formData.customerEmail || 'Not provided'}
-Phone: ${formData.customerPhone ? `+254${formData.customerPhone}` : 'Not provided'}
-
-*DELIVERY LOCATION:*
-${fullAddress || 'Not specified'}
-${locationLink ? `\nMap Location: ${locationLink}` : ''}${scheduledInfo}${notesInfo}
-
-*ORDER ITEMS:*
-${itemsList}
-
-*TOTAL AMOUNT:* ${format(total)}
-
-*PAYMENT METHOD:* ${paymentMethod === 'CASH_ON_DELIVERY' ? 'Cash on Delivery' : 'Paystack (Temporarily unavailable)'}
-
----
-Please confirm this order and provide payment instructions. Thank you!`
-
-    return message
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -275,22 +181,6 @@ Please confirm this order and provide payment instructions. Thank you!`
       return
     }
 
-    // Temporarily redirect to WhatsApp instead of processing payment
-    const whatsappNumber = '254117037140' // Your WhatsApp number
-    const message = generateWhatsAppMessage()
-    const encodedMessage = encodeURIComponent(message)
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`
-    
-    // Open WhatsApp in new tab
-    window.open(whatsappUrl, '_blank')
-    
-    // Show confirmation message
-    alert('Opening WhatsApp with your order details. Please send the message to complete your order.')
-    
-    return
-
-    // OLD CODE - Commented out temporarily
-    /*
     setLoading(true)
 
     try {
@@ -378,7 +268,7 @@ Please confirm this order and provide payment instructions. Thank you!`
           clearCart()
           router.push(`/orders/${data.order.id}?cod=true`)
         } else {
-          // For Paystack, DON'T clear cart yet - wait for successful payment
+          // For M-Pesa, DON'T clear cart yet - wait for successful payment
           // Redirect to order page where payment button will be shown
           router.push(`/orders/${data.order.id}`)
         }
@@ -391,28 +281,12 @@ Please confirm this order and provide payment instructions. Thank you!`
     } finally {
       setLoading(false)
     }
-    */
   }
 
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Checkout</h1>
-        
-        {/* Payment Temporarily Unavailable Notice */}
-        <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <div className="text-2xl">⚠️</div>
-            <div>
-              <h3 className="font-bold text-yellow-900 mb-1">Payment Temporarily Unavailable</h3>
-              <p className="text-sm text-yellow-800">
-                Online payment processing is temporarily unavailable. When you click "Place Order via WhatsApp", 
-                your complete order details will be automatically formatted and ready to send via WhatsApp. 
-                Simply send the message to complete your order.
-              </p>
-            </div>
-          </div>
-        </div>
         
         {/* Account Benefits Message */}
         {!user && (
@@ -765,35 +639,72 @@ Please confirm this order and provide payment instructions. Thank you!`
                           {isWithinMombasa === true
                             ? 'Pay with cash when your order is delivered. Delivery fees will be collected separately in cash by the delivery person based on your area (CBD/town areas may have different fees).'
                             : isWithinMombasa === false
-                              ? 'Pay on Delivery is only available for locations within Mombasa. Please use Paystack payment.'
+                              ? 'Pay on Delivery is only available for locations within Mombasa. Please use M-Pesa payment.'
                               : 'Checking if location is within Mombasa...'}
                         </p>
                       </div>
                     </label>
                   )}
 
-                  {/* Paystack Payment - Temporarily unavailable */}
-                  <div className="bg-gray-100 border-2 border-gray-300 rounded-lg p-4 opacity-60 cursor-not-allowed">
-                    <div className="flex items-start gap-3">
-                      <div className="relative mt-1">
-                        <div className="w-5 h-5 rounded-full border-2 border-gray-400 bg-gray-200" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <CreditCard className="w-5 h-5 text-gray-400" />
-                          <span className="font-semibold text-gray-500">
-                            Paystack Payment
-                          </span>
-                          <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
-                            Temporarily Unavailable
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-500">
-                          Payment processing is temporarily unavailable. Please use WhatsApp to complete your order. Click "Place Order" to open WhatsApp with your order details.
-                        </p>
+                  {/* M-Pesa Payment - Always available */}
+                  <label
+                    className={`flex items-start gap-3 p-4 rounded-lg cursor-pointer transition-all ${
+                      paymentMethod === 'MPESA'
+                        ? 'bg-red-50 border-2 border-red-500 ring-2 ring-red-500/50'
+                        : 'bg-white/50 border-2 border-gray-300 hover:border-gray-400'
+                    }`}
+                  >
+                    <div className="relative mt-1">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="MPESA"
+                        checked={paymentMethod === 'MPESA'}
+                        onChange={() => setPaymentMethod('MPESA')}
+                        className="sr-only"
+                      />
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          paymentMethod === 'MPESA'
+                            ? 'border-red-500 bg-red-500'
+                            : 'border-gray-500 bg-transparent'
+                        }`}
+                      >
+                        {paymentMethod === 'MPESA' && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                        )}
                       </div>
                     </div>
-                  </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Wallet className={`w-5 h-5 ${
+                          paymentMethod === 'MPESA'
+                            ? 'text-red-600'
+                            : 'text-gray-500'
+                        }`} />
+                        <span className={`font-semibold ${
+                          paymentMethod === 'MPESA'
+                            ? 'text-gray-900'
+                            : 'text-gray-600'
+                        }`}>
+                          M-Pesa Payment
+                          {paymentMethod === 'MPESA' && (
+                            <span className="ml-2 text-red-600">✓ Selected</span>
+                          )}
+                        </span>
+                        <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">
+                          Always Available
+                        </span>
+                      </div>
+                      <p className={`text-sm ${
+                        paymentMethod === 'MPESA'
+                          ? 'text-gray-700'
+                          : 'text-gray-500'
+                      }`}>
+                        Send money via M-Pesa to our number. After sending, you'll be asked to enter your M-Pesa reference number and sender name for verification.
+                      </p>
+                    </div>
+                  </label>
                 </div>
               </div>
             )}
@@ -801,26 +712,14 @@ Please confirm this order and provide payment instructions. Thank you!`
             <button
               type="submit"
               disabled={loading || !selectedLocation}
-              className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <span>📱</span>
-                  <span>Place Order via WhatsApp</span>
-                </>
-              )}
+              {loading
+                ? 'Processing...'
+                : paymentMethod === 'CASH_ON_DELIVERY'
+                  ? 'Place Order (Pay on Delivery)'
+                  : 'Place Order & Pay with M-Pesa'}
             </button>
-            <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <p className="text-sm text-yellow-800 font-semibold mb-1">⚠️ Payment Temporarily Unavailable</p>
-              <p className="text-xs text-yellow-700">
-                Online payment is temporarily unavailable. Clicking "Place Order via WhatsApp" will open WhatsApp with your complete order details. Send the message to complete your order.
-              </p>
-            </div>
           </form>
 
           <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 h-fit">
