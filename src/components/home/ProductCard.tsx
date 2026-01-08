@@ -101,6 +101,33 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     })
   }
 
+  const handleQuickBuyNow = async (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (product.stock === 0) return
+
+    // Check if product has specifications
+    const hasSpecs = product.specifications && product.specifications.length > 0
+    
+    if (hasSpecs) {
+      // Product has specs, redirect to product page to select them
+      window.location.href = `/products/${product.id}`
+      return
+    }
+
+    // Product has no specs, add to cart and go to checkout
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: displayPrice,
+      image: product.images[0]?.url,
+    })
+
+    // Redirect to checkout
+    window.location.href = '/checkout'
+  }
+
   const handleToggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -182,27 +209,37 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           </div>
         )}
 
-        {/* Action Buttons - Only Add to Cart and Wishlist */}
-        <div className="flex items-center gap-2 mt-auto">
+        {/* Action Buttons - Add to Cart, Buy Now, and Wishlist */}
+        <div className="space-y-2 mt-auto">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleQuickAddToCart}
+              disabled={product.stock === 0}
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2.5 rounded-md text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
+            >
+              <ShoppingCart className="w-4 h-4 flex-shrink-0" />
+              <span className="hidden sm:inline">Add to Cart</span>
+              <span className="sm:hidden">Add</span>
+            </button>
+            <button
+              onClick={handleToggleWishlist}
+              className={`inline-flex items-center justify-center p-2.5 rounded-md border transition-all duration-300 ${
+                wishlistActive
+                  ? 'bg-red-600 border-red-600 text-white hover:bg-red-700'
+                  : 'bg-white border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600'
+              }`}
+              aria-label={wishlistActive ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              <Heart className={`w-5 h-5 ${wishlistActive ? 'fill-current' : ''}`} />
+            </button>
+          </div>
           <button
-            onClick={handleQuickAddToCart}
+            onClick={handleQuickBuyNow}
             disabled={product.stock === 0}
-            className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2.5 rounded-md text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
+            className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white px-3 py-2.5 rounded-md text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
           >
-            <ShoppingCart className="w-4 h-4 flex-shrink-0" />
-            <span className="hidden sm:inline">Add to Cart</span>
-            <span className="sm:hidden">Add</span>
-          </button>
-          <button
-            onClick={handleToggleWishlist}
-            className={`inline-flex items-center justify-center p-2.5 rounded-md border transition-all duration-300 ${
-              wishlistActive
-                ? 'bg-red-600 border-red-600 text-white hover:bg-red-700'
-                : 'bg-white border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600'
-            }`}
-            aria-label={wishlistActive ? 'Remove from wishlist' : 'Add to wishlist'}
-          >
-            <Heart className={`w-5 h-5 ${wishlistActive ? 'fill-current' : ''}`} />
+            <Sparkles className="w-4 h-4 flex-shrink-0" />
+            <span>Buy Now</span>
           </button>
         </div>
       </div>
