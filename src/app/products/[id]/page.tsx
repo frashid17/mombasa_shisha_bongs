@@ -271,8 +271,19 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                   )}
                 </div>
               ) : (
-                <div className="mt-6 flex items-center gap-3">
-                  <AddToCartButton product={serializedProduct} />
+                <div className="mt-6">
+                  <div className="flex flex-col sm:flex-row gap-3 mb-3">
+                    <div className="flex-1">
+                      <AddToCartButton product={serializedProduct} />
+                    </div>
+                    <div className="flex-1">
+                      <BuyNowButton 
+                        product={serializedProduct}
+                        colors={[]}
+                        specs={[]}
+                      />
+                    </div>
+                  </div>
                   <AddToWishlistButton product={serializedProduct} />
                 </div>
               )}
