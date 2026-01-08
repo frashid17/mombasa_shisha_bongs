@@ -118,7 +118,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
             <p className="text-gray-600 mb-6">
               Found {category.products.length} product{category.products.length !== 1 ? 's' : ''}
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
               {category.products.map((product) => (
                 <ProductCard
                   key={product.id}

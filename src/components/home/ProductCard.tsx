@@ -145,7 +145,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   return (
     <div className="group relative bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col h-full">
       {/* Image Container */}
-      <Link href={`/products/${product.id}`} className="relative h-64 bg-white overflow-hidden">
+      <Link href={`/products/${product.id}`} className="relative h-48 sm:h-56 md:h-64 bg-white overflow-hidden">
         {/* Badges */}
         <ProductBadges
           isNewArrival={product.isNewArrival}
@@ -182,20 +182,20 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       </Link>
 
       {/* Product Info - VapeSoko Style */}
-      <div className="p-4 bg-white flex flex-col flex-1">
+      <div className="p-2 sm:p-3 md:p-4 bg-white flex flex-col flex-1">
         {/* Product Name */}
         <Link href={`/products/${product.id}`}>
-          <h3 className="font-bold text-gray-900 mb-3 text-base line-clamp-2 hover:text-red-600 transition-colors">
+          <h3 className="font-bold text-gray-900 mb-2 text-xs sm:text-sm md:text-base line-clamp-2 hover:text-red-600 transition-colors">
             {product.name}
           </h3>
         </Link>
 
         {/* Price - VapeSoko Style */}
-        <div className="mb-3">
-          <div className="flex items-center gap-2">
-            <p className="text-gray-900 font-bold text-lg">{format(displayPrice)}</p>
+        <div className="mb-2">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+            <p className="text-gray-900 font-bold text-sm sm:text-base md:text-lg">{format(displayPrice)}</p>
             {hasDiscount && (
-              <p className="text-red-600 text-sm line-through">
+              <p className="text-red-600 text-xs sm:text-sm line-through">
                 Was {format(Number(product.compareAtPrice))}
               </p>
             )}
@@ -204,41 +204,41 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Stock Progress Bar */}
         {product.stock > 0 && (
-          <div className="mb-3">
+          <div className="mb-2 hidden sm:block">
             <StockProgressBar stock={product.stock} showText={false} />
           </div>
         )}
 
         {/* Action Buttons - Add to Cart, Buy Now, and Wishlist */}
-        <div className="space-y-2 mt-auto">
-          <div className="flex items-center gap-2">
+        <div className="space-y-1.5 sm:space-y-2 mt-auto">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               onClick={handleQuickAddToCart}
               disabled={product.stock === 0}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2.5 rounded-md text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
+              className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-2 bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2.5 rounded-md text-xs sm:text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
             >
-              <ShoppingCart className="w-4 h-4 flex-shrink-0" />
+              <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
               <span className="hidden sm:inline">Add to Cart</span>
               <span className="sm:hidden">Add</span>
             </button>
             <button
               onClick={handleToggleWishlist}
-              className={`inline-flex items-center justify-center p-2.5 rounded-md border transition-all duration-300 ${
+              className={`inline-flex items-center justify-center p-2 sm:p-2.5 rounded-md border transition-all duration-300 ${
                 wishlistActive
                   ? 'bg-red-600 border-red-600 text-white hover:bg-red-700'
                   : 'bg-white border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600'
               }`}
               aria-label={wishlistActive ? 'Remove from wishlist' : 'Add to wishlist'}
             >
-              <Heart className={`w-5 h-5 ${wishlistActive ? 'fill-current' : ''}`} />
+              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${wishlistActive ? 'fill-current' : ''}`} />
             </button>
           </div>
           <button
             onClick={handleQuickBuyNow}
             disabled={product.stock === 0}
-            className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white px-3 py-2.5 rounded-md text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
+            className="w-full inline-flex items-center justify-center gap-1 sm:gap-2 bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2.5 rounded-md text-xs sm:text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
           >
-            <Sparkles className="w-4 h-4 flex-shrink-0" />
+            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
             <span>Buy Now</span>
           </button>
         </div>
