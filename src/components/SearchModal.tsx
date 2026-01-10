@@ -128,10 +128,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <input
               ref={inputRef}
               type="text"
+              id="modal-search"
+              name="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Search for shisha, vapes, accessories..."
+              autoComplete="off"
+              aria-label="Search products in modal"
               className="w-full pl-12 pr-12 py-4 bg-gray-50 border border-gray-300 rounded-md focus:border-red-500 focus:outline-none text-gray-900 text-lg placeholder-gray-500"
             />
             {loading && (
