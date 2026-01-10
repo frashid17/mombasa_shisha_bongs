@@ -160,12 +160,14 @@ export default function CategoryForm({ category }: CategoryFormProps) {
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Category Name *</label>
+          <label htmlFor="category-name" className="block text-sm font-semibold text-gray-900 mb-2">Category Name *</label>
           <input
             type="text"
+            id="category-name"
             name="name"
             required
             defaultValue={category?.name}
+            autoComplete="off"
             className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
             style={{ color: '#111827' }}
           />
@@ -285,12 +287,14 @@ export default function CategoryForm({ category }: CategoryFormProps) {
         </div>
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-900 mb-2">Description</label>
+        <label htmlFor="category-description" className="block text-sm font-semibold text-gray-900 mb-2">Description</label>
         <textarea
+          id="category-description"
           name="description"
           rows={4}
           defaultValue={category?.description || ''}
           placeholder="Category description..."
+          autoComplete="off"
           className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900 placeholder-gray-400"
           style={{ color: '#111827' }}
         />
@@ -298,11 +302,12 @@ export default function CategoryForm({ category }: CategoryFormProps) {
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
+          id="category-active"
           name="isActive"
           defaultChecked={category?.isActive ?? true}
           className="w-4 h-4"
         />
-        <label className="text-sm font-semibold text-gray-900">Active</label>
+        <label htmlFor="category-active" className="text-sm font-semibold text-gray-900">Active</label>
       </div>
       <div className="flex gap-4">
         <button
