@@ -42,52 +42,62 @@ export default function SettingsForm({ settings }: { settings: any }) {
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Site Name</label>
+          <label htmlFor="settings-sitename" className="block text-sm font-semibold text-gray-900 mb-2">Site Name</label>
           <input
             type="text"
+            id="settings-sitename"
             name="siteName"
             defaultValue={settings.siteName}
+            autoComplete="organization"
             className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
             style={{ color: '#111827' }}
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Contact Email</label>
+          <label htmlFor="settings-email" className="block text-sm font-semibold text-gray-900 mb-2">Contact Email</label>
           <input
             type="email"
+            id="settings-email"
             name="contactEmail"
             defaultValue={settings.contactEmail}
+            autoComplete="email"
             className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
             style={{ color: '#111827' }}
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Contact Phone</label>
+          <label htmlFor="settings-phone" className="block text-sm font-semibold text-gray-900 mb-2">Contact Phone</label>
           <input
             type="tel"
+            id="settings-phone"
             name="contactPhone"
             defaultValue={settings.contactPhone}
+            autoComplete="tel"
             className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
             style={{ color: '#111827' }}
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Address</label>
+          <label htmlFor="settings-address" className="block text-sm font-semibold text-gray-900 mb-2">Address</label>
           <input
             type="text"
+            id="settings-address"
             name="address"
             defaultValue={settings.address}
+            autoComplete="street-address"
             className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
             style={{ color: '#111827' }}
           />
         </div>
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-900 mb-2">Site Description</label>
+        <label htmlFor="settings-description" className="block text-sm font-semibold text-gray-900 mb-2">Site Description</label>
         <textarea
+          id="settings-description"
           name="siteDescription"
           rows={3}
           defaultValue={settings.siteDescription}
+          autoComplete="off"
           className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
           style={{ color: '#111827' }}
         />
