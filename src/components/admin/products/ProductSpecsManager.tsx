@@ -279,11 +279,14 @@ export default function ProductSpecsManager({ productId, initialSpecs = [] }: Pr
               <div className="space-y-2">
                 <input
                   type="text"
+                  id="spec-name"
+                  name="specName"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder={editingId 
                     ? `e.g., ${commonValues[0] || 'Enter name'}` 
                     : `e.g., ${commonValues[0] || 'Mint'} or ${commonValues.slice(0, 3).join(', ') || 'Mint, Apple, Grape'}`}
+                  autoComplete="off"
                   className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white text-gray-900"
                   list={editingId ? `common-${formData.type}` : undefined}
                 />
