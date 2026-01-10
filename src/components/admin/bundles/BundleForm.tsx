@@ -332,26 +332,32 @@ export default function BundleForm({ bundle }: BundleFormProps) {
       <div className="bg-white rounded-lg shadow p-6 space-y-6">
         {/* Basic Info */}
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
+          <label htmlFor="bundle-name" className="block text-sm font-semibold text-gray-900 mb-2">
             Bundle Name *
           </label>
           <input
             type="text"
+            id="bundle-name"
+            name="name"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            autoComplete="off"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
+          <label htmlFor="bundle-description" className="block text-sm font-semibold text-gray-900 mb-2">
             Description
           </label>
           <textarea
+            id="bundle-description"
+            name="description"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             rows={3}
+            autoComplete="off"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
           />
         </div>
