@@ -151,17 +151,20 @@ export default function MpesaManualPayment({
       {/* Payment Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
+          <label htmlFor="mpesa-reference" className="block text-sm font-semibold text-gray-900 mb-2">
             M-Pesa Reference Number *
           </label>
           <input
             type="text"
+            id="mpesa-reference"
+            name="referenceNumber"
             value={referenceNumber}
             onChange={(e) => {
               setReferenceNumber(e.target.value.toUpperCase())
               setError('')
             }}
             placeholder="e.g., QGH12345"
+            autoComplete="off"
             className="w-full bg-white border-2 border-red-600 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/20"
             disabled={loading}
             required
@@ -173,17 +176,20 @@ export default function MpesaManualPayment({
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
+          <label htmlFor="mpesa-sender-name" className="block text-sm font-semibold text-gray-900 mb-2">
             Sender Name (M-Pesa Name) *
           </label>
           <input
             type="text"
+            id="mpesa-sender-name"
+            name="senderName"
             value={senderName}
             onChange={(e) => {
               setSenderName(e.target.value)
               setError('')
             }}
             placeholder="e.g., JOHN DOE"
+            autoComplete="name"
             className="w-full bg-white border-2 border-red-600 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-red-700 focus:outline-none focus:ring-2 focus:ring-red-500/20"
             disabled={loading}
             required
