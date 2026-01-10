@@ -10,7 +10,7 @@ The upload route has been updated to use **Vercel Blob Storage** in production. 
 
 1. Go to your Vercel project dashboard
 2. Navigate to **Storage** → **Create Database**
-3. Select **Blob** (or **Blob Storage**)
+3. Select **Blob** (or **Blob Storage**),
 4. Click **Create**
 
 ### Step 2: Get Your Token
