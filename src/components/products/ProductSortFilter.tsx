@@ -55,14 +55,17 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="w-5 h-5 text-gray-600" />
-            <label className="text-sm font-semibold text-gray-900">Sort by:</label>
+            <label htmlFor="product-sort" className="text-sm font-semibold text-gray-900">Sort by:</label>
             <select
+              id="product-sort"
+              name="sort"
               value={`${sortBy}-${sortOrder}`}
               onChange={(e) => {
                 const [field, order] = e.target.value.split('-')
                 updateFilter('sortBy', field)
                 updateFilter('sortOrder', order)
               }}
+              aria-label="Sort products"
               className="bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-900 text-sm focus:border-red-500 focus:outline-none"
             >
               <option value="createdAt-desc">Newest First</option>
