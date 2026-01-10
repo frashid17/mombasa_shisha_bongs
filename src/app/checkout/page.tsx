@@ -329,35 +329,43 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-bold text-gray-900 mb-4">Customer Information</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">Full Name *</label>
+                  <label htmlFor="checkout-name" className="block text-sm font-semibold text-gray-900 mb-2">Full Name *</label>
                   <input
                     type="text"
+                    id="checkout-name"
+                    name="customerName"
                     required
                     value={formData.customerName}
                     onChange={(e) => setFormData((prev) => ({ ...prev, customerName: e.target.value }))}
+                    autoComplete="name"
                     className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:outline-none"
                     placeholder="Enter your full name"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">Email *</label>
+                  <label htmlFor="checkout-email" className="block text-sm font-semibold text-gray-900 mb-2">Email *</label>
                   <input
                     type="email"
+                    id="checkout-email"
+                    name="customerEmail"
                     required
                     value={formData.customerEmail}
                     onChange={(e) => setFormData((prev) => ({ ...prev, customerEmail: e.target.value }))}
+                    autoComplete="email"
                     className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:outline-none"
                     placeholder="your.email@example.com"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">Phone Number *</label>
+                  <label htmlFor="checkout-phone" className="block text-sm font-semibold text-gray-900 mb-2">Phone Number *</label>
                   <div className="flex items-center">
                     <span className="bg-gray-100 text-gray-700 px-3 py-2 rounded-l-lg border border-r-0 border-gray-300">
                       +254
                     </span>
                     <input
                       type="tel"
+                      id="checkout-phone"
+                      name="customerPhone"
                       required
                       value={formData.customerPhone}
                       onChange={(e) => {
@@ -367,6 +375,7 @@ export default function CheckoutPage() {
                           customerPhone: value,
                         }))
                       }}
+                      autoComplete="tel"
                       className="flex-1 bg-white border border-gray-300 rounded-r-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:outline-none"
                       placeholder="708786000"
                       pattern="[0-9]{9}"
