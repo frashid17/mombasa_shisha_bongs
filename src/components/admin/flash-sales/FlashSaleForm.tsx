@@ -147,28 +147,34 @@ export default function FlashSaleForm({ flashSale, onSuccess, onCancel }: FlashS
       )}
 
       <div>
-        <label className="block text-sm font-semibold text-gray-900 mb-2">
+        <label htmlFor="flashsale-title" className="block text-sm font-semibold text-gray-900 mb-2">
           Title <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
+          id="flashsale-title"
+          name="title"
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900"
           required
+          autoComplete="off"
           placeholder="e.g., Summer Sale - 50% Off"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+        <label htmlFor="flashsale-description" className="block text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
           <FileText className="w-4 h-4" />
           Description (Optional)
         </label>
         <textarea
+          id="flashsale-description"
+          name="description"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           rows={3}
+          autoComplete="off"
           className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900"
           placeholder="Describe this flash sale..."
         />
