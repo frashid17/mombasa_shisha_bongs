@@ -110,14 +110,17 @@ export default function AddressForm({ address, onSuccess, onCancel }: AddressFor
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="address-label" className="block text-sm font-medium text-gray-300 mb-2">
           Label <span className="text-red-400">*</span>
         </label>
         <input
           type="text"
+          id="address-label"
+          name="label"
           value={formData.label}
           onChange={(e) => setFormData({ ...formData, label: e.target.value })}
           placeholder="e.g., Home, Work, Office"
+          autoComplete="off"
           className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
           required
         />
@@ -125,26 +128,32 @@ export default function AddressForm({ address, onSuccess, onCancel }: AddressFor
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label htmlFor="shipping-fullname" className="block text-sm font-medium text-gray-300 mb-2">
             Full Name <span className="text-red-400">*</span>
           </label>
           <input
             type="text"
+            id="shipping-fullname"
+            name="fullName"
             value={formData.fullName}
             onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+            autoComplete="name"
             className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label htmlFor="shipping-phone" className="block text-sm font-medium text-gray-300 mb-2">
             Phone <span className="text-red-400">*</span>
           </label>
           <input
             type="tel"
+            id="shipping-phone"
+            name="phone"
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            autoComplete="tel"
             className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
             required
           />
@@ -152,13 +161,16 @@ export default function AddressForm({ address, onSuccess, onCancel }: AddressFor
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="shipping-city" className="block text-sm font-medium text-gray-300 mb-2">
           City <span className="text-red-400">*</span>
         </label>
         <input
           type="text"
+          id="shipping-city"
+          name="city"
           value={formData.city}
           onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+          autoComplete="address-level2"
           className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
           required
         />
@@ -184,14 +196,17 @@ export default function AddressForm({ address, onSuccess, onCancel }: AddressFor
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="delivery-notes" className="block text-sm font-medium text-gray-300 mb-2">
           Delivery Notes (Optional)
         </label>
         <textarea
+          id="delivery-notes"
+          name="deliveryNotes"
           value={formData.deliveryNotes}
           onChange={(e) => setFormData({ ...formData, deliveryNotes: e.target.value })}
           rows={3}
           placeholder="Any special delivery instructions..."
+          autoComplete="off"
           className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500"
         />
       </div>
@@ -199,12 +214,13 @@ export default function AddressForm({ address, onSuccess, onCancel }: AddressFor
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
-          id="isDefault"
+          id="address-default"
+          name="isDefault"
           checked={formData.isDefault}
           onChange={(e) => setFormData({ ...formData, isDefault: e.target.checked })}
           className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
         />
-        <label htmlFor="isDefault" className="text-sm text-gray-300">
+        <label htmlFor="address-default" className="text-sm text-gray-300">
           Set as default address
         </label>
       </div>
