@@ -56,6 +56,11 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
+  // Skip non-HTTP(S) protocols (including browser extensions)
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return
+  }
+
   // Skip admin routes
   if (url.pathname.startsWith('/admin')) {
     return
@@ -79,9 +84,15 @@ self.addEventListener('fetch', (event) => {
         // Cache successful responses
         if (response.status === 200) {
           caches.open(CACHE_NAME).then((cache) => {
-            // Only cache GET requests
-            if (request.method === 'GET') {
-              cache.put(request, responseToCache)
+            // Only cache GET requests and valid protocols
+            const requestUrl = new URL(request.url)
+            if (
+              request.method === 'GET' && 
+              (requestUrl.protocol === 'http:' || requestUrl.protocol === 'https:')
+            ) {
+              cache.put(request, responseToCache).catch((err) => {
+                console.log('[Service Worker] Failed to cache:', request.url, err)
+              })
             }
           })
         }
