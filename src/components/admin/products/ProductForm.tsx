@@ -282,23 +282,27 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
     <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-6 space-y-6">
       <div className="grid grid-cols-2 gap-6">
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Product Name *</label>
+          <label htmlFor="product-name" className="block text-sm font-semibold text-gray-900 mb-2">Product Name *</label>
           <input
             type="text"
+            id="product-name"
             name="name"
             required
             defaultValue={product?.name}
+            autoComplete="off"
             className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
             style={{ color: '#111827' }}
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">SKU *</label>
+          <label htmlFor="product-sku" className="block text-sm font-semibold text-gray-900 mb-2">SKU *</label>
           <input
             type="text"
+            id="product-sku"
             name="sku"
             required
             defaultValue={product?.sku}
+            autoComplete="off"
             className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
             style={{ color: '#111827' }}
           />
@@ -321,35 +325,41 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Brand</label>
+          <label htmlFor="product-brand" className="block text-sm font-semibold text-gray-900 mb-2">Brand</label>
           <input
             type="text"
+            id="product-brand"
             name="brand"
             defaultValue={product?.brand || ''}
             placeholder="e.g., Al Fakher, Starbuzz, Fumari"
+            autoComplete="off"
             className="w-full border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             style={{ color: '#111827' }}
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Price (KES) *</label>
+          <label htmlFor="product-price" className="block text-sm font-semibold text-gray-900 mb-2">Price (KES) *</label>
           <input
             type="number"
+            id="product-price"
             name="price"
             required
             step="0.01"
             defaultValue={product?.price}
+            autoComplete="off"
             className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
             style={{ color: '#111827' }}
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-gray-900 mb-2">Stock *</label>
+          <label htmlFor="product-stock" className="block text-sm font-semibold text-gray-900 mb-2">Stock *</label>
           <input
             type="number"
+            id="product-stock"
             name="stock"
             required
             defaultValue={product?.stock}
+            autoComplete="off"
             className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
             style={{ color: '#111827' }}
           />
@@ -357,19 +367,22 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
         <div className="flex items-center gap-2 pt-6">
           <input
             type="checkbox"
+            id="product-active"
             name="isActive"
             defaultChecked={product?.isActive ?? true}
             className="w-4 h-4"
           />
-          <label className="text-sm font-semibold text-gray-900">Active</label>
+          <label htmlFor="product-active" className="text-sm font-semibold text-gray-900">Active</label>
         </div>
       </div>
       <div>
-        <label className="block text-sm font-semibold text-gray-900 mb-2">Description</label>
+        <label htmlFor="product-description" className="block text-sm font-semibold text-gray-900 mb-2">Description</label>
         <textarea
+          id="product-description"
           name="description"
           rows={4}
           defaultValue={product?.description}
+          autoComplete="off"
           className="w-full border rounded-lg px-4 py-2 bg-white text-gray-900"
           style={{ color: '#111827' }}
         />
