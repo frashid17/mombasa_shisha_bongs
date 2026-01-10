@@ -130,6 +130,8 @@ export default function SearchBar() {
           <div className="relative flex-1">
             <input
               type="text"
+              id="main-search"
+              name="search"
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value)
@@ -137,6 +139,8 @@ export default function SearchBar() {
               }}
               onFocus={() => query.length >= 2 && setShowSuggestions(true)}
               placeholder="Search for shisha, vapes, accessories..."
+              autoComplete="off"
+              aria-label="Search products"
               className="w-full px-4 py-3 pl-12 pr-4 md:px-6 md:py-4 md:pl-14 md:pr-32 rounded-md bg-white border border-gray-300 focus:border-red-500 focus:outline-none text-gray-900 text-base md:text-lg placeholder-gray-500"
             />
             <Search className="absolute left-3 md:left-5 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4 md:w-5 md:h-5" />
