@@ -129,9 +129,11 @@ export default function ReviewForm({
         <input
           type="text"
           id="review-title"
+          name="reviewTitle"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={255}
+          autoComplete="off"
           className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-red-500 focus:outline-none"
           placeholder="e.g., Great product!"
         />
@@ -143,12 +145,14 @@ export default function ReviewForm({
         </label>
         <textarea
           id="review-comment"
+          name="reviewComment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           rows={4}
           minLength={10}
           maxLength={5000}
           required
+          autoComplete="off"
           className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:border-red-500 focus:outline-none resize-none"
           placeholder="Share your experience with this product..."
         />
@@ -161,6 +165,7 @@ export default function ReviewForm({
         <input
           type="checkbox"
           id="is-anonymous"
+          name="isAnonymous"
           checked={isAnonymous}
           onChange={(e) => setIsAnonymous(e.target.checked)}
           className="w-4 h-4 text-red-600 bg-white border-gray-300 rounded focus:ring-red-500"
