@@ -250,7 +250,6 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           {/* User Menu - Only render after Clerk is loaded */}
           {isLoaded && (
             <UserButton
-              afterSignOutUrl="/sign-in"
               appearance={{
                 elements: {
                   avatarBox: 'w-8 h-8 sm:w-10 sm:h-10',
