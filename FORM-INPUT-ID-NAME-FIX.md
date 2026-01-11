@@ -115,7 +115,7 @@ Based on code analysis, these files have inputs missing `id`/`name`:
 />
 ```
 
-**✅ After:**
+**✅ After changes:**
 ```tsx
 <input
   type="tel"
