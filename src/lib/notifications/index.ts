@@ -472,7 +472,7 @@ export async function sendPaymentReceivedNotification(
               </div>
 
               <div style="text-align: center;">
-                <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/orders/${orderId}" class="button">
+                <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/admin/orders/${orderId}" class="button">
                   View Order in Admin Panel
                 </a>
               </div>
