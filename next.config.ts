@@ -2,8 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  // Optimize fonts for better LCP
-  optimizeFonts: true,
+  // Font optimization is automatic in Next.js 13+
   images: {
     remotePatterns: [
       {
