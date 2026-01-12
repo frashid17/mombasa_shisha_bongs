@@ -3,7 +3,7 @@
 // ============================================
 
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  BASE_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com',
   VERSION: 'v1',
   TIMEOUT: 30000, // 30 seconds
 } as const
@@ -271,7 +271,7 @@ export const CACHE_CONFIG = {
 export const SEO_CONFIG = {
   SITE_NAME: 'Mombasa Shisha Bongs',
   SITE_DESCRIPTION: 'Premium shisha, vapes, and smoking accessories in Mombasa',
-  SITE_URL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  SITE_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com',
   OG_IMAGE: '/images/og-image.jpg',
   TWITTER_HANDLE: '@MombasaShisha',
 } as const
