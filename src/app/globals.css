@@ -147,26 +147,14 @@ html:not(.dark) {
   }
 }
 
-/* Animated gradient background - subtle and elegant */
+/* Optimized background for better LCP - removed animations */
 .animated-gradient-bg {
-  background: linear-gradient(
-    135deg,
-    #ffffff 0%,
-    #fafafa 15%,
-    #ffffff 30%,
-    #f8f9fa 45%,
-    #ffffff 60%,
-    #fafafa 75%,
-    #ffffff 90%,
-    #f8f9fa 100%
-  );
-  background-size: 400% 400%;
-  animation: gradient-shift 50s ease infinite;
+  background: #ffffff;
   position: relative;
   min-height: 100vh;
 }
 
-/* Subtle red tint overlay that also animates */
+/* Static subtle overlay - no animation for better performance */
 .animated-gradient-bg::before {
   content: '';
   position: absolute;
@@ -176,85 +164,18 @@ html:not(.dark) {
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(220, 38, 38, 0.015) 0%,
-    rgba(255, 255, 255, 0) 25%,
-    rgba(220, 38, 38, 0.01) 50%,
-    rgba(255, 255, 255, 0) 75%,
-    rgba(220, 38, 38, 0.015) 100%
+    rgba(220, 38, 38, 0.01) 0%,
+    rgba(255, 255, 255, 0) 50%,
+    rgba(220, 38, 38, 0.01) 100%
   );
-  background-size: 500% 500%;
-  animation: gradient-shift-overlay 65s ease infinite reverse;
   pointer-events: none;
   z-index: 0;
 }
 
-/* Ensure content is above the animated background */
+/* Ensure content is above the background */
 .animated-gradient-bg > * {
   position: relative;
   z-index: 1;
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes gradient-shift-overlay {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* Animated gradient background for homepage */
-.animated-gradient-bg {
-  background: linear-gradient(135deg, #ffffff 0%, #fafafa 25%, #ffffff 50%, #f8f9fa 75%, #ffffff 100%);
-  background-size: 400% 400%;
-  animation: gradient-shift 45s ease infinite;
-  position: relative;
-}
-
-.animated-gradient-bg::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.02) 0%, rgba(255, 255, 255, 0) 50%, rgba(220, 38, 38, 0.02) 100%);
-  background-size: 400% 400%;
-  animation: gradient-shift 60s ease infinite reverse;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.animated-gradient-bg > * {
-  position: relative;
-  z-index: 1;
-}
-
-@keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
 }
 
 /* Enhanced hero / section reveal animations with bounce */

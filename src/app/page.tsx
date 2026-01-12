@@ -331,9 +331,12 @@ export default async function HomePage() {
             <div className="max-w-6xl mx-auto">
               {/* Hero Text */}
               <div className="text-center mb-10 md:mb-14">
-                <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 leading-tight">
+                <h1 
+                  className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 leading-tight"
+                  style={{ contentVisibility: 'auto' }}
+                >
                   Premium Shisha & Vapes
-          </h1>
+                </h1>
                 <p className="text-lg md:text-xl mb-6 text-gray-600 max-w-2xl mx-auto">
                   Mix & match any flavor & strength. Fast delivery, secure payment, and authentic products in Mombasa.
                 </p>

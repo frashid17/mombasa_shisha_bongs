@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  // Optimize fonts for better LCP
+  optimizeFonts: true,
   images: {
     remotePatterns: [
       {
@@ -33,6 +35,10 @@ const nextConfig: NextConfig = {
   },
   typescript: {
     ignoreBuildErrors: false,
+  },
+  // Enable experimental optimizations
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
   },
 };
 

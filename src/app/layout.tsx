@@ -18,11 +18,15 @@ import { Analytics } from "@vercel/analytics/next";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap", // Prevent font blocking
+  preload: true,
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap", // Prevent font blocking
+  preload: true,
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
