@@ -20,21 +20,25 @@ import AnimatedIcon from '@/components/home/AnimatedIcon'
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
-// Cache homepage data for 5 minutes to avoid recomputing heavy Prisma queries on every request
-export const revalidate = 300
+// Cache homepage data for 1 hour for better LCP - homepage rarely changes
+// ISR will regenerate in background when cache expires
+export const revalidate = 3600 // 1 hour
 
-export const metadata: Metadata = {
-  title: 'Premium Shisha & Vapes in Mombasa, Kenya',
-  description: 'Shop premium shisha, hookahs, vapes, and smoking accessories in Mombasa. Fast delivery, authentic products, secure payment. Browse our collection of shisha flavors, disposable vapes, e-liquids, and hookah accessories.',
-  openGraph: {
-    title: 'Mombasa Shisha Bongs - Premium Shisha & Vapes',
-    description: 'Premium shisha, vapes, and smoking accessories in Mombasa, Kenya. Fast delivery, authentic products.',
-    url: siteUrl,
-    images: ['/logo.png'],
-  },
-  alternates: {
-    canonical: siteUrl,
-  },
+// Optimize metadata generation
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: 'Premium Shisha & Vapes in Mombasa, Kenya',
+    description: 'Shop premium shisha, hookahs, vapes, and smoking accessories in Mombasa. Fast delivery, authentic products, secure payment. Browse our collection of shisha flavors, disposable vapes, e-liquids, and hookah accessories.',
+    openGraph: {
+      title: 'Mombasa Shisha Bongs - Premium Shisha & Vapes',
+      description: 'Premium shisha, vapes, and smoking accessories in Mombasa, Kenya. Fast delivery, authentic products.',
+      url: siteUrl,
+      images: ['/logo.png'],
+    },
+    alternates: {
+      canonical: siteUrl,
+    },
+  }
 }
 
 async function getFeaturedData() {
@@ -61,9 +65,14 @@ async function getFeaturedData() {
     topSellingProducts.map((item, index) => [item.productId, index])
   )
 
+  // Optimized: Reduced queries and data fetching for better LCP
   const [categories, featuredProducts, newArrivals, stats, reviewsCount, customerReviews, allProducts] = await Promise.all([
-    withRetry(() => prisma.category.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } })),
-    // Featured products: Top-selling products (automatically determined by sales)
+    withRetry(() => prisma.category.findMany({ 
+      where: { isActive: true }, 
+      orderBy: { name: 'asc' },
+      take: 8 // Limit categories
+    })),
+    // Featured products: Top-selling products (optimized includes)
     withRetry(() => featuredProductIds.length > 0
       ? prisma.product.findMany({
           where: {
@@ -71,43 +80,32 @@ async function getFeaturedData() {
             id: { in: featuredProductIds },
           },
           include: {
-            images: { take: 1 },
-            category: true,
+            images: { take: 1, select: { url: true, altText: true } },
+            category: { select: { name: true, slug: true } },
             specifications: {
               where: { isActive: true },
-              orderBy: [{ type: 'asc' }, { position: 'asc' }],
-            },
-            _count: {
-              select: {
-                orderItems: true,
-              },
+              select: { id: true },
+              take: 1, // Just check if has specs
             },
           },
-          take: 8,
-          orderBy: featuredProductIds.length > 0
-            ? undefined
-            : { createdAt: 'desc' },
+          take: 6, // Reduced from 8
         })
       : // Fallback: If no sales yet, show recently created products
         prisma.product.findMany({
           where: { isActive: true },
           include: { 
-            images: { take: 1 }, 
-            category: true,
+            images: { take: 1, select: { url: true, altText: true } }, 
+            category: { select: { name: true, slug: true } },
             specifications: {
               where: { isActive: true },
-              orderBy: [{ type: 'asc' }, { position: 'asc' }],
-            },
-            _count: {
-              select: {
-                orderItems: true,
-              },
+              select: { id: true },
+              take: 1,
             },
           },
-          take: 8,
+          take: 6,
           orderBy: { createdAt: 'desc' },
         })),
-    // New arrivals: Products created in the last 30 days (automatically determined by date)
+    // New arrivals: Reduced data
     withRetry(() => prisma.product.findMany({
       where: {
         isActive: true,
@@ -116,20 +114,23 @@ async function getFeaturedData() {
         },
       },
       include: {
-        images: { take: 1 },
-        category: true,
-        reviews: {
-          where: { isApproved: true },
-          select: { rating: true },
-        },
+        images: { take: 1, select: { url: true, altText: true } },
+        category: { select: { name: true, slug: true } },
       },
-      take: 8,
+      take: 6, // Reduced from 8
       orderBy: { createdAt: 'desc' },
     })),
     withRetry(() => prisma.product.count({ where: { isActive: true } })),
     withRetry(() => prisma.review.count()),
     withRetry(() => prisma.review.findMany({
-      include: {
+      where: { isApproved: true },
+      select: {
+        id: true,
+        rating: true,
+        comment: true,
+        title: true,
+        userName: true,
+        createdAt: true,
         product: {
           select: {
             name: true,
@@ -137,25 +138,22 @@ async function getFeaturedData() {
           },
         },
       },
-      take: 6,
+      take: 5, // Reduced from 6
       orderBy: { createdAt: 'desc' },
     })),
-    // Get all products for "Explore All Items" section
+    // Explore All: Reduced significantly
     withRetry(() => prisma.product.findMany({
       where: { isActive: true },
       include: {
-        images: { take: 1 },
-        category: true,
+        images: { take: 1, select: { url: true, altText: true } },
+        category: { select: { name: true, slug: true } },
         specifications: {
           where: { isActive: true },
-          orderBy: [{ type: 'asc' }, { position: 'asc' }],
-        },
-        reviews: {
-          where: { isApproved: true },
-          select: { rating: true },
+          select: { id: true },
+          take: 1,
         },
       },
-      take: 12,
+      take: 8, // Reduced from 12
       orderBy: { createdAt: 'desc' },
     })),
   ])
