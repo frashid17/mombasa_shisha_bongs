@@ -19,9 +19,6 @@
     "db:clear-images": "tsx scripts/clear-product-images.ts",
     "postinstall": "prisma generate"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@clerk/nextjs": "^6.36.2",
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
