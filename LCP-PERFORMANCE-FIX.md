@@ -122,7 +122,7 @@ const geistSans = Geist({
 ```typescript
 const nextConfig: NextConfig = {
   reactCompiler: true,
-  optimizeFonts: true,  // ✅ Added
+  // Font optimization is automatic in Next.js 13+
   // ...
   experimental: {
     optimizePackageImports: ['lucide-react'],  // ✅ Added
@@ -131,10 +131,12 @@ const nextConfig: NextConfig = {
 ```
 
 **Impact:**
-- Automatic font optimization
-- Smaller bundle size for icons
+- Font optimization is automatic in Next.js 13+
+- Smaller bundle size for icons (optimizePackageImports)
 - Faster JavaScript execution
 - **Estimated improvement: 0.3-0.8s**
+
+**Note:** Next.js 13+ automatically optimizes fonts, so no explicit `optimizeFonts` config is needed.
 
 ---
 
