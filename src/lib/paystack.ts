@@ -99,7 +99,7 @@ export async function initializePaystackPayment(
 
   // Determine callback URL
   // Priority: 1. Provided callbackUrl, 2. NEXT_PUBLIC_APP_URL, 3. Fallback to localhost (dev only)
-  const baseUrl = callbackUrl || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const baseUrl = callbackUrl || process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
   const callback_url = `${baseUrl.replace(/\/$/, '')}/api/paystack/callback`
 
   const url = `${PAYSTACK_BASE_URL}/transaction/initialize`
