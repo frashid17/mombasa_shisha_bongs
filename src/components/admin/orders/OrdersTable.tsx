@@ -107,10 +107,90 @@ export default function OrdersTable({ orders: initialOrders }: { orders: any[] }
     }
   }
 
+  // Mobile Card Component
+  const OrderCard = ({ order }: { order: any }) => {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+        {/* Header with selection */}
+        <div className="flex items-start gap-3">
+          <button
+            onClick={() => toggleSelect(order.id)}
+            className="text-gray-600 hover:text-gray-900 mt-1 flex-shrink-0"
+            aria-label={`Select order ${order.orderNumber}`}
+          >
+            {selectedOrders.has(order.id) ? (
+              <CheckSquare className="w-5 h-5 text-red-600" />
+            ) : (
+              <Square className="w-5 h-5" />
+            )}
+          </button>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-sm font-bold text-gray-900">#{order.orderNumber}</span>
+              <span className={`px-2 py-1 text-xs rounded-full font-medium ${statusColors[order.status] || 'bg-gray-100'}`}>
+                {order.status}
+              </span>
+              {order.scheduledDelivery && (
+                <span className="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-purple-100 text-purple-800">
+                  <Calendar className="w-3 h-3" />
+                  Scheduled
+                </span>
+              )}
+            </div>
+            <div className="space-y-1 text-sm">
+              <p className="font-medium text-gray-900">{order.userName || 'Guest'}</p>
+              <p className="text-gray-600 text-xs truncate">{order.userEmail}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Order Details */}
+        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-200">
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Items</p>
+            <p className="text-sm font-semibold text-gray-900">{order.items.length} items</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Total</p>
+            <p className="text-sm font-bold text-gray-900">KES {Number(order.total).toLocaleString()}</p>
+          </div>
+          <div className="col-span-2">
+            <p className="text-xs text-gray-500 mb-1">Date</p>
+            <p className="text-sm text-gray-900">{format(new Date(order.createdAt), 'MMM d, yyyy')}</p>
+            {order.scheduledDelivery && (
+              <p className="text-xs text-purple-600 font-medium mt-1">
+                Deliver: {format(new Date(order.scheduledDelivery), 'MMM d, yyyy HH:mm')}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 pt-3 border-t border-gray-200">
+          <Link
+            href={`/admin/orders/${order.id}`}
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2.5 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+          >
+            <Eye className="w-4 h-4" />
+            View Details
+          </Link>
+          <button
+            onClick={() => handleDelete(order.id)}
+            disabled={deleting === order.id}
+            className="px-4 py-2.5 bg-white text-red-600 border-2 border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium text-sm disabled:opacity-50"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <>
+      {/* Bulk Actions Bar */}
       {selectedOrders.size > 0 && (
-        <div className="bg-red-50 border-b border-red-200 px-4 py-3 flex items-center justify-between">
+        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-center justify-between mb-4">
           <span className="text-sm font-medium text-red-900">
             {selectedOrders.size} order(s) selected
           </span>
@@ -124,59 +204,72 @@ export default function OrdersTable({ orders: initialOrders }: { orders: any[] }
           </button>
         </div>
       )}
-      <div className="overflow-x-auto -mx-4 sm:mx-0">
-        <div className="inline-block min-w-full align-middle">
-          <table className="min-w-full divide-y divide-gray-200" style={{ minWidth: '1000px' }}>
+
+      {/* Mobile Card View */}
+      <div className="block lg:hidden space-y-4">
+        {orders.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
+            <p className="text-gray-500">No orders found</p>
+          </div>
+        ) : (
+          orders.map((order) => <OrderCard key={order.id} order={order} />)
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-2 sm:px-3 py-3 text-left w-12">
+                <th className="px-3 py-3 text-left w-12">
                   <button
                     onClick={toggleSelectAll}
                     className="text-gray-600 hover:text-gray-900"
                     aria-label="Select all orders"
                   >
                     {selectedOrders.size === orders.length && orders.length > 0 ? (
-                      <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <CheckSquare className="w-5 h-5" />
                     ) : (
-                      <Square className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <Square className="w-5 h-5" />
                     )}
                   </button>
                 </th>
-                <th className="px-2 sm:px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase whitespace-nowrap">Order #</th>
-                <th className="px-2 sm:px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase min-w-[180px]">Customer</th>
-                <th className="px-2 sm:px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase hidden sm:table-cell whitespace-nowrap">Items</th>
-                <th className="px-2 sm:px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase whitespace-nowrap">Total</th>
-                <th className="px-2 sm:px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase whitespace-nowrap">Status</th>
-                <th className="px-2 sm:px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase hidden md:table-cell whitespace-nowrap">Date</th>
-                <th className="px-2 sm:px-3 py-3 text-right text-xs font-semibold text-gray-900 uppercase whitespace-nowrap sticky right-0 bg-gray-50 z-10">Actions</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase whitespace-nowrap">Order #</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase min-w-[180px]">Customer</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase whitespace-nowrap">Items</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase whitespace-nowrap">Total</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase whitespace-nowrap">Status</th>
+                <th className="px-3 py-3 text-left text-xs font-semibold text-gray-900 uppercase whitespace-nowrap">Date</th>
+                <th className="px-3 py-3 text-right text-xs font-semibold text-gray-900 uppercase whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {orders.map((order) => (
                 <tr key={order.id} className="hover:bg-gray-50">
-                  <td className="px-2 sm:px-3 py-4">
+                  <td className="px-3 py-4">
                     <button
                       onClick={() => toggleSelect(order.id)}
                       className="text-gray-600 hover:text-gray-900"
                       aria-label={`Select order ${order.orderNumber}`}
                     >
                       {selectedOrders.has(order.id) ? (
-                        <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
+                        <CheckSquare className="w-5 h-5 text-red-600" />
                       ) : (
-                        <Square className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <Square className="w-5 h-5" />
                       )}
                     </button>
                   </td>
-                  <td className="px-2 sm:px-3 py-4 font-mono text-xs sm:text-sm text-gray-900 whitespace-nowrap">#{order.orderNumber}</td>
-                  <td className="px-2 sm:px-3 py-4 text-xs sm:text-sm text-gray-900">
+                  <td className="px-3 py-4 font-mono text-sm text-gray-900 whitespace-nowrap">#{order.orderNumber}</td>
+                  <td className="px-3 py-4 text-sm text-gray-900">
                     <div>
-                      <div className="font-medium truncate max-w-[150px] sm:max-w-none">{order.userName || 'Guest'}</div>
-                      <div className="text-xs text-gray-500 truncate max-w-[150px] sm:max-w-none">{order.userEmail}</div>
+                      <div className="font-medium">{order.userName || 'Guest'}</div>
+                      <div className="text-xs text-gray-500">{order.userEmail}</div>
                     </div>
                   </td>
-                  <td className="px-2 sm:px-3 py-4 text-xs sm:text-sm text-gray-900 hidden sm:table-cell whitespace-nowrap">{order.items.length} items</td>
-                  <td className="px-2 sm:px-3 py-4 text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">KES {Number(order.total).toLocaleString()}</td>
-                  <td className="px-2 sm:px-3 py-4">
+                  <td className="px-3 py-4 text-sm text-gray-900 whitespace-nowrap">{order.items.length} items</td>
+                  <td className="px-3 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">KES {Number(order.total).toLocaleString()}</td>
+                  <td className="px-3 py-4">
                     <div className="flex flex-col gap-1">
                       <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${statusColors[order.status] || 'bg-gray-100'}`}>
                         {order.status}
@@ -189,7 +282,7 @@ export default function OrdersTable({ orders: initialOrders }: { orders: any[] }
                       )}
                     </div>
                   </td>
-                  <td className="px-2 sm:px-3 py-4 text-xs sm:text-sm text-gray-700 hidden md:table-cell whitespace-nowrap">
+                  <td className="px-3 py-4 text-sm text-gray-700 whitespace-nowrap">
                     <div>
                       <div>{format(new Date(order.createdAt), 'MMM d, yyyy')}</div>
                       {order.scheduledDelivery && (
@@ -199,25 +292,25 @@ export default function OrdersTable({ orders: initialOrders }: { orders: any[] }
                       )}
                     </div>
                   </td>
-                  <td className="px-2 sm:px-3 py-4 text-right whitespace-nowrap sticky right-0 bg-white z-10">
-                    <div className="flex items-center justify-end gap-1 sm:gap-2">
+                  <td className="px-3 py-4 text-right whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-xs sm:text-sm px-1 sm:px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm px-2 py-1 rounded hover:bg-red-50 transition-colors"
                         title="View order"
                       >
-                        <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span className="hidden lg:inline">View</span>
+                        <Eye className="w-4 h-4" />
+                        <span>View</span>
                       </Link>
                       <button
                         onClick={() => handleDelete(order.id)}
                         disabled={deleting === order.id}
-                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed px-1 sm:px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                        className="inline-flex items-center gap-1 text-red-600 hover:text-red-700 text-sm disabled:opacity-50 disabled:cursor-not-allowed px-2 py-1 rounded hover:bg-red-50 transition-colors"
                         aria-label={`Delete order ${order.orderNumber}`}
                         title="Delete order"
                       >
-                        <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span className="hidden lg:inline">
+                        <Trash2 className="w-4 h-4" />
+                        <span>
                           {deleting === order.id ? 'Deleting...' : 'Delete'}
                         </span>
                       </button>
@@ -228,11 +321,11 @@ export default function OrdersTable({ orders: initialOrders }: { orders: any[] }
             </tbody>
           </table>
         </div>
+        {orders.length === 0 && (
+          <div className="text-center py-12 text-gray-500">No orders found</div>
+        )}
       </div>
-      {orders.length === 0 && (
-        <div className="text-center py-12 text-gray-500">No orders found</div>
-      )}
-    </div>
+    </>
   )
 }
 

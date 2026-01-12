@@ -51,95 +51,189 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
       setDeletingId(null)
     }
   }
-  return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="overflow-x-auto">
-        <div className="inline-block min-w-full align-middle">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Product</th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase hidden sm:table-cell">Category</th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Price</th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase hidden md:table-cell">Stock</th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase hidden lg:table-cell">Sales</th>
-                <th className="px-3 sm:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase hidden sm:table-cell">Status</th>
-                <th className="px-3 sm:px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {products.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-3 sm:px-6 py-4">
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      {product.images[0] ? (
-                        <Image
-                          src={product.images[0].url}
-                          alt={product.name}
-                          width={40}
-                          height={40}
-                          className="rounded object-cover flex-shrink-0"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 bg-gray-200 rounded flex-shrink-0" />
-                      )}
-                      <div className="min-w-0">
-                        <div className="font-semibold text-xs sm:text-sm text-gray-900 truncate">{product.name}</div>
-                        <div className="text-xs text-gray-600 truncate">{product.sku}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 hidden sm:table-cell">{product.category?.name || 'Uncategorized'}</td>
-                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm font-semibold text-gray-900 whitespace-nowrap">KES {product.price.toLocaleString()}</td>
-                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 hidden md:table-cell">{product.stock}</td>
-                  <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 hidden lg:table-cell">{product._count.orderItems}</td>
-                  <td className="px-3 sm:px-6 py-4 hidden sm:table-cell">
-                    <span
-                      className={`px-2 py-1 text-xs rounded-full ${
-                        product.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {product.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-3 sm:px-6 py-4 text-right whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-1 sm:gap-2">
-                      <Link
-                        href={`/admin/products/${product.id}`}
-                        className="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded"
-                        aria-label="View product"
-                      >
-                        <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </Link>
-                      <Link
-                        href={`/admin/products/${product.id}/edit`}
-                        className="p-1.5 sm:p-2 text-gray-600 hover:bg-gray-50 rounded"
-                        aria-label="Edit product"
-                      >
-                        <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      </Link>
-                      <button 
-                        onClick={() => handleDelete(product.id, product.name)}
-                        disabled={deletingId === product.id}
-                        className="p-1.5 sm:p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
-                        aria-label="Delete product"
-                      >
-                        <Trash2 className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${deletingId === product.id ? 'animate-pulse' : ''}`} />
-                      </button>
-                    </div>
-                  </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+  // Mobile Card Component
+  const ProductCard = ({ product }: { product: ProductWithRelations }) => {
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+        {/* Header with Image and Title */}
+        <div className="flex items-start gap-3">
+          {product.images[0] ? (
+            <Image
+              src={product.images[0].url}
+              alt={product.name}
+              width={60}
+              height={60}
+              className="rounded object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-[60px] h-[60px] bg-gray-200 rounded flex-shrink-0" />
+          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-bold text-gray-900 truncate">{product.name}</h3>
+            <p className="text-xs text-gray-600 mt-1">{product.sku}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <span
+                className={`px-2 py-1 text-xs rounded-full font-medium ${
+                  product.isActive
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}
+              >
+                {product.isActive ? 'Active' : 'Inactive'}
+              </span>
+              <span className="text-xs text-gray-600">{product.category?.name || 'Uncategorized'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-3 gap-3 pt-3 border-t border-gray-200">
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Price</p>
+            <p className="text-sm font-bold text-gray-900">KES {product.price.toLocaleString()}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Stock</p>
+            <p className="text-sm font-semibold text-gray-900">{product.stock}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 mb-1">Sales</p>
+            <p className="text-sm font-semibold text-gray-900">{product._count.orderItems}</p>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-2 pt-3 border-t border-gray-200">
+          <Link
+            href={`/admin/products/${product.id}`}
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white px-3 py-2.5 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+          >
+            <Eye className="w-4 h-4" />
+            View
+          </Link>
+          <Link
+            href={`/admin/products/${product.id}/edit`}
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-gray-600 text-white px-3 py-2.5 rounded-lg hover:bg-gray-700 transition-colors font-medium text-sm"
+          >
+            <Edit className="w-4 h-4" />
+            Edit
+          </Link>
+          <button 
+            onClick={() => handleDelete(product.id, product.name)}
+            disabled={deletingId === product.id}
+            className="px-3 py-2.5 bg-white text-red-600 border-2 border-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium text-sm disabled:opacity-50"
+          >
+            <Trash2 className={`w-4 h-4 ${deletingId === product.id ? 'animate-pulse' : ''}`} />
+          </button>
         </div>
       </div>
-      {products.length === 0 && (
-        <div className="text-center py-12 text-gray-500">No products found</div>
-      )}
-    </div>
+    )
+  }
+
+  return (
+    <>
+      {/* Mobile Card View */}
+      <div className="block lg:hidden space-y-4">
+        {products.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
+            <p className="text-gray-500">No products found</p>
+          </div>
+        ) : (
+          products.map((product) => <ProductCard key={product.id} product={product} />)
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden lg:block bg-white rounded-lg shadow overflow-hidden">
+        <div className="overflow-x-auto">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Product</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Price</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Stock</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Sales</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Status</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {products.map((product) => (
+                  <tr key={product.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        {product.images[0] ? (
+                          <Image
+                            src={product.images[0].url}
+                            alt={product.name}
+                            width={40}
+                            height={40}
+                            className="rounded object-cover flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 bg-gray-200 rounded flex-shrink-0" />
+                        )}
+                        <div className="min-w-0">
+                          <div className="font-semibold text-sm text-gray-900 truncate">{product.name}</div>
+                          <div className="text-xs text-gray-600 truncate">{product.sku}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{product.category?.name || 'Uncategorized'}</td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900 whitespace-nowrap">KES {product.price.toLocaleString()}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{product.stock}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{product._count.orderItems}</td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`px-2 py-1 text-xs rounded-full ${
+                          product.isActive
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {product.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2">
+                        <Link
+                          href={`/admin/products/${product.id}`}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded"
+                          aria-label="View product"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                        <Link
+                          href={`/admin/products/${product.id}/edit`}
+                          className="p-2 text-gray-600 hover:bg-gray-50 rounded"
+                          aria-label="Edit product"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Link>
+                        <button 
+                          onClick={() => handleDelete(product.id, product.name)}
+                          disabled={deletingId === product.id}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                          aria-label="Delete product"
+                        >
+                          <Trash2 className={`w-4 h-4 ${deletingId === product.id ? 'animate-pulse' : ''}`} />
+                        </button>
+                      </div>
+                    </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          </div>
+        </div>
+        {products.length === 0 && (
+          <div className="text-center py-12 text-gray-500">No products found</div>
+        )}
+      </div>
+    </>
   )
 }
 
