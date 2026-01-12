@@ -45,7 +45,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
               ${products.map((product) => `
                 <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
                   ${product.image ? `
-                    <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                    <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
                   ` : ''}
                   <h3 style="color: #1f2937; margin: 0 0 10px 0; font-size: 20px;">${product.name}</h3>
                   <p style="color: #667eea; font-size: 24px; font-weight: bold; margin: 10px 0;">
@@ -56,7 +56,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
                       </span>
                     ` : ''}
                   </p>
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products/${product.id}" 
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products/${product.id}" 
                      style="display: inline-block; background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px;">
                     View Product →
                   </a>
@@ -65,7 +65,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products" 
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products" 
                  style="display: inline-block; background: #667eea; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">
                 Shop All New Products
               </a>
@@ -74,7 +74,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
             <p style="color: #6b7280; font-size: 12px; text-align: center; margin: 0;">
               You are receiving this email because you are a valued customer of Mombasa Shisha Bongs.<br>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/unsubscribe" style="color: #667eea;">Unsubscribe</a>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/unsubscribe" style="color: #667eea;">Unsubscribe</a>
             </p>
           </div>
         </body>
@@ -82,7 +82,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
     `,
     getTextBody: (products) => {
       const productList = products.map((p) => `- ${p.name}: KES ${p.price.toLocaleString()}`).join('\n')
-      return `Exciting New Products Just Arrived!\n\nWe're thrilled to announce our latest collection:\n\n${productList}\n\nShop now: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products`
+      return `Exciting New Products Just Arrived!\n\nWe're thrilled to announce our latest collection:\n\n${productList}\n\nShop now: ${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products`
     },
   },
 
@@ -115,7 +115,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
                 return `
                   <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 2px solid #f59e0b;">
                     ${product.image ? `
-                      <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                      <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
                     ` : ''}
                     <div style="background: #fef3c7; color: #92400e; padding: 5px 10px; border-radius: 4px; display: inline-block; font-weight: bold; margin-bottom: 10px;">
                       ${discount}% OFF
@@ -132,7 +132,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
                     <p style="color: #059669; font-weight: bold; margin: 5px 0;">
                       You save KES ${(Number(originalPrice) - discountedPrice).toLocaleString()}!
                     </p>
-                    <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products/${product.id}" 
+                    <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products/${product.id}" 
                        style="display: inline-block; background: #f59e0b; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px;">
                       Shop Now →
                     </a>
@@ -142,7 +142,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products" 
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products" 
                  style="display: inline-block; background: #f59e0b; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">
                 View All Discounted Products
               </a>
@@ -151,7 +151,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
             <p style="color: #6b7280; font-size: 12px; text-align: center; margin: 0;">
               You are receiving this email because you are a valued customer of Mombasa Shisha Bongs.<br>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/unsubscribe" style="color: #667eea;">Unsubscribe</a>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/unsubscribe" style="color: #667eea;">Unsubscribe</a>
             </p>
           </div>
         </body>
@@ -163,7 +163,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
         const discount = p.discountPercent || Math.round(((Number(originalPrice) - p.price) / Number(originalPrice)) * 100)
         return `- ${p.name}: ${discount}% OFF - Now KES ${p.price.toLocaleString()} (Was KES ${Number(originalPrice).toLocaleString()})`
       }).join('\n')
-      return `Special Discounts - Limited Time Only!\n\n${discountInfo || ''}\n\n${productList}\n\nShop now: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products`
+      return `Special Discounts - Limited Time Only!\n\n${discountInfo || ''}\n\n${productList}\n\nShop now: ${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products`
     },
   },
 
@@ -194,7 +194,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
                     🔥 TRENDING
                   </div>
                   ${product.image ? `
-                    <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                    <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
                   ` : ''}
                   <h3 style="color: #1f2937; margin: 10px 0; font-size: 20px;">${product.name}</h3>
                   <p style="color: #667eea; font-size: 24px; font-weight: bold; margin: 10px 0;">
@@ -205,7 +205,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
                       </span>
                     ` : ''}
                   </p>
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products/${product.id}" 
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products/${product.id}" 
                      style="display: inline-block; background: #ef4444; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px;">
                     View Product →
                   </a>
@@ -214,7 +214,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products" 
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products" 
                  style="display: inline-block; background: #ef4444; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">
                 Shop Trending Products
               </a>
@@ -223,7 +223,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
             <p style="color: #6b7280; font-size: 12px; text-align: center; margin: 0;">
               You are receiving this email because you are a valued customer of Mombasa Shisha Bongs.<br>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/unsubscribe" style="color: #667eea;">Unsubscribe</a>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/unsubscribe" style="color: #667eea;">Unsubscribe</a>
             </p>
           </div>
         </body>
@@ -231,7 +231,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
     `,
     getTextBody: (products) => {
       const productList = products.map((p) => `- ${p.name}: KES ${p.price.toLocaleString()}`).join('\n')
-      return `Trending Now - Most Popular Products!\n\nThese are the products everyone is talking about:\n\n${productList}\n\nShop now: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products`
+      return `Trending Now - Most Popular Products!\n\nThese are the products everyone is talking about:\n\n${productList}\n\nShop now: ${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products`
     },
   },
 
@@ -260,7 +260,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
               ${products.map((product) => `
                 <div style="background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 2px solid #10b981;">
                   ${product.image ? `
-                    <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
+                    <img src="${product.image.startsWith('http') ? product.image : (process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com') + product.image}" alt="${product.name}" style="width: 100%; max-width: 300px; height: auto; border-radius: 8px; margin-bottom: 15px;">
                   ` : ''}
                   <div style="background: #d1fae5; color: #065f46; padding: 5px 10px; border-radius: 4px; display: inline-block; font-weight: bold; margin-bottom: 10px;">
                     🎁 SPECIAL OFFER
@@ -274,7 +274,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
                       </span>
                     ` : ''}
                   </p>
-                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products/${product.id}" 
+                  <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products/${product.id}" 
                      style="display: inline-block; background: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px;">
                     Claim Offer →
                   </a>
@@ -283,7 +283,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products" 
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products" 
                  style="display: inline-block; background: #10b981; color: white; padding: 15px 40px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 18px;">
                 View All Offers
               </a>
@@ -292,7 +292,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
             <p style="color: #6b7280; font-size: 12px; text-align: center; margin: 0;">
               You are receiving this email because you are a valued customer of Mombasa Shisha Bongs.<br>
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/unsubscribe" style="color: #667eea;">Unsubscribe</a>
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/unsubscribe" style="color: #667eea;">Unsubscribe</a>
             </p>
           </div>
         </body>
@@ -300,7 +300,7 @@ export const EMAIL_TEMPLATES: Record<EmailTopic, EmailTemplateData> = {
     `,
     getTextBody: (products, offerInfo) => {
       const productList = products.map((p) => `- ${p.name}: KES ${p.price.toLocaleString()}`).join('\n')
-      return `Special Offers - Don't Miss Out!\n\n${offerInfo ? `Special Offer: ${offerInfo}\n\n` : ''}${productList}\n\nShop now: ${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/products`
+      return `Special Offers - Don't Miss Out!\n\n${offerInfo ? `Special Offer: ${offerInfo}\n\n` : ''}${productList}\n\nShop now: ${process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'}/products`
     },
   },
 }
