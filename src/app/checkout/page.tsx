@@ -377,7 +377,7 @@ export default function CheckoutPage() {
                       }}
                       autoComplete="tel"
                       className="flex-1 bg-white border border-gray-300 rounded-r-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-red-500 focus:outline-none"
-                      placeholder="708786000"
+                      placeholder="71234567"
                       pattern="[0-9]{9}"
                       maxLength={9}
                     />

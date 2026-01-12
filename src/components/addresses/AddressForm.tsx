@@ -159,7 +159,7 @@ export default function AddressForm({ address, onSuccess, onCancel }: AddressFor
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
             autoComplete="tel"
-            placeholder="+254708786000"
+            placeholder="+254712345678"
             className="w-full bg-gray-700/90 border border-gray-600 text-white placeholder-gray-400 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
             required
           />
