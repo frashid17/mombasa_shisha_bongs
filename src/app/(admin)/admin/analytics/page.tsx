@@ -113,6 +113,12 @@ async function getAnalytics() {
         name: true,
         featuredImage: true,
         price: true,
+        images: {
+          select: {
+            url: true,
+          },
+          take: 1,
+        },
       },
     })
   )
@@ -138,6 +144,7 @@ async function getAnalytics() {
         name: product.name,
         featuredImage: product.featuredImage,
         price: Number(product.price),
+        images: product.images,
       } : null,
     }
   })
