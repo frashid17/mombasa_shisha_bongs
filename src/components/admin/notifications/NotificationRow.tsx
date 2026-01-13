@@ -84,82 +84,65 @@ export default function NotificationRow({ notification }: NotificationRowProps) 
       onClick={handleRowClick}
       className="hover:bg-gray-50 cursor-pointer transition-colors"
     >
-      <td className="px-3 md:px-6 py-4">
-        <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-gray-900">
-            {notification.type.replace(/_/g, ' ')}
-          </span>
-          <div className="flex items-center gap-2 sm:hidden">
-            <ChannelIcon className="w-3 h-3 text-gray-500" />
-            <span className="text-xs text-gray-500">{notification.channel}</span>
-          </div>
-          <div className="text-xs text-gray-500 md:hidden">
-            {notification.recipientEmail}
-          </div>
+      <td className="px-6 py-4">
+        <div className="text-sm font-medium text-gray-900">
+          {notification.type.replace(/_/g, ' ')}
         </div>
       </td>
-      <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap">
+      <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center gap-2">
           <ChannelIcon className="w-4 h-4 text-gray-500" />
           <span className="text-sm text-gray-900">{notification.channel}</span>
         </div>
       </td>
-      <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap">
+      <td className="px-6 py-4">
         <div className="text-sm">
-          <div className="text-gray-900">{notification.recipientEmail}</div>
+          <div className="text-gray-900 font-medium">{notification.recipientEmail}</div>
           {notification.recipientPhone && (
-            <div className="text-gray-500 text-xs">{notification.recipientPhone}</div>
+            <div className="text-gray-500 text-xs mt-1">{notification.recipientPhone}</div>
           )}
         </div>
       </td>
-      <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap">
+      <td className="px-6 py-4 whitespace-nowrap">
         {notification.order ? (
-          <span className="text-sm font-mono text-gray-900">
+          <span className="text-sm font-mono font-medium text-gray-900">
             #{notification.order.orderNumber}
           </span>
         ) : (
           <span className="text-sm text-gray-400">-</span>
         )}
       </td>
-      <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center gap-2">
-          <StatusIcon
-            className={`w-4 h-4 ${
-              notification.status === 'SENT' || notification.status === 'DELIVERED'
-                ? 'text-green-500'
-                : notification.status === 'FAILED'
-                ? 'text-red-500'
-                : 'text-yellow-500'
-            }`}
-          />
-          <span
-            className={`px-2 py-1 text-xs font-semibold rounded-full ${statusColors[notification.status] || statusColors.PENDING}`}
-          >
-            {notification.status}
-          </span>
-        </div>
+      <td className="px-6 py-4 whitespace-nowrap">
+        <span
+          className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ${statusColors[notification.status] || statusColors.PENDING}`}
+        >
+          <StatusIcon className="w-3.5 h-3.5" />
+          {notification.status}
+        </span>
       </td>
-      <td className="hidden lg:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
         {notification.sentAt
           ? format(new Date(notification.sentAt), 'MMM d, yyyy HH:mm')
           : '-'}
       </td>
-      <td className="hidden xl:table-cell px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
-        {notification.errorMessage || '-'}
+      <td className="px-6 py-4 text-sm text-gray-700 max-w-xs">
+        <div className="truncate" title={notification.errorMessage || ''}>
+          {notification.errorMessage || '-'}
+        </div>
       </td>
-      <td className="px-3 md:px-6 py-4 text-right whitespace-nowrap">
+      <td className="px-6 py-4 text-right whitespace-nowrap">
         <button
           onClick={handleDelete}
           disabled={isDeleting}
-          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           title="Delete notification"
+          aria-label="Delete notification"
         >
           {isDeleting ? (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
           ) : (
             <Trash2 className="w-4 h-4" />
           )}
-          <span className="hidden sm:inline">{isDeleting ? 'Deleting...' : 'Delete'}</span>
         </button>
       </td>
     </tr>

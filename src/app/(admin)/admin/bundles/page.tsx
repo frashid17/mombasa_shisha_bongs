@@ -15,6 +15,12 @@ async function getBundles() {
                 name: true,
                 price: true,
                 featuredImage: true,
+                images: {
+                  select: {
+                    url: true,
+                  },
+                  take: 1,
+                },
               },
             },
           },
@@ -43,6 +49,7 @@ async function getBundles() {
         name: item.product.name,
         price: Number(item.product.price),
         featuredImage: item.product.featuredImage,
+        images: item.product.images,
       },
     })),
   }))

@@ -15,6 +15,7 @@ interface BundleItem {
     name: string
     price: number
     featuredImage: string | null
+    images: Array<{ url: string }>
   }
 }
 
@@ -97,26 +98,29 @@ export default function BundlesTable({ bundles }: BundlesTableProps) {
         <div className="space-y-2">
           <p className="text-xs font-semibold text-gray-500 uppercase">Products</p>
           <div className="space-y-2">
-            {bundle.items.map((item) => (
-              <div key={item.id} className="flex items-center gap-2">
-                {item.product.featuredImage ? (
-                  <Image
-                    src={item.product.featuredImage}
-                    alt={item.product.name}
-                    width={40}
-                    height={40}
-                    className="rounded object-cover flex-shrink-0"
-                  />
-                ) : (
-                  <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
-                    <Package className="w-5 h-5 text-gray-400" />
-                  </div>
-                )}
-                <span className="text-sm text-gray-700 truncate">
-                  {item.product.name} {item.quantity > 1 && `(x${item.quantity})`}
-                </span>
-              </div>
-            ))}
+            {bundle.items.map((item) => {
+              const imageUrl = item.product.featuredImage || item.product.images[0]?.url
+              return (
+                <div key={item.id} className="flex items-center gap-2">
+                  {imageUrl ? (
+                    <Image
+                      src={imageUrl}
+                      alt={item.product.name}
+                      width={40}
+                      height={40}
+                      className="rounded object-cover flex-shrink-0"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center flex-shrink-0">
+                      <Package className="w-5 h-5 text-gray-400" />
+                    </div>
+                  )}
+                  <span className="text-sm text-gray-700 truncate">
+                    {item.product.name} {item.quantity > 1 && `(x${item.quantity})`}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         </div>
 
@@ -228,41 +232,44 @@ export default function BundlesTable({ bundles }: BundlesTableProps) {
                     Products in Bundle
                   </p>
                   <div className="grid grid-cols-2 xl:grid-cols-3 gap-3">
-                    {bundle.items.map((item) => (
-                      <div 
-                        key={item.id} 
-                        className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200 hover:border-gray-300 transition-colors"
-                      >
-                        {item.product.featuredImage ? (
-                          <Image
-                            src={item.product.featuredImage}
-                            alt={item.product.name}
-                            width={56}
-                            height={56}
-                            className="rounded-lg object-cover flex-shrink-0"
-                          />
-                        ) : (
-                          <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Package className="w-7 h-7 text-gray-400" />
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {item.product.name}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            {item.quantity > 1 && (
-                              <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800 rounded">
-                                Qty: {item.quantity}
+                    {bundle.items.map((item) => {
+                      const imageUrl = item.product.featuredImage || item.product.images[0]?.url
+                      return (
+                        <div 
+                          key={item.id} 
+                          className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200 hover:border-gray-300 transition-colors"
+                        >
+                          {imageUrl ? (
+                            <Image
+                              src={imageUrl}
+                              alt={item.product.name}
+                              width={56}
+                              height={56}
+                              className="rounded-lg object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <Package className="w-7 h-7 text-gray-400" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {item.product.name}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              {item.quantity > 1 && (
+                                <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-blue-100 text-blue-800 rounded">
+                                  Qty: {item.quantity}
+                                </span>
+                              )}
+                              <span className="text-xs text-gray-500">
+                                KES {Number(item.product.price).toLocaleString()}
                               </span>
-                            )}
-                            <span className="text-xs text-gray-500">
-                              KES {Number(item.product.price).toLocaleString()}
-                            </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
 

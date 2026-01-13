@@ -28,48 +28,34 @@ export default async function AdminNotificationsPage() {
           <p className="text-gray-700 mt-1">View all notification logs and delivery status</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
-          <DeleteAllNotificationsButton />
           <MarkAllNotificationsButton />
+          <DeleteAllNotificationsButton />
         </div>
       </div>
 
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                  Channel
-                </th>
-                <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                  Recipient
-                </th>
-                <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                  Order
-                </th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="hidden lg:table-cell px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                  Sent At
-                </th>
-                <th className="hidden xl:table-cell px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                  Error
-                </th>
-                <th className="px-3 md:px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {notifications.map((notification) => (
-                <NotificationRow key={notification.id} notification={notification} />
-              ))}
-            </tbody>
-          </table>
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Channel</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Recipient</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Order</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Sent At</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Error</th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {notifications.map((notification) => (
+                  <NotificationRow key={notification.id} notification={notification} />
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
         {notifications.length === 0 && (
           <div className="text-center py-12 text-gray-500">No notifications found</div>
