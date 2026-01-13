@@ -1,7 +1,8 @@
 import prisma from '@/lib/prisma'
-import NotificationRow from '@/components/admin/notifications/NotificationRow'
+import NotificationCard from '@/components/admin/notifications/NotificationCard'
 import MarkAllNotificationsButton from '@/components/admin/notifications/MarkAllNotificationsButton'
 import DeleteAllNotificationsButton from '@/components/admin/notifications/DeleteAllNotificationsButton'
+import { Bell } from 'lucide-react'
 
 async function getNotifications() {
   return prisma.notification.findMany({
@@ -33,34 +34,19 @@ export default async function AdminNotificationsPage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <div className="inline-block min-w-full align-middle">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Type</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Channel</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Recipient</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Order</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Sent At</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Error</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {notifications.map((notification) => (
-                  <NotificationRow key={notification.id} notification={notification} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+      {notifications.length === 0 ? (
+        <div className="bg-white rounded-lg shadow p-12 text-center">
+          <Bell className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No notifications yet</h3>
+          <p className="text-gray-600">Notification logs will appear here as they are sent.</p>
         </div>
-        {notifications.length === 0 && (
-          <div className="text-center py-12 text-gray-500">No notifications found</div>
-        )}
-      </div>
+      ) : (
+        <div className="space-y-3">
+          {notifications.map((notification) => (
+            <NotificationCard key={notification.id} notification={notification} />
+          ))}
+        </div>
+      )}
     </div>
   )
 }
