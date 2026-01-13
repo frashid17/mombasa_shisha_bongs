@@ -161,7 +161,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 z-50">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="flex items-center justify-between h-14 sm:h-16 px-2 sm:px-4 lg:px-8">
         {/* Mobile Menu Button & Logo */}
         <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
@@ -215,7 +215,15 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
             {/* Notifications Dropdown */}
             {isOpen && (
-              <div className="fixed inset-x-0 top-14 sm:top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:mt-2 sm:w-[420px] bg-white sm:rounded-lg shadow-2xl border-t sm:border border-gray-200 max-h-[calc(100vh-3.5rem)] sm:max-h-[600px] overflow-hidden flex flex-col z-50">
+              <>
+                {/* Mobile Overlay */}
+                <div 
+                  className="fixed inset-0 bg-black/20 z-[60] sm:hidden"
+                  onClick={() => setIsOpen(false)}
+                />
+                
+                {/* Dropdown */}
+                <div className="fixed inset-x-0 top-14 sm:absolute sm:inset-x-auto sm:right-0 sm:mt-2 w-full sm:w-[420px] bg-white sm:rounded-lg shadow-2xl border-t sm:border border-gray-200 max-h-[calc(100vh-3.5rem)] sm:max-h-[600px] overflow-hidden flex flex-col z-[70]">
                 {/* Header */}
                 <div className="p-4 border-b border-gray-200 bg-gray-50">
                   <div className="flex items-center justify-between mb-2">
@@ -351,6 +359,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                   )}
                 </div>
               </div>
+              </>
             )}
           </div>
 
