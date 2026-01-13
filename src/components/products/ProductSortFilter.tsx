@@ -62,8 +62,11 @@ export default function ProductSortFilter({ categories, brands, activeFilters }:
               value={`${sortBy}-${sortOrder}`}
               onChange={(e) => {
                 const [field, order] = e.target.value.split('-')
-                updateFilter('sortBy', field)
-                updateFilter('sortOrder', order)
+                const params = new URLSearchParams(searchParams.toString())
+                params.set('sortBy', field)
+                params.set('sortOrder', order)
+                params.set('page', '1')
+                router.push(`/products?${params.toString()}`)
               }}
               aria-label="Sort products"
               className="bg-white border border-gray-300 rounded-md px-3 py-2 text-gray-900 text-sm focus:border-red-500 focus:outline-none"

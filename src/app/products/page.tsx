@@ -101,25 +101,27 @@ async function getProducts(searchParams: {
 
   // Sorting
   const sortBy = searchParams.sortBy || 'createdAt'
-  const sortOrder = searchParams.sortOrder || 'desc'
+  const sortOrder = (searchParams.sortOrder === 'asc' ? 'asc' : 'desc') as 'asc' | 'desc'
 
   // Pagination
   const page = parseInt(searchParams.page || '1')
   const limit = parseInt(searchParams.limit || '24')
   const skip = (page - 1) * limit
 
-  // Build orderBy for Prisma instead of sorting all results in memory
+  // Build orderBy for Prisma
   let orderBy: any
   if (sortBy === 'popularity') {
-    // Let the database sort by number of order items
+    // Sort by number of order items (sales count)
     orderBy = { orderItems: { _count: sortOrder } }
   } else if (sortBy === 'price') {
     orderBy = { price: sortOrder }
   } else if (sortBy === 'name') {
     orderBy = { name: sortOrder }
-  } else {
-    // Default to createdAt
+  } else if (sortBy === 'createdAt') {
     orderBy = { createdAt: sortOrder }
+  } else {
+    // Default to createdAt desc
+    orderBy = { createdAt: 'desc' as 'desc' }
   }
 
   const [products, total] = await Promise.all([
