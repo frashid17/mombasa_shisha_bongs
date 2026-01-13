@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { UserButton, useUser } from '@clerk/nextjs'
-import { Bell, Store, Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock, Menu } from 'lucide-react'
+import { Bell, Store, Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock, Menu, Trash2, X as CloseIcon } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
 import { format } from 'date-fns'
+import toast from 'react-hot-toast'
 
 interface AdminHeaderProps {
   onMenuClick: () => void
@@ -28,6 +29,8 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const [unreadCount, setUnreadCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [deleting, setDeleting] = useState<string | null>(null)
+  const [deletingAll, setDeletingAll] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Fetch notifications
@@ -107,6 +110,56 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
     return notification.type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
   }
 
+  const handleDeleteNotification = async (id: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (!confirm('Delete this notification?')) return
+
+    setDeleting(id)
+    try {
+      const res = await fetch(`/api/admin/notifications/${id}`, {
+        method: 'DELETE',
+      })
+
+      if (res.ok) {
+        setNotifications(notifications.filter(n => n.id !== id))
+        setUnreadCount(prev => Math.max(0, prev - 1))
+        toast.success('Notification deleted')
+      } else {
+        toast.error('Failed to delete notification')
+      }
+    } catch (error) {
+      toast.error('Failed to delete notification')
+    } finally {
+      setDeleting(null)
+    }
+  }
+
+  const handleDeleteAllNotifications = async () => {
+    if (!confirm('Delete all notifications? This action cannot be undone.')) return
+
+    setDeletingAll(true)
+    try {
+      const res = await fetch('/api/admin/notifications/delete-all', {
+        method: 'DELETE',
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setNotifications([])
+        setUnreadCount(0)
+        toast.success(`Deleted ${data.count} notification(s)`)
+      } else {
+        toast.error('Failed to delete notifications')
+      }
+    } catch (error) {
+      toast.error('Failed to delete notifications')
+    } finally {
+      setDeletingAll(false)
+    }
+  }
+
   return (
     <header className="bg-white border-b border-gray-200 z-50">
       <div className="flex items-center justify-between h-14 sm:h-16 px-2 sm:px-4 lg:px-8">
@@ -162,82 +215,136 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
             {/* Notifications Dropdown */}
             {isOpen && (
-              <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-white rounded-lg shadow-xl border border-gray-200 max-h-[600px] overflow-hidden flex flex-col">
-                <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-900">Notifications</h3>
-                  <Link
-                    href="/admin/notifications"
-                    onClick={() => setIsOpen(false)}
-                    className="text-sm text-red-600 hover:text-red-700"
-                  >
-                    View All
-                  </Link>
+              <div className="fixed inset-x-0 top-14 sm:top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:mt-2 sm:w-[420px] bg-white sm:rounded-lg shadow-2xl border-t sm:border border-gray-200 max-h-[calc(100vh-3.5rem)] sm:max-h-[600px] overflow-hidden flex flex-col z-50">
+                {/* Header */}
+                <div className="p-4 border-b border-gray-200 bg-gray-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-base font-bold text-gray-900">Notifications</h3>
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="sm:hidden p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors"
+                      aria-label="Close"
+                    >
+                      <CloseIcon className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href="/admin/notifications"
+                      onClick={() => setIsOpen(false)}
+                      className="text-xs sm:text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
+                      View All
+                    </Link>
+                    {notifications.length > 0 && (
+                      <>
+                        <span className="text-gray-300">|</span>
+                        <button
+                          onClick={handleDeleteAllNotifications}
+                          disabled={deletingAll}
+                          className="text-xs sm:text-sm text-red-600 hover:text-red-700 font-medium disabled:opacity-50 flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                          {deletingAll ? 'Deleting...' : 'Delete All'}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
 
+                {/* Notifications List */}
                 <div className="overflow-y-auto flex-1">
                   {loading ? (
-                    <div className="p-4 text-center text-gray-500">Loading...</div>
+                    <div className="p-8 text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
+                      <p className="text-sm text-gray-500 mt-2">Loading...</p>
+                    </div>
                   ) : notifications.length === 0 ? (
-                    <div className="p-4 text-center text-gray-500">No notifications</div>
+                    <div className="p-12 text-center">
+                      <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-sm text-gray-500">No notifications</p>
+                    </div>
                   ) : (
-                    <div className="divide-y divide-gray-200">
+                    <div className="divide-y divide-gray-100">
                       {notifications.map((notification) => {
                         const ChannelIcon = channelIcons[notification.channel] || AlertCircle
                         const isUnread = notification.status === 'PENDING' || notification.status === 'FAILED'
 
                         return (
-                          <Link
+                          <div
                             key={notification.id}
-                            href={`/admin/notifications/${notification.id}`}
-                            onClick={() => setIsOpen(false)}
-                            className={`block p-4 hover:bg-gray-50 transition-colors ${
-                              isUnread ? 'bg-red-50/50' : ''
+                            className={`relative group ${
+                              isUnread ? 'bg-red-50/30' : 'bg-white'
                             }`}
                           >
-                            <div className="flex items-start gap-3">
-                              <div
-                                className={`p-2 rounded-lg ${
-                                  notification.status === 'SENT' || notification.status === 'DELIVERED'
-                                    ? 'bg-green-100 text-green-600'
-                                    : notification.status === 'FAILED'
-                                    ? 'bg-red-100 text-red-600'
-                                    : 'bg-yellow-100 text-yellow-600'
-                                }`}
-                              >
-                                <ChannelIcon className="w-4 h-4" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-2 mb-1">
-                                  <p className="text-sm font-semibold text-gray-900 truncate">
-                                    {getNotificationTitle(notification)}
+                            <Link
+                              href={`/admin/notifications/${notification.id}`}
+                              onClick={() => setIsOpen(false)}
+                              className="block p-4 hover:bg-gray-50 transition-colors"
+                            >
+                              <div className="flex items-start gap-3">
+                                {/* Icon */}
+                                <div
+                                  className={`flex-shrink-0 p-2 rounded-lg ${
+                                    notification.status === 'SENT' || notification.status === 'DELIVERED'
+                                      ? 'bg-green-100 text-green-600'
+                                      : notification.status === 'FAILED'
+                                      ? 'bg-red-100 text-red-600'
+                                      : 'bg-yellow-100 text-yellow-600'
+                                  }`}
+                                >
+                                  <ChannelIcon className="w-4 h-4" />
+                                </div>
+
+                                {/* Content */}
+                                <div className="flex-1 min-w-0 pr-8">
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <p className="text-sm font-semibold text-gray-900 line-clamp-1">
+                                      {getNotificationTitle(notification)}
+                                    </p>
+                                    {isUnread && (
+                                      <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-1.5"></span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-gray-600 truncate mb-1">
+                                    {notification.recipientEmail}
                                   </p>
-                                  {isUnread && (
-                                    <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0"></span>
+                                  {notification.orderNumber && (
+                                    <p className="text-xs text-gray-500 mb-2">
+                                      Order: #{notification.orderNumber}
+                                    </p>
                                   )}
-                                </div>
-                                <p className="text-xs text-gray-500 mb-1">
-                                  {notification.recipientEmail}
-                                </p>
-                                {notification.orderNumber && (
-                                  <p className="text-xs text-gray-400 mb-1">
-                                    Order: #{notification.orderNumber}
-                                  </p>
-                                )}
-                                <div className="flex items-center justify-between mt-2">
-                                  <span
-                                    className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                                      statusColors[notification.status] || statusColors.PENDING
-                                    }`}
-                                  >
-                                    {notification.status}
-                                  </span>
-                                  <span className="text-xs text-gray-400">
-                                    {format(new Date(notification.createdAt), 'MMM d, HH:mm')}
-                                  </span>
+                                  <div className="flex items-center justify-between">
+                                    <span
+                                      className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${
+                                        statusColors[notification.status] || statusColors.PENDING
+                                      }`}
+                                    >
+                                      {notification.status}
+                                    </span>
+                                    <span className="text-[10px] text-gray-500">
+                                      {format(new Date(notification.createdAt), 'MMM d, HH:mm')}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </Link>
+                            </Link>
+
+                            {/* Delete Button */}
+                            <button
+                              onClick={(e) => handleDeleteNotification(notification.id, e)}
+                              disabled={deleting === notification.id}
+                              className="absolute top-3 right-3 p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100 disabled:opacity-50"
+                              aria-label="Delete notification"
+                              title="Delete"
+                            >
+                              {deleting === notification.id ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+                              ) : (
+                                <Trash2 className="w-4 h-4" />
+                              )}
+                            </button>
+                          </div>
                         )
                       })}
                     </div>
