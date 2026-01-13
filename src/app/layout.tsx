@@ -14,6 +14,7 @@ import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
 import { Toaster } from "react-hot-toast";
 import { Analytics } from "@vercel/analytics/next";
+import MainLayoutClient from "@/components/MainLayoutClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -177,7 +178,9 @@ export default async function RootLayout({
             <PageLoader />
             <AgeVerification />
             {!isAdminRoute && <ConditionalNavbar />}
-            {children}
+            <MainLayoutClient>
+              {children}
+            </MainLayoutClient>
             {!isAdminRoute && (
               <Suspense fallback={<div className="h-64 bg-gray-900" />}>
                 <ConditionalFooter categories={categories} />
