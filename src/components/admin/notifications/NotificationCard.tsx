@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react'
+import { Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock, Trash2, Eye } from 'lucide-react'
 import { format } from 'date-fns'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
@@ -50,7 +50,8 @@ export default function NotificationCard({ notification }: NotificationCardProps
   const ChannelIcon = channelIcons[notification.channel] || AlertCircle
   const StatusIcon = statusIcons[notification.status] || Clock
 
-  const handleCardClick = () => {
+  const handleView = (e: React.MouseEvent) => {
+    e.stopPropagation()
     router.push(`/admin/notifications/${notification.id}`)
   }
 
@@ -81,8 +82,7 @@ export default function NotificationCard({ notification }: NotificationCardProps
 
   return (
     <div
-      onClick={handleCardClick}
-      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 cursor-pointer"
+      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
     >
       <div className="p-5">
         {/* Header Row */}
@@ -158,20 +158,30 @@ export default function NotificationCard({ notification }: NotificationCardProps
             )}
           </div>
 
-          {/* Delete Button */}
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-            title="Delete notification"
-          >
-            {isDeleting ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-            ) : (
-              <Trash2 className="w-4 h-4" />
-            )}
-            <span>{isDeleting ? 'Deleting...' : 'Delete'}</span>
-          </button>
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleView}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors font-medium"
+              title="View notification details"
+            >
+              <Eye className="w-4 h-4" />
+              <span>View</span>
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              title="Delete notification"
+            >
+              {isDeleting ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+              ) : (
+                <Trash2 className="w-4 h-4" />
+              )}
+              <span>{isDeleting ? 'Deleting...' : 'Delete'}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
