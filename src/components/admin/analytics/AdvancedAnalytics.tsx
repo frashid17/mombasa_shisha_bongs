@@ -62,6 +62,21 @@ export default function AdvancedAnalytics({
   }, [selectedPeriod])
 
   const maxRevenue = Math.max(...revenueByMonth.map((d) => Number(d.revenue)), 1)
+  
+  // Calculate Y-axis labels (5 evenly spaced values)
+  const getYAxisLabels = () => {
+    const labels = []
+    for (let i = 5; i >= 0; i--) {
+      labels.push((maxRevenue / 5) * i)
+    }
+    return labels
+  }
+  
+  const formatCurrency = (value: number) => {
+    if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`
+    if (value >= 1000) return `${(value / 1000).toFixed(0)}K`
+    return value.toFixed(0)
+  }
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -102,66 +117,102 @@ export default function AdvancedAnalytics({
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center h-64">
+          <div className="flex items-center justify-center h-80">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
           </div>
         ) : (
           <>
-            <div className="relative">
-              <div className="flex items-end justify-between gap-2 h-64 mt-6 px-2">
-                {revenueByMonth.map((item, index) => {
-                  const revenue = Number(item.revenue)
-                  const height = maxRevenue > 0 ? (revenue / maxRevenue) * 100 : 0
-                  const monthName = new Date(item.month + '-01').toLocaleDateString('en-US', {
-                    month: 'short',
-                  })
-                  const year = new Date(item.month + '-01').getFullYear()
-
-                  return (
-                    <div key={item.month} className="flex-1 flex flex-col items-center gap-2 group">
-                      <div className="relative w-full">
-                        {/* Tooltip */}
-                        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-3 py-1.5 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                          KES {revenue.toLocaleString()}
-                        </div>
-                        
-                        {/* Bar */}
-                        <div 
-                          className="w-full bg-gradient-to-t from-red-600 via-red-500 to-red-400 rounded-t-lg transition-all duration-500 hover:from-red-700 hover:via-red-600 hover:to-red-500 shadow-lg cursor-pointer"
-                          style={{ height: `${Math.max(height, 8)}%`, minHeight: '32px' }}
-                        />
-                      </div>
-                      <div className="text-center mt-2">
-                        <span className="text-xs font-semibold text-gray-700 block">{monthName}</span>
-                        <span className="text-[10px] text-gray-500 block">{year}</span>
-                      </div>
+            <div className="relative bg-white rounded-lg p-4 border border-gray-200">
+              <div className="flex gap-4">
+                {/* Y-Axis Labels */}
+                <div className="flex flex-col justify-between h-72 py-2">
+                  {getYAxisLabels().map((value, index) => (
+                    <div key={index} className="text-xs font-medium text-gray-600 text-right">
+                      KES {formatCurrency(value)}
                     </div>
-                  )
-                })}
+                  ))}
+                </div>
+
+                {/* Chart Area */}
+                <div className="flex-1 relative">
+                  {/* Grid Lines */}
+                  <div className="absolute inset-0 flex flex-col justify-between">
+                    {getYAxisLabels().map((_, index) => (
+                      <div key={index} className="border-t border-gray-200"></div>
+                    ))}
+                  </div>
+
+                  {/* Bars */}
+                  <div className="relative flex items-end justify-between gap-2 h-72">
+                    {revenueByMonth.map((item) => {
+                      const revenue = Number(item.revenue)
+                      const heightPercent = maxRevenue > 0 ? (revenue / maxRevenue) * 100 : 0
+                      const monthName = new Date(item.month + '-01').toLocaleDateString('en-US', {
+                        month: 'short',
+                      })
+                      const year = new Date(item.month + '-01').getFullYear()
+
+                      return (
+                        <div key={item.month} className="flex-1 flex flex-col items-center group h-full justify-end">
+                          {/* Tooltip */}
+                          <div className="absolute -top-16 bg-gray-900 text-white px-3 py-2 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                            <div className="font-bold">KES {revenue.toLocaleString()}</div>
+                            <div className="text-gray-300">{monthName} {year}</div>
+                          </div>
+                          
+                          {/* Bar */}
+                          <div 
+                            className="w-full bg-gradient-to-t from-red-600 via-red-500 to-red-400 rounded-t-lg transition-all duration-300 hover:from-red-700 hover:via-red-600 hover:to-red-500 shadow-md cursor-pointer hover:shadow-lg"
+                            style={{ 
+                              height: `${heightPercent}%`,
+                              minHeight: revenue > 0 ? '8px' : '2px',
+                              opacity: revenue > 0 ? 1 : 0.3
+                            }}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  {/* X-Axis Labels */}
+                  <div className="flex items-start justify-between gap-2 mt-3">
+                    {revenueByMonth.map((item) => {
+                      const monthName = new Date(item.month + '-01').toLocaleDateString('en-US', {
+                        month: 'short',
+                      })
+                      const year = new Date(item.month + '-01').getFullYear().toString().slice(-2)
+
+                      return (
+                        <div key={item.month} className="flex-1 text-center">
+                          <div className="text-xs font-bold text-gray-700">{monthName}</div>
+                          <div className="text-[10px] text-gray-500">'{year}</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white rounded-lg p-4 border border-gray-200">
-                  <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    KES{' '}
-                    {revenueByMonth
-                      .reduce((sum, item) => sum + Number(item.revenue), 0)
-                      .toLocaleString()}
-                  </p>
-                </div>
-                <div className="bg-white rounded-lg p-4 border border-gray-200">
-                  <p className="text-sm text-gray-600 mb-1">Average/Month</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    KES{' '}
-                    {(
-                      revenueByMonth.reduce((sum, item) => sum + Number(item.revenue), 0) /
-                      revenueByMonth.length
-                    ).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                  </p>
-                </div>
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  KES{' '}
+                  {revenueByMonth
+                    .reduce((sum, item) => sum + Number(item.revenue), 0)
+                    .toLocaleString()}
+                </p>
+              </div>
+              <div className="bg-white rounded-lg p-4 border border-gray-200 shadow-sm">
+                <p className="text-sm text-gray-600 mb-1">Average/Month</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  KES{' '}
+                  {(
+                    revenueByMonth.reduce((sum, item) => sum + Number(item.revenue), 0) /
+                    revenueByMonth.length
+                  ).toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                </p>
               </div>
             </div>
           </>
