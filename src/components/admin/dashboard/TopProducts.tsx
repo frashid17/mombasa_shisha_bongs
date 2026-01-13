@@ -33,6 +33,12 @@ export default async function TopProducts() {
       name: true,
       featuredImage: true,
       price: true,
+      images: {
+        select: {
+          url: true,
+        },
+        take: 1,
+      },
     },
   })
 
@@ -45,66 +51,80 @@ export default async function TopProducts() {
     }
   })
 
+  // Get the product image (featuredImage or first image from images array)
+  const getProductImage = (product: any) => {
+    if (product?.featuredImage) {
+      return product.featuredImage
+    }
+    if (product?.images && product.images.length > 0) {
+      return product.images[0].url
+    }
+    return null
+  }
+
   return (
     <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-6 border-b border-gray-200">
-        <h2 className="text-lg font-semibold text-gray-900">Top Products</h2>
-        <p className="text-sm text-gray-500 mt-1">Best selling products this month</p>
+      <div className="p-4 sm:p-6 border-b border-gray-200">
+        <h2 className="text-base sm:text-lg font-semibold text-gray-900">Top Products</h2>
+        <p className="text-xs sm:text-sm text-gray-500 mt-1">Best selling products</p>
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {topProductsWithDetails.length === 0 ? (
           <p className="text-center text-gray-500 py-8">No sales data yet</p>
         ) : (
-          <div className="space-y-4">
-            {topProductsWithDetails.map((item, index) => (
-              <div key={item.productId} className="flex items-center gap-4">
-                {/* Rank */}
-                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-sm font-semibold text-gray-600">
-                  {index + 1}
-                </div>
+          <div className="space-y-3 sm:space-y-4">
+            {topProductsWithDetails.map((item, index) => {
+              const productImage = getProductImage(item.product)
+              return (
+                <div key={item.productId} className="flex items-center gap-3 sm:gap-4">
+                  {/* Rank */}
+                  <div className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-red-100 rounded-full text-xs sm:text-sm font-bold text-red-600">
+                    {index + 1}
+                  </div>
 
-                {/* Product Image */}
-                <div className="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-gray-100">
-                  {item.product?.featuredImage ? (
-                    <Image
-                      src={item.product.featuredImage}
-                      alt={item.product.name || 'Product'}
-                      width={48}
-                      height={48}
-                      className="object-cover w-full h-full"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      📦
-                    </div>
-                  )}
-                </div>
+                  {/* Product Image */}
+                  <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
+                    {productImage ? (
+                      <Image
+                        src={productImage}
+                        alt={item.product?.name || 'Product'}
+                        width={56}
+                        height={56}
+                        className="object-cover w-full h-full"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400 text-xl">
+                        📦
+                      </div>
+                    )}
+                  </div>
 
-                {/* Product Info */}
-                <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/admin/products/${item.productId}`}
-                    className="text-sm font-medium text-gray-900 hover:text-primary-600 truncate block"
-                  >
-                    {item.product?.name || 'Unknown Product'}
-                  </Link>
-                  <p className="text-sm text-gray-500">
-                    {item._sum.quantity} sold · {item._count.id} orders
-                  </p>
-                </div>
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0">
+                    <Link
+                      href={`/admin/products/${item.productId}`}
+                      className="text-sm font-semibold text-gray-900 hover:text-red-600 truncate block"
+                    >
+                      {item.product?.name || 'Unknown Product'}
+                    </Link>
+                    <p className="text-xs sm:text-sm text-gray-500">
+                      {item._sum.quantity} sold · {item._count.id} orders
+                    </p>
+                  </div>
 
-                {/* Revenue */}
-                <div className="flex-shrink-0 text-right">
-                  <p className="text-sm font-semibold text-gray-900">
-                    KSH{' '}
-                    {(
-                      Number(item.product?.price || 0) * (item._sum.quantity || 0)
-                    ).toLocaleString()}
-                  </p>
+                  {/* Revenue */}
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-xs sm:text-sm font-bold text-gray-900">
+                      KES{' '}
+                      {(
+                        Number(item.product?.price || 0) * (item._sum.quantity || 0)
+                      ).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>

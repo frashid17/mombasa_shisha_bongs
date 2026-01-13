@@ -26,20 +26,62 @@ export default async function RecentOrders() {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-4 sm:p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Orders</h2>
           <Link
             href="/admin/orders"
-            className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+            className="text-xs sm:text-sm text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
           >
             View all
-            <ExternalLink className="w-4 h-4" />
+            <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
           </Link>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      {/* Mobile Card View */}
+      <div className="block lg:hidden">
+        {orders.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">No orders yet</div>
+        ) : (
+          <div className="divide-y divide-gray-200">
+            {orders.map((order) => (
+              <div key={order.id} className="p-4 hover:bg-gray-50">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1 min-w-0">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="text-sm font-bold text-red-600 hover:text-red-700"
+                    >
+                      {order.orderNumber}
+                    </Link>
+                    <p className="text-sm font-medium text-gray-900 mt-1">{order.userName}</p>
+                    <p className="text-xs text-gray-500 truncate">{order.userEmail}</p>
+                  </div>
+                  <span
+                    className={`flex-shrink-0 ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                      order.status
+                    )}`}
+                  >
+                    {order.status}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-bold text-gray-900">
+                    KES {Number(order.total).toLocaleString()}
+                  </span>
+                  <span className="text-gray-500 text-xs">
+                    {format(new Date(order.createdAt), 'MMM dd, yyyy')}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table View */}
+      <div className="hidden lg:block overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
@@ -73,7 +115,7 @@ export default async function RecentOrders() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Link
                       href={`/admin/orders/${order.id}`}
-                      className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                      className="text-sm font-medium text-red-600 hover:text-red-700"
                     >
                       {order.orderNumber}
                     </Link>
@@ -83,7 +125,7 @@ export default async function RecentOrders() {
                     <div className="text-sm text-gray-500">{order.userEmail}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    KSH {Number(order.total).toLocaleString()}
+                    KES {Number(order.total).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
