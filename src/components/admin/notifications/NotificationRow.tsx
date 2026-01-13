@@ -1,8 +1,10 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Mail, MessageSquare, AlertCircle, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react'
 import { format } from 'date-fns'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
 
 interface NotificationRowProps {
   notification: {
@@ -44,11 +46,37 @@ const statusIcons: Record<string, any> = {
 
 export default function NotificationRow({ notification }: NotificationRowProps) {
   const router = useRouter()
+  const [isDeleting, setIsDeleting] = useState(false)
   const ChannelIcon = channelIcons[notification.channel] || AlertCircle
   const StatusIcon = statusIcons[notification.status] || Clock
 
   const handleRowClick = () => {
     router.push(`/admin/notifications/${notification.id}`)
+  }
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    
+    if (!confirm('Delete this notification?')) return
+
+    setIsDeleting(true)
+    try {
+      const response = await fetch(`/api/admin/notifications/${notification.id}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        toast.success('Notification deleted')
+        router.refresh()
+      } else {
+        toast.error('Failed to delete notification')
+      }
+    } catch (error) {
+      console.error('Error deleting notification:', error)
+      toast.error('Failed to delete notification')
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   return (
@@ -118,6 +146,21 @@ export default function NotificationRow({ notification }: NotificationRowProps) 
       </td>
       <td className="hidden xl:table-cell px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
         {notification.errorMessage || '-'}
+      </td>
+      <td className="px-3 md:px-6 py-4 text-right whitespace-nowrap">
+        <button
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Delete notification"
+        >
+          {isDeleting ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+          ) : (
+            <Trash2 className="w-4 h-4" />
+          )}
+          <span className="hidden sm:inline">{isDeleting ? 'Deleting...' : 'Delete'}</span>
+        </button>
       </td>
     </tr>
   )

@@ -218,12 +218,19 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
               <>
                 {/* Mobile Overlay */}
                 <div 
-                  className="fixed inset-0 bg-black/20 z-[60] sm:hidden"
+                  className="fixed inset-0 bg-black/30 sm:hidden"
+                  style={{ zIndex: 999 }}
                   onClick={() => setIsOpen(false)}
                 />
                 
                 {/* Dropdown */}
-                <div className="fixed inset-x-0 top-14 sm:absolute sm:inset-x-auto sm:right-0 sm:mt-2 w-full sm:w-[420px] bg-white sm:rounded-lg shadow-2xl border-t sm:border border-gray-200 max-h-[calc(100vh-3.5rem)] sm:max-h-[600px] overflow-hidden flex flex-col z-[70]">
+                <div 
+                  className="fixed left-0 right-0 top-14 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 w-full sm:w-[420px] bg-white sm:rounded-lg shadow-2xl border-t sm:border border-gray-200 overflow-hidden flex flex-col"
+                  style={{ 
+                    zIndex: 1000,
+                    maxHeight: 'calc(100vh - 3.5rem)'
+                  }}
+                >
                 {/* Header */}
                 <div className="p-4 border-b border-gray-200 bg-gray-50">
                   <div className="flex items-center justify-between mb-2">
