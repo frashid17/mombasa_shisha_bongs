@@ -75,10 +75,6 @@ html {
   overflow-x: hidden;
   width: 100%;
   position: relative;
-  /* Prevent bounce/rubber band effect on iOS */
-  overscroll-behavior: none;
-  /* Prevent page from moving with finger - only allow vertical scrolling */
-  touch-action: pan-y pinch-zoom;
 }
 
 body {
@@ -89,9 +85,6 @@ body {
   overflow-x: hidden;
   width: 100%;
   position: relative;
-  /* Prevent page from moving with finger - only allow vertical scrolling */
-  touch-action: pan-y pinch-zoom;
-  overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -117,7 +110,6 @@ img {
 /* Ensure main content area doesn't move with touch */
 main,
 [role="main"] {
-  touch-action: pan-y pinch-zoom;
   overscroll-behavior-y: contain;
 }
 

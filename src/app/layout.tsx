@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { headers } from "next/headers";
 import { Suspense } from "react";
@@ -14,20 +13,6 @@ import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import ServiceWorkerRegistration from "@/components/pwa/ServiceWorkerRegistration";
 import { Toaster } from "react-hot-toast";
 import { Analytics } from "@vercel/analytics/next";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap", // Prevent font blocking
-  preload: true,
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap", // Prevent font blocking
-  preload: true,
-});
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
@@ -168,10 +153,7 @@ export default async function RootLayout({
           <meta name="msapplication-TileImage" content="/logo.png" />
           <meta name="msapplication-TileColor" content="#ffffff" />
         </head>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white text-gray-900`}
-          style={{ backgroundColor: 'white' }}
-        >
+        <body className="antialiased bg-white text-gray-900" style={{ backgroundColor: 'white' }}>
           <CurrencyProvider>
             <ServiceWorkerRegistration />
             <PageLoader />

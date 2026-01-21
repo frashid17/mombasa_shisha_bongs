@@ -112,9 +112,40 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     </div>
                   )}
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900">{item.productName || item.product?.name || 'Product'}</h3>
-                    <p className="text-sm text-gray-600">SKU: {item.productSku || item.product?.sku || 'N/A'}</p>
+                    <h3 className="font-semibold text-gray-900">
+                      {item.productName || item.product?.name || 'Product'}
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      SKU: {item.productSku || item.product?.sku || 'N/A'}
+                    </p>
                     <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+
+                    {/* Ordered specs & variants (e.g. flavor, size, color) */}
+                    <div className="mt-2 space-y-1 text-xs text-gray-600">
+                      {item.colorName && (
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-gray-700">Color:</span>
+                          {item.colorValue && (
+                            <span
+                              className="inline-block w-3 h-3 rounded-full border border-gray-300"
+                              style={{ backgroundColor: item.colorValue }}
+                            />
+                          )}
+                          <span>{item.colorName}</span>
+                        </div>
+                      )}
+                      {item.specName && (
+                        <div className="flex items-center gap-1">
+                          <span className="font-semibold text-gray-700">
+                            {item.specType || 'Spec'}:
+                          </span>
+                          <span>{item.specName}</span>
+                          {item.specValue && (
+                            <span className="text-gray-500">({item.specValue})</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-gray-900">

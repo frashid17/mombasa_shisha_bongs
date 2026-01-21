@@ -63,7 +63,10 @@ export default async function CustomersPage() {
           </div>
         ) : (
           customers.map((customer) => (
-            <div key={customer.userId} className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+            <div
+              key={`${customer.userId}-${customer.email}`}
+              className="bg-white border border-gray-200 rounded-lg p-4 space-y-3"
+            >
               {/* Header */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
@@ -155,7 +158,10 @@ export default async function CustomersPage() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {customers.map((customer) => (
-                  <tr key={customer.userId} className="hover:bg-gray-50">
+                  <tr
+                    key={`${customer.userId}-${customer.email}`}
+                    className="hover:bg-gray-50"
+                  >
                     <td className="px-6 py-4">
                       <div className="font-semibold text-sm text-gray-900">{customer.name || 'Guest'}</div>
                       <div className="text-xs text-gray-500 truncate max-w-[150px]">ID: {customer.userId.slice(0, 12)}...</div>

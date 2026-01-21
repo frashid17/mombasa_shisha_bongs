@@ -191,9 +191,10 @@ async function handlePOST(req: Request) {
       }
     }
 
-    // Only send order confirmation notification if payment is already PAID (e.g., COD)
-    // For other payment methods, confirmation will be sent when payment is received
-    if (order.paymentStatus === 'PAID') {
+    // Send order confirmation notification:
+    // - Immediately for CASH_ON_DELIVERY orders (so you see new COD orders in email)
+    // - When paymentStatus is PAID for online payments (M-Pesa / Paystack)
+    if (validated.paymentMethod === 'CASH_ON_DELIVERY' || order.paymentStatus === 'PAID') {
       sendOrderConfirmationNotification(order.id, {
         orderNumber: order.orderNumber,
         customerName: order.userName,

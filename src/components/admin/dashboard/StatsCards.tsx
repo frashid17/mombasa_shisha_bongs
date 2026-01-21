@@ -13,7 +13,7 @@ export default async function StatsCards() {
   let totalRevenue = { _sum: { total: null } }
   let totalOrders = 0
   let totalProducts = 0
-  let totalCustomers: { userId: string }[] = []
+  let totalCustomersCount = 0
   let previousMonthRevenue = { _sum: { total: null } }
   let previousMonthOrders = 0
 
@@ -28,8 +28,24 @@ export default async function StatsCards() {
       prisma.order.count().catch(() => 0),
       // Total Products
       prisma.product.count({ where: { isActive: true } }).catch(() => 0),
-      // Total Customers (unique userIds)
-      prisma.order.findMany({ select: { userId: true }, distinct: ['userId'] }).catch(() => []),
+      // Total Customers (same grouping logic as /admin/customers)
+      prisma.order
+        .groupBy({
+          by: ['userId', 'userEmail', 'userName', 'userPhone'],
+          _sum: {
+            total: true,
+          },
+          _count: {
+            _all: true,
+          },
+          _min: {
+            createdAt: true,
+          },
+          _max: {
+            createdAt: true,
+          },
+        })
+        .catch(() => []),
       // Previous Month Revenue
       prisma.order.aggregate({
         where: {
@@ -55,7 +71,9 @@ export default async function StatsCards() {
     totalRevenue = results[0] as typeof totalRevenue
     totalOrders = results[1] as number
     totalProducts = results[2] as number
-    totalCustomers = results[3] as typeof totalCustomers
+    const customersGrouped = results[3] as any[]
+    // Use the same logic as CustomersPage: each grouped row is a customer entry
+    totalCustomersCount = customersGrouped.length
     previousMonthRevenue = results[4] as typeof previousMonthRevenue
     previousMonthOrders = results[5] as number
   } catch (error) {
@@ -94,7 +112,7 @@ export default async function StatsCards() {
     },
     {
       name: 'Customers',
-      value: totalCustomers.length.toString(),
+      value: totalCustomersCount.toString(),
       change: null,
       icon: Users,
       color: 'text-orange-600 bg-orange-100',
