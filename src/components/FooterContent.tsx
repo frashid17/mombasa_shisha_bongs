@@ -155,6 +155,18 @@ export function FooterContent({ categories }: FooterContentProps) {
               You must be 21+ to purchase. Age verification required.
             </p>
           </div>
+          <p className="text-center mt-4 text-sm text-gray-500">
+            Developed by{' '}
+            <a
+              href="https://patrick-mwangi.vercel.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-red-600 hover:text-red-700 font-medium transition-colors"
+            >
+              Fahim (Patrick)
+            </a>
+            {' '}with love
+          </p>
         </div>
       </div>
     </footer>
