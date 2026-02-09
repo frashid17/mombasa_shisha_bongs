@@ -191,39 +191,42 @@ async function handlePOST(req: Request) {
       }
     }
 
-    // Send order confirmation notification:
-    // - Immediately for CASH_ON_DELIVERY orders (so you see new COD orders in email)
-    // - When paymentStatus is PAID for online payments (M-Pesa / Paystack)
-    if (validated.paymentMethod === 'CASH_ON_DELIVERY' || order.paymentStatus === 'PAID') {
-      sendOrderConfirmationNotification(order.id, {
-        orderNumber: order.orderNumber,
-        customerName: order.userName,
-        customerEmail: order.userEmail,
-        customerPhone: order.userPhone,
-        total: Number(order.total),
-        items: order.items.map((item) => ({
-          name: item.productName,
-          quantity: item.quantity,
-          price: Number(item.price),
-          image: item.productImage || undefined,
-          colorId: item.colorId || undefined,
-          colorName: item.colorName || undefined,
-          colorValue: item.colorValue || undefined,
-          specId: item.specId || undefined,
-          specType: item.specType || undefined,
-          specName: item.specName || undefined,
-          specValue: item.specValue || undefined,
-        })),
-        deliveryAddress: order.deliveryAddress,
-        deliveryCity: order.deliveryCity,
-        deliveryLatitude: order.deliveryLatitude ? Number(order.deliveryLatitude) : null,
-        deliveryLongitude: order.deliveryLongitude ? Number(order.deliveryLongitude) : null,
-        paymentMethod: validated.paymentMethod,
-        paymentStatus: order.paymentStatus,
-      }).catch((error) => {
-        console.error('Failed to send order confirmation notification:', error)
+    // Send order confirmation email for Pay on Delivery (COD) and for already-paid orders.
+    // Await so the email is sent before responding (avoids serverless killing the process).
+    const shouldSendOrderEmail =
+      validated.paymentMethod === 'CASH_ON_DELIVERY' || order.paymentStatus === 'PAID'
+    if (shouldSendOrderEmail) {
+      try {
+        await sendOrderConfirmationNotification(order.id, {
+          orderNumber: order.orderNumber,
+          customerName: order.userName,
+          customerEmail: order.userEmail,
+          customerPhone: order.userPhone,
+          total: Number(order.total),
+          items: order.items.map((item) => ({
+            name: item.productName,
+            quantity: item.quantity,
+            price: Number(item.price),
+            image: item.productImage || undefined,
+            colorId: item.colorId || undefined,
+            colorName: item.colorName || undefined,
+            colorValue: item.colorValue || undefined,
+            specId: item.specId || undefined,
+            specType: item.specType || undefined,
+            specName: item.specName || undefined,
+            specValue: item.specValue || undefined,
+          })),
+          deliveryAddress: order.deliveryAddress,
+          deliveryCity: order.deliveryCity,
+          deliveryLatitude: order.deliveryLatitude ? Number(order.deliveryLatitude) : null,
+          deliveryLongitude: order.deliveryLongitude ? Number(order.deliveryLongitude) : null,
+          paymentMethod: validated.paymentMethod,
+          paymentStatus: order.paymentStatus,
+        })
+      } catch (err) {
+        console.error('Failed to send order confirmation notification:', err)
         // Don't fail the order creation if notification fails
-      })
+      }
     }
 
     return createSecureResponse({ order }, 201)
