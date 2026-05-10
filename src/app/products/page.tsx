@@ -59,11 +59,21 @@ async function getProducts(searchParams: {
     where.brand = { contains: searchParams.brand, mode: 'insensitive' }
   }
 
-  // Stock status filter
+  // Stock status filter (admin “sold out” counts as unavailable)
   if (searchParams.stockStatus === 'in_stock') {
     where.stock = { gt: 0 }
+    where.isSoldOut = false
   } else if (searchParams.stockStatus === 'out_of_stock') {
-    where.stock = { lte: 0 }
+    const outOfStock = {
+      OR: [{ stock: { lte: 0 } }, { isSoldOut: true }],
+    }
+    if (where.OR) {
+      const searchOr = where.OR
+      delete where.OR
+      where.AND = [{ OR: searchOr }, outOfStock]
+    } else {
+      where.OR = outOfStock.OR
+    }
   }
 
   // Price range filter

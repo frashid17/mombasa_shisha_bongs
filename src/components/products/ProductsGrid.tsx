@@ -6,6 +6,11 @@ import { ShoppingCart, Heart } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
 import { useCurrency } from '@/contexts/CurrencyContext'
+import ProductBadges from '@/components/products/ProductBadges'
+import {
+  getUnavailablePurchaseLabel,
+  isProductUnavailableForPurchase,
+} from '@/lib/product-availability'
 
 interface ProductsGridProps {
   products: Array<{
@@ -16,6 +21,7 @@ interface ProductsGridProps {
     images: Array<{ url: string }>
     category: { name: string }
     stock: number
+    isSoldOut?: boolean
     slug?: string
   }>
 }
@@ -28,7 +34,7 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
   const handleAddToCart = async (product: any, e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (product.stock === 0) return
+    if (isProductUnavailableForPurchase(product)) return
 
     // Check if product has required colors or specs
     try {
@@ -71,6 +77,11 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
       {products.map((product) => {
         const inWishlist = isInWishlist(product.id)
+        const unavailable = isProductUnavailableForPurchase(product)
+        const unavailableLabel = getUnavailablePurchaseLabel(product)
+        const hasDiscount = Boolean(
+          product.compareAtPrice && Number(product.compareAtPrice) > Number(product.price)
+        )
 
         return (
           <div
@@ -78,12 +89,27 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
             className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-all flex flex-col h-full"
           >
             <Link href={`/products/${product.id}`} className="relative h-48 sm:h-56 md:h-64 bg-white overflow-hidden">
+              <ProductBadges
+                stock={product.stock}
+                isSoldOut={product.isSoldOut}
+                hasDiscount={hasDiscount}
+                price={Number(product.price)}
+                compareAtPrice={product.compareAtPrice ?? null}
+              />
+              {unavailable && (
+                <div
+                  className="pointer-events-none absolute inset-0 z-[5] bg-gray-50/70 backdrop-blur-[1px]"
+                  aria-hidden
+                />
+              )}
               {product.images[0] ? (
                 <Image
                   src={product.images[0].url}
                   alt={product.name}
                   fill
-                  className="object-contain hover:scale-105 transition-transform duration-500"
+                  className={`object-contain transition-transform duration-500 ${
+                    unavailable ? 'opacity-75 saturate-75' : 'hover:scale-105'
+                  }`}
                 />
               ) : (
                 <div className="h-full bg-gray-50 flex items-center justify-center">
@@ -107,17 +133,33 @@ export default function ProductsGrid({ products }: ProductsGridProps) {
                   )}
                 </div>
               </div>
+              {unavailableLabel && (
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-600 sm:text-sm">
+                  {unavailableLabel}
+                </p>
+              )}
               <div className="flex items-center gap-1.5 sm:gap-2 mt-auto">
+                {unavailable ? (
+                  <div
+                    role="status"
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-100 px-2 py-2 text-xs font-semibold text-gray-700 sm:py-2.5 sm:text-sm"
+                  >
+                    <ShoppingCart className="h-3 w-3 shrink-0 text-gray-500 sm:h-4 sm:w-4" aria-hidden />
+                    {unavailableLabel}
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => handleAddToCart(product, e)}
+                    className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-2 bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2.5 rounded-md text-xs sm:text-sm font-semibold hover:bg-red-700 transition-all"
+                  >
+                    <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Add to Cart</span>
+                    <span className="sm:hidden">Add</span>
+                  </button>
+                )}
                 <button
-                  onClick={(e) => handleAddToCart(product, e)}
-                  disabled={product.stock === 0}
-                  className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-2 bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2.5 rounded-md text-xs sm:text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span className="hidden sm:inline">Add to Cart</span>
-                  <span className="sm:hidden">Add</span>
-                </button>
-                <button
+                  type="button"
                   onClick={(e) => handleToggleWishlist(product, e)}
                   className={`inline-flex items-center justify-center p-2 sm:p-2.5 rounded-md border transition-all ${
                     inWishlist

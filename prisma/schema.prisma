@@ -55,6 +55,7 @@ model Product {
   metaTitle          String?             @db.VarChar(255)
   metaDescription    String?             @db.VarChar(500)
   isActive           Boolean             @default(true)
+  isSoldOut          Boolean             @default(false)
   isFeatured         Boolean             @default(false)
   isNewArrival       Boolean             @default(false)
   createdAt          DateTime            @default(now())

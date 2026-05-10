@@ -1,12 +1,11 @@
 'use client'
 
-import { Badge } from 'lucide-react'
-
 interface ProductBadgesProps {
   isNewArrival?: boolean
   isFeatured?: boolean
   hasDiscount?: boolean
   stock: number
+  isSoldOut?: boolean
   compareAtPrice?: number | null
   price: number
   createdAt?: Date | string
@@ -17,11 +16,28 @@ export default function ProductBadges({
   isFeatured,
   hasDiscount,
   stock,
+  isSoldOut,
   compareAtPrice,
   price,
   createdAt,
 }: ProductBadgesProps) {
   const badges = []
+
+  if (isSoldOut) {
+    return (
+      <div className="absolute top-2 left-2 z-10 rounded-md bg-gray-900 px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg sm:text-xs">
+        Sold out
+      </div>
+    )
+  }
+
+  if (stock <= 0) {
+    return (
+      <div className="absolute top-2 left-2 z-10 rounded-md bg-gray-700 px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-white shadow-lg sm:text-xs">
+        Out of stock
+      </div>
+    )
+  }
 
   // Check if product is new (created in last 30 days)
   const isNew = createdAt

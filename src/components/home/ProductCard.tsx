@@ -9,6 +9,10 @@ import { useCartStore } from '@/store/cartStore'
 import { useWishlistStore } from '@/store/wishlistStore'
 import ProductBadges from '@/components/products/ProductBadges'
 import StockProgressBar from '@/components/products/StockProgressBar'
+import {
+  getUnavailablePurchaseLabel,
+  isProductUnavailableForPurchase,
+} from '@/lib/product-availability'
 
 interface Specification {
   id: string
@@ -28,6 +32,7 @@ interface ProductCardProps {
     images: Array<{ url: string; altText?: string | null }>
     category: { name: string } | null
     stock: number
+    isSoldOut?: boolean
     isFeatured?: boolean
     isNewArrival?: boolean
     slug?: string
@@ -70,11 +75,14 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     ? Math.round(((Number(product.compareAtPrice) - displayPrice) / Number(product.compareAtPrice)) * 100)
     : 0
 
+  const unavailable = isProductUnavailableForPurchase(product)
+  const unavailableLabel = getUnavailablePurchaseLabel(product)
+
   const handleQuickAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
 
-    if (product.stock === 0) return
+    if (unavailable) return
 
     // Check if product has required colors or specs
     try {
@@ -105,7 +113,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     e.preventDefault()
     e.stopPropagation()
 
-    if (product.stock === 0) return
+    if (unavailable) return
 
     // Check if product has specifications
     const hasSpecs = product.specifications && product.specifications.length > 0
@@ -152,10 +160,17 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
           isFeatured={product.isFeatured}
           hasDiscount={hasDiscount}
           stock={product.stock}
+          isSoldOut={product.isSoldOut}
           compareAtPrice={product.compareAtPrice}
           price={displayPrice}
           createdAt={product.createdAt}
         />
+        {unavailable && (
+          <div
+            className="pointer-events-none absolute inset-0 z-[5] bg-gray-50/70 backdrop-blur-[1px]"
+            aria-hidden
+          />
+        )}
         {product.images[0] ? (
           <>
             {/* Skeleton shimmer while image loads */}
@@ -168,8 +183,12 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               src={product.images[0].url}
               alt={product.images[0].altText || product.name}
               fill
-              className={`object-contain transition-transform duration-500 group-hover:scale-105 ${
-                imageLoaded ? 'opacity-100' : 'opacity-0'
+              className={`object-contain transition-transform duration-500 ${
+                imageLoaded
+                  ? unavailable
+                    ? 'opacity-75 saturate-75'
+                    : 'opacity-100 group-hover:scale-105'
+                  : 'opacity-0'
               }`}
               onLoad={() => setImageLoaded(true)}
             />
@@ -200,10 +219,15 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
               </p>
             )}
           </div>
+          {unavailableLabel && (
+            <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-gray-600 sm:text-sm">
+              {unavailableLabel}
+            </p>
+          )}
         </div>
 
         {/* Stock Progress Bar */}
-        {product.stock > 0 && (
+        {!unavailable && (
           <div className="mb-2 hidden sm:block">
             <StockProgressBar stock={product.stock} showText={false} />
           </div>
@@ -211,36 +235,69 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
 
         {/* Action Buttons - Add to Cart, Buy Now, and Wishlist */}
         <div className="space-y-1.5 sm:space-y-2 mt-auto">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <button
-              onClick={handleQuickAddToCart}
-              disabled={product.stock === 0}
-              className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-2 bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2.5 rounded-md text-xs sm:text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
-            >
-              <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-              <span className="hidden sm:inline">Add to Cart</span>
-              <span className="sm:hidden">Add</span>
-            </button>
-            <button
-              onClick={handleToggleWishlist}
-              className={`inline-flex items-center justify-center p-2 sm:p-2.5 rounded-md border transition-all duration-300 ${
-                wishlistActive
-                  ? 'bg-red-600 border-red-600 text-white hover:bg-red-700'
-                  : 'bg-white border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600'
-              }`}
-              aria-label={wishlistActive ? 'Remove from wishlist' : 'Add to wishlist'}
-            >
-              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${wishlistActive ? 'fill-current' : ''}`} />
-            </button>
-          </div>
-          <button
-            onClick={handleQuickBuyNow}
-            disabled={product.stock === 0}
-            className="w-full inline-flex items-center justify-center gap-1 sm:gap-2 bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2.5 rounded-md text-xs sm:text-sm font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 whitespace-nowrap"
-          >
-            <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
-            <span>Buy Now</span>
-          </button>
+          {unavailable ? (
+            <>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <div
+                  role="status"
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-gray-200 bg-gray-100 px-2 py-2 text-xs font-semibold text-gray-700 sm:gap-2 sm:px-3 sm:py-2.5 sm:text-sm"
+                >
+                  <ShoppingCart className="h-3 w-3 shrink-0 text-gray-500 sm:h-4 sm:w-4" aria-hidden />
+                  <span>{unavailableLabel}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleToggleWishlist}
+                  className={`inline-flex items-center justify-center p-2 sm:p-2.5 rounded-md border transition-all duration-300 ${
+                    wishlistActive
+                      ? 'bg-red-600 border-red-600 text-white hover:bg-red-700'
+                      : 'bg-white border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600'
+                  }`}
+                  aria-label={wishlistActive ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${wishlistActive ? 'fill-current' : ''}`} />
+                </button>
+              </div>
+              <div className="flex w-full items-center justify-center gap-1 rounded-md border border-dashed border-gray-200 bg-gray-50 px-2 py-2 text-xs font-medium text-gray-500 sm:text-sm">
+                <Sparkles className="h-3 w-3 shrink-0 sm:h-4 sm:w-4" aria-hidden />
+                Not available to purchase
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={handleQuickAddToCart}
+                  className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-2 bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2.5 rounded-md text-xs sm:text-sm font-semibold hover:bg-red-700 transition-all duration-300 whitespace-nowrap"
+                >
+                  <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                  <span className="hidden sm:inline">Add to Cart</span>
+                  <span className="sm:hidden">Add</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleToggleWishlist}
+                  className={`inline-flex items-center justify-center p-2 sm:p-2.5 rounded-md border transition-all duration-300 ${
+                    wishlistActive
+                      ? 'bg-red-600 border-red-600 text-white hover:bg-red-700'
+                      : 'bg-white border-gray-300 text-gray-600 hover:border-red-500 hover:text-red-600'
+                  }`}
+                  aria-label={wishlistActive ? 'Remove from wishlist' : 'Add to wishlist'}
+                >
+                  <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${wishlistActive ? 'fill-current' : ''}`} />
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={handleQuickBuyNow}
+                className="w-full inline-flex items-center justify-center gap-1 sm:gap-2 bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2.5 rounded-md text-xs sm:text-sm font-semibold hover:bg-green-700 transition-all duration-300 whitespace-nowrap"
+              >
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+                <span>Buy Now</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

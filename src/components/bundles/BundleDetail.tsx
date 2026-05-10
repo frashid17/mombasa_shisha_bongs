@@ -7,6 +7,7 @@ import { Package, ShoppingCart, ArrowRight, Check } from 'lucide-react'
 import { useCartStore } from '@/store/cartStore'
 import { useCurrency } from '@/contexts/CurrencyContext'
 import { useRouter } from 'next/navigation'
+import { isProductUnavailableForPurchase } from '@/lib/product-availability'
 
 interface BundleItem {
   id: string
@@ -22,6 +23,8 @@ interface BundleItem {
     price: number
     image: string | null
     slug: string
+    stock: number
+    isSoldOut: boolean
     category?: { id: string; name: string; slug: string } | null
     colors?: Array<{ id: string; name: string; value: string }>
     specifications?: Array<{ id: string; type: string; name: string; value: string | null }>
@@ -58,6 +61,12 @@ export default function BundleDetail({
   const { addBundle } = useCartStore()
   const { format } = useCurrency()
   const router = useRouter()
+
+  const bundleHasUnavailableProduct = bundle.items.some(
+    (item) =>
+      isProductUnavailableForPurchase(item.product) ||
+      item.product.stock < item.quantity
+  )
 
   // Initialize selected options with preselected values
   useEffect(() => {
@@ -293,6 +302,7 @@ export default function BundleDetail({
           <button
             onClick={handleAddToCart}
             disabled={
+              bundleHasUnavailableProduct ||
               bundle.items.some((item) => {
                 if (item.allowColorSelection && item.product.colors && item.product.colors.length > 0) {
                   const itemOptions = selectedOptions[item.id] || {}
@@ -311,6 +321,12 @@ export default function BundleDetail({
             Add Bundle to Cart
             <ArrowRight className="w-5 h-5" />
           </button>
+
+          {bundleHasUnavailableProduct && (
+            <p className="text-sm text-red-600 text-center mt-2">
+              This bundle includes a product that is sold out or does not have enough stock.
+            </p>
+          )}
 
           {bundle.items.some((item) => 
             (item.allowColorSelection && item.product.colors && item.product.colors.length > 0) ||

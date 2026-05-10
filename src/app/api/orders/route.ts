@@ -58,6 +58,16 @@ async function handlePOST(req: Request) {
         )
       }
 
+      if (product.isSoldOut) {
+        return createSecureResponse(
+          {
+            success: false,
+            error: `${product.name} is sold out and cannot be purchased.`,
+          },
+          400
+        )
+      }
+
       if (product.trackInventory && !product.allowBackorder) {
         if (product.stock < item.quantity) {
           return createSecureResponse(

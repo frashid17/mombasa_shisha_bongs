@@ -44,6 +44,7 @@ export async function GET() {
             images: p.images,
             category: p.category,
             stock: p.stock,
+            isSoldOut: p.isSoldOut,
           })),
         }
       })

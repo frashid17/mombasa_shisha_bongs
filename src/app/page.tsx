@@ -218,6 +218,7 @@ async function getActiveFlashSales() {
           images: p.images,
           category: p.category,
           stock: p.stock,
+          isSoldOut: p.isSoldOut,
         })),
       }
     })
@@ -275,6 +276,8 @@ async function getActiveBundles() {
         price: Number(item.product.price),
         image: item.product.images[0]?.url || item.product.featuredImage,
         slug: item.product.slug,
+        stock: item.product.stock,
+        isSoldOut: item.product.isSoldOut,
         colors: item.product.colors.map((c) => ({
           id: c.id,
           name: c.name,

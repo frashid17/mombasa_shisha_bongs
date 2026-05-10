@@ -31,6 +31,7 @@ export const createProductSchema = z.object({
   metaTitle: z.string().max(255).optional(),
   metaDescription: z.string().max(500).optional(),
   isActive: z.boolean().default(true),
+  isSoldOut: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
   isNewArrival: z.boolean().default(false),
 })

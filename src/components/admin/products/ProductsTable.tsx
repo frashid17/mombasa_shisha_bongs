@@ -14,6 +14,7 @@ type Product = {
   price: number | string
   stock: number
   isActive: boolean
+  isSoldOut?: boolean
 }
 
 type ProductWithRelations = Product & {
@@ -25,6 +26,28 @@ type ProductWithRelations = Product & {
 export default function ProductsTable({ products }: { products: ProductWithRelations[] }) {
   const router = useRouter()
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [availabilityUpdatingId, setAvailabilityUpdatingId] = useState<string | null>(null)
+
+  const handleAvailabilityChange = async (productId: string, available: boolean) => {
+    setAvailabilityUpdatingId(productId)
+    try {
+      const res = await fetch(`/api/admin/products/${productId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isSoldOut: !available }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Failed to update availability')
+      }
+      toast.success(available ? 'Marked as available' : 'Marked as sold out')
+      router.refresh()
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to update availability')
+    } finally {
+      setAvailabilityUpdatingId(null)
+    }
+  }
 
   const handleDelete = async (productId: string, productName: string) => {
     if (!confirm(`Are you sure you want to delete "${productName}"? This action cannot be undone.`)) {
@@ -54,6 +77,10 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
 
   // Mobile Card Component
   const ProductCard = ({ product }: { product: ProductWithRelations }) => {
+    const isSoldOut = product.isSoldOut ?? false
+    const available = !isSoldOut
+    const busy = availabilityUpdatingId === product.id
+
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
         {/* Header with Image and Title */}
@@ -72,7 +99,7 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
           <div className="flex-1 min-w-0">
             <h3 className="text-base font-bold text-gray-900 truncate">{product.name}</h3>
             <p className="text-xs text-gray-600 mt-1">{product.sku}</p>
-            <div className="flex items-center gap-2 mt-2">
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
               <span
                 className={`px-2 py-1 text-xs rounded-full font-medium ${
                   product.isActive
@@ -82,9 +109,30 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
               >
                 {product.isActive ? 'Active' : 'Inactive'}
               </span>
+              {isSoldOut && (
+                <span className="px-2 py-1 text-xs rounded-full font-medium bg-gray-900 text-white">
+                  Sold out
+                </span>
+              )}
               <span className="text-xs text-gray-600">{product.category?.name || 'Uncategorized'}</span>
             </div>
           </div>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-gray-200">
+          <label className="flex items-center gap-2 text-sm font-medium text-gray-900 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={available}
+              disabled={busy}
+              onChange={(e) =>
+                handleAvailabilityChange(product.id, e.target.checked)
+              }
+              className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 disabled:opacity-50"
+            />
+            <span>{available ? 'Available' : 'Sold out'}</span>
+          </label>
+          {busy && <span className="text-xs text-gray-500">Saving…</span>}
         </div>
 
         {/* Details Grid */}
@@ -156,12 +204,20 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Price</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Stock</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Sales</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 whitespace-nowrap">
+                    Availability
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold text-gray-900 uppercase">Status</th>
                   <th className="px-6 py-3 text-right text-xs font-semibold text-gray-900 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {products.map((product) => (
+                {products.map((product) => {
+                  const isSoldOut = product.isSoldOut ?? false
+                  const available = !isSoldOut
+                  const busy = availabilityUpdatingId === product.id
+
+                  return (
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -187,15 +243,39 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
                     <td className="px-6 py-4 text-sm text-gray-900">{product.stock}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{product._count.orderItems}</td>
                     <td className="px-6 py-4">
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          product.isActive
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {product.isActive ? 'Active' : 'Inactive'}
-                      </span>
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={available}
+                          disabled={busy}
+                          onChange={(e) =>
+                            handleAvailabilityChange(product.id, e.target.checked)
+                          }
+                          title={available ? 'Uncheck to mark sold out' : 'Check to mark available'}
+                          className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 disabled:opacity-50"
+                        />
+                        <span className="text-sm text-gray-900 whitespace-nowrap">
+                          {busy ? 'Saving…' : available ? 'Available' : 'Sold out'}
+                        </span>
+                      </label>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-1 items-start">
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${
+                            product.isActive
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {product.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                        {isSoldOut && (
+                          <span className="px-2 py-1 text-xs rounded-full bg-gray-900 text-white">
+                            Sold out
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2">
@@ -224,7 +304,8 @@ export default function ProductsTable({ products }: { products: ProductWithRelat
                       </div>
                     </td>
                 </tr>
-              ))}
+                  )
+                })}
             </tbody>
           </table>
           </div>

@@ -19,6 +19,7 @@ import { getRecommendedProducts } from '@/lib/recommendations'
 import { serializeProduct, serializeProducts } from '@/lib/prisma-serialize'
 import StructuredData from '@/components/seo/StructuredData'
 import StockProgressBar from '@/components/products/StockProgressBar'
+import { isProductUnavailableForPurchase } from '@/lib/product-availability'
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://mombasashishabongs.com'
 
@@ -169,6 +170,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     isActive: spec.isActive,
   })) || []
 
+  const canPurchase = !isProductUnavailableForPurchase(product)
+
   const breadcrumbs = [
     { name: 'Home', url: '/' },
     { name: 'Products', url: '/products' },
@@ -233,7 +236,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
           <div className="mb-6 space-y-3">
             <p className="text-sm text-gray-600">SKU: {product.sku}</p>
-            {product.stock > 0 ? (
+            {product.isSoldOut ? (
+              <p className="text-red-600 font-semibold">Sold out</p>
+            ) : product.stock > 0 ? (
               <div>
                 <p className="text-green-600 font-semibold mb-2">In Stock ({product.stock} available)</p>
                 <StockProgressBar stock={product.stock} showText={true} />
@@ -244,7 +249,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           </div>
 
           {/* Action Buttons - Like Screenshot */}
-          {product.stock > 0 && (
+          {canPurchase && (
             <ProductPriceWrapper
               basePrice={Number(product.price)}
               compareAtPrice={product.compareAtPrice ? Number(product.compareAtPrice) : null}
@@ -298,7 +303,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             />
           </div>
 
-          {product.stock === 0 && (
+          {!canPurchase && (
             <StockNotificationButton
               productId={product.id}
               productName={product.name}

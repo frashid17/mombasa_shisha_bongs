@@ -4,6 +4,10 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCartStore } from '@/store/cartStore'
 import { Zap } from 'lucide-react'
+import {
+  getUnavailablePurchaseLabel,
+  isProductUnavailableForPurchase,
+} from '@/lib/product-availability'
 
 interface Color {
   id: string
@@ -100,15 +104,22 @@ export default function BuyNowButton({
   const hasSpecs = specs.length > 0
   const canBuy = (!hasColors || (hasColors && selectedColorId)) && 
                  (!hasSpecs || (hasSpecs && selectedSpecId))
+  const unavailable = isProductUnavailableForPurchase(product)
+  const unavailableLabel = getUnavailablePurchaseLabel(product)
 
   return (
     <button
+      type="button"
       onClick={handleBuyNow}
-      disabled={loading || product.stock === 0 || !canBuy}
-      className="w-full flex items-center justify-center gap-2 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      disabled={loading || unavailable || !canBuy}
+      className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+        unavailable
+          ? 'cursor-not-allowed border border-gray-200 bg-gray-50 text-gray-500'
+          : 'bg-green-600 text-white hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed'
+      }`}
     >
-      <Zap className="w-5 h-5" />
-      {loading ? 'Processing...' : 'Buy Now'}
+      <Zap className="w-5 h-5 shrink-0" />
+      {loading ? 'Processing...' : unavailable && unavailableLabel ? unavailableLabel : 'Buy Now'}
     </button>
   )
 }

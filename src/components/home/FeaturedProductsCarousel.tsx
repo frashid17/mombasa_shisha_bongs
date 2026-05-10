@@ -12,6 +12,7 @@ interface Product {
   images: Array<{ url: string; altText?: string | null }>
   category: { name: string }
   stock: number
+  isSoldOut?: boolean
   isFeatured?: boolean
 }
 
@@ -118,7 +119,11 @@ export default function FeaturedProductsCarousel({ products }: FeaturedProductsC
                         <p className="text-4xl md:text-5xl font-bold text-blue-400 mb-6">
                           KES {product.price.toLocaleString()}
                         </p>
-                        {product.stock > 0 ? (
+                        {product.isSoldOut ? (
+                          <span className="inline-block bg-gray-900 text-gray-300 text-sm px-3 py-1 rounded-full border border-gray-600">
+                            Sold out
+                          </span>
+                        ) : product.stock > 0 ? (
                           <span className="inline-block bg-green-900 text-green-400 text-sm px-3 py-1 rounded-full border border-green-700">
                             In Stock
                           </span>

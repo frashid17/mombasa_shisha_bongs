@@ -17,6 +17,28 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   }
 }
 
+/** Partial update (e.g. toggle sold out) without touching images */
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { userId } = await auth()
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const { id } = await params
+    const body = await req.json()
+    const data = updateProductSchema.parse(body)
+
+    const product = await prisma.product.update({
+      where: { id },
+      data,
+      include: { category: true, images: true },
+    })
+
+    return NextResponse.json(product)
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 400 })
+  }
+}
+
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { userId } = await auth()

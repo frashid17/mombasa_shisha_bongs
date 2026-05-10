@@ -5,20 +5,29 @@ import prisma from '@/lib/prisma'
 import ProductsTable from '@/components/admin/products/ProductsTable'
 import CleanupButton from '@/components/admin/products/CleanupButton'
 import { serializeProducts } from '@/lib/prisma-serialize'
+import { Prisma } from '@/generated/prisma'
 
 async function getProducts() {
-  const products = await prisma.product.findMany({
-    include: {
-      category: true,
-      images: { take: 1 },
-      _count: { select: { orderItems: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-    take: 200, // Limit to most recent 200 products to avoid loading huge catalogs at once
-  })
-  
-  // Convert Decimal to number for client components
-  return serializeProducts(products)
+  try {
+    const products = await prisma.product.findMany({
+      include: {
+        category: true,
+        images: { take: 1 },
+        _count: { select: { orderItems: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 200, // Limit to most recent 200 products to avoid loading huge catalogs at once
+    })
+
+    return serializeProducts(products)
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error('[Admin/products] Prisma:', e.code, e.message, e.meta)
+    } else {
+      console.error('[Admin/products]', e)
+    }
+    throw e
+  }
 }
 
 export default async function ProductsPage() {

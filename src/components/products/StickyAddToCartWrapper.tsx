@@ -21,6 +21,7 @@ interface StickyAddToCartWrapperProps {
     compareAtPrice?: number | null
     images: Array<{ url: string; altText?: string | null }>
     stock: number
+    isSoldOut?: boolean
     slug?: string
   }
   basePrice: number

@@ -1,3 +1,5 @@
+import { isProductUnavailableForPurchase } from '@/lib/product-availability'
+
 interface StructuredDataProps {
   type: 'Organization' | 'Product' | 'BreadcrumbList' | 'Article'
   data?: any
@@ -10,6 +12,7 @@ interface ProductData {
   sku?: string | null
   price: number | string
   stock: number
+  isSoldOut?: boolean | null
   images?: { url: string }[]
   category?: { name: string } | null
 }
@@ -71,7 +74,12 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
             url: `${siteUrl}/products/${product.id}`,
             priceCurrency: 'KES',
             price: Number(product.price),
-            availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            availability: isProductUnavailableForPurchase({
+              stock: Number(product.stock),
+              isSoldOut: product.isSoldOut,
+            })
+              ? 'https://schema.org/OutOfStock'
+              : 'https://schema.org/InStock',
             seller: {
               '@type': 'Organization',
               name: 'Mombasa Shisha Bongs',

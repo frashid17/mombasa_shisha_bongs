@@ -194,6 +194,7 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       categoryId: formData.get('categoryId'),
       brand: formData.get('brand') || null,
       isActive: formData.get('isActive') === 'on',
+      isSoldOut: formData.get('isSoldOut') === 'on',
       images: imageUrls.map((url, index) => {
         // Find the original image index to get altText and isPrimary
         const originalIndex = images.findIndex(img => img.url.trim() === url)
@@ -374,7 +375,22 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
           />
           <label htmlFor="product-active" className="text-sm font-semibold text-gray-900">Active</label>
         </div>
+        <div className="flex items-center gap-2 pt-6">
+          <input
+            type="checkbox"
+            id="product-sold-out"
+            name="isSoldOut"
+            defaultChecked={product?.isSoldOut ?? false}
+            className="w-4 h-4"
+          />
+          <label htmlFor="product-sold-out" className="text-sm font-semibold text-gray-900">
+            Mark as sold out
+          </label>
+        </div>
       </div>
+      <p className="text-sm text-gray-500 -mt-2">
+        Sold-out products stay visible in the catalog but customers cannot add them to the cart or checkout.
+      </p>
       <div>
         <label htmlFor="product-description" className="block text-sm font-semibold text-gray-900 mb-2">Description</label>
         <textarea

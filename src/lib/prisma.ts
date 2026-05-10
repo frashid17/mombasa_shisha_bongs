@@ -65,15 +65,8 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma
 }
 
-// Handle connection errors gracefully
-prisma.$on('error' as never, (e: any) => {
-  console.error('[Prisma] Database error:', {
-    message: e?.message || 'Unknown error',
-    code: e?.code,
-    meta: e?.meta,
-    error: e
-  })
-})
+// Note: Do not use prisma.$on('error') unless log includes `{ emit: 'event', level: 'error' }`.
+// Without that, handlers receive empty objects and hide real failures.
 
 // Retry wrapper for queries that fail due to connection issues
 export async function withRetry<T>(

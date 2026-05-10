@@ -3,6 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useCartStore } from '@/store/cartStore'
 import { ShoppingCart } from 'lucide-react'
+import {
+  getUnavailablePurchaseLabel,
+  isProductUnavailableForPurchase,
+} from '@/lib/product-availability'
 
 interface Color {
   id: string
@@ -93,15 +97,22 @@ export default function AddToCartButton({
   const hasSpecs = specs.length > 0
   const canAdd = (!hasColors || (hasColors && selectedColorId)) && 
                  (!hasSpecs || (hasSpecs && selectedSpecId))
+  const unavailable = isProductUnavailableForPurchase(product)
+  const unavailableLabel = getUnavailablePurchaseLabel(product)
 
   return (
     <button
+      type="button"
       onClick={handleAdd}
-      disabled={loading || product.stock === 0 || !canAdd}
-      className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+      disabled={loading || unavailable || !canAdd}
+      className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-md font-semibold transition-all ${
+        unavailable
+          ? 'cursor-not-allowed border border-gray-200 bg-gray-100 text-gray-600'
+          : 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed'
+      }`}
     >
-      <ShoppingCart className="w-5 h-5" />
-      {loading ? 'Adding...' : 'Add to Cart'}
+      <ShoppingCart className="w-5 h-5 shrink-0" />
+      {loading ? 'Adding...' : unavailable && unavailableLabel ? unavailableLabel : 'Add to Cart'}
     </button>
   )
 }

@@ -188,6 +188,12 @@ export default async function AdminProductDetailPage({ params }: { params: Promi
                   {product.allowBackorder ? 'Yes' : 'No'}
                 </span>
               </div>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-gray-600">Sold out (storefront):</p>
+                <span className={product.isSoldOut ? 'text-red-600 font-semibold' : 'text-green-600'}>
+                  {product.isSoldOut ? 'Yes — hidden from purchase' : 'No'}
+                </span>
+              </div>
             </div>
           </div>
 

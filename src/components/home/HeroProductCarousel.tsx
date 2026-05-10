@@ -14,6 +14,7 @@ interface Product {
   images: Array<{ url: string; altText?: string | null }>
   category: { name: string }
   stock: number
+  isSoldOut?: boolean
 }
 
 interface HeroProductCarouselProps {
@@ -166,7 +167,11 @@ export default function HeroProductCarousel({ products }: HeroProductCarouselPro
                         </p>
                       )}
                     </div>
-                    {product.stock > 0 ? (
+                    {product.isSoldOut ? (
+                      <span className="inline-block mt-2 bg-gray-900/50 text-gray-300 text-xs px-2 py-1 rounded-full border border-gray-600">
+                        Sold out
+                      </span>
+                    ) : product.stock > 0 ? (
                       <span className="inline-block mt-2 bg-green-900/50 text-green-300 text-xs px-2 py-1 rounded-full border border-green-700">
                         In Stock
                       </span>

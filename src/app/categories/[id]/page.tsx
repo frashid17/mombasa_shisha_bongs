@@ -132,6 +132,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
                       name: product.category.name,
                     } : null,
                     stock: product.stock,
+                    isSoldOut: product.isSoldOut,
                     specifications: product.specifications?.map((spec: any) => ({
                       id: spec.id,
                       type: spec.type,

@@ -1,12 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { ShoppingCart } from 'lucide-react'
-import { useCartStore } from '@/store/cartStore'
 import { useCurrency } from '@/contexts/CurrencyContext'
-import toast from 'react-hot-toast'
 import AddToCartButton from '@/components/cart/AddToCartButton'
 import AddToWishlistButton from '@/components/wishlist/AddToWishlistButton'
+import { isProductUnavailableForPurchase } from '@/lib/product-availability'
 
 interface StickyAddToCartBarProps {
   product: {
@@ -16,6 +13,7 @@ interface StickyAddToCartBarProps {
     compareAtPrice?: number | null
     images: Array<{ url: string; altText?: string | null }>
     stock: number
+    isSoldOut?: boolean
     slug?: string
   }
   currentPrice: number
@@ -29,7 +27,7 @@ export default function StickyAddToCartBar({
 }: StickyAddToCartBarProps) {
   const { format } = useCurrency()
 
-  if (!isVisible || product.stock === 0) {
+  if (!isVisible || isProductUnavailableForPurchase(product)) {
     return null
   }
 
@@ -77,6 +75,7 @@ export default function StickyAddToCartBar({
                 price: currentPrice,
                 images: product.images || [],
                 stock: product.stock,
+                isSoldOut: product.isSoldOut,
               }}
             />
           </div>

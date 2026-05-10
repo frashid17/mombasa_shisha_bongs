@@ -59,6 +59,8 @@ async function getBundle(id: string) {
         image: item.product.images[0]?.url || item.product.featuredImage,
         slug: item.product.slug,
         category: item.product.category,
+        stock: item.product.stock,
+        isSoldOut: item.product.isSoldOut,
         colors: item.product.colors.map((c: any) => ({
           id: c.id,
           name: c.name,
