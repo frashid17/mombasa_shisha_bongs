@@ -27,6 +27,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     const body = await req.json()
     const data = updateProductSchema.parse(body)
 
+    // Keep storefront availability in sync with stock:
+    // Available → stock 100, Sold out → stock 0
+    if (typeof data.isSoldOut === 'boolean') {
+      data.stock = data.isSoldOut ? 0 : 100
+    }
+
     const product = await prisma.product.update({
       where: { id },
       data,
@@ -48,6 +54,15 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const body = await req.json()
     const { images, ...productData } = body
     const data = updateProductSchema.parse(productData)
+
+    // Sync stock with sold-out flag when that field is present
+    if (typeof data.isSoldOut === 'boolean') {
+      if (data.isSoldOut) {
+        data.stock = 0
+      } else if (data.stock === undefined || data.stock <= 0) {
+        data.stock = 100
+      }
+    }
 
     // Update product and handle images
     const product = await prisma.product.update({
