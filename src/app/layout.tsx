@@ -158,7 +158,8 @@ export default async function RootLayout({
             <ServiceWorkerRegistration />
             <PageLoader />
             <AgeVerification />
-            {!isAdminRoute && <ConditionalNavbar />}
+            {/* Client decides visibility so soft navigations never drop the nav */}
+            <ConditionalNavbar />
             {children}
             {!isAdminRoute && (
               <Suspense fallback={<div className="h-64 bg-gray-900" />}>
