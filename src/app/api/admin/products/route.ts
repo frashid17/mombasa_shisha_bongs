@@ -31,6 +31,12 @@ export async function POST(req: Request) {
     
     const data = createProductSchema.parse(productData)
 
+    if (data.isSoldOut) {
+      data.stock = 0
+    } else if (data.stock <= 0) {
+      data.stock = 100
+    }
+
     const product = await prisma.product.create({
       data: {
         ...data,
