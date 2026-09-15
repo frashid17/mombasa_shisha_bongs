@@ -41,135 +41,129 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
+const productCardInclude = {
+  images: { take: 1, select: { url: true, altText: true } },
+  category: { select: { name: true, slug: true } },
+  specifications: {
+    where: { isActive: true },
+    select: { id: true },
+    take: 1,
+  },
+} as const
+
 async function getFeaturedData() {
-  // Calculate date for "new arrivals" (products created in last 30 days)
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  // Get top-selling products for "featured" (based on order items)
-  const topSellingProducts = await withRetry(() => prisma.orderItem.groupBy({
-    by: ['productId'],
-    _sum: {
-      quantity: true,
-    },
-    orderBy: {
-      _sum: {
-        quantity: 'desc',
-      },
-    },
-    take: 8,
-  }))
+  // Run top-seller aggregation in parallel with everything that does not depend on it
+  const [
+    topSellingProducts,
+    categories,
+    newArrivals,
+    stats,
+    reviewsCount,
+    customerReviews,
+    allProducts,
+    recentFallback,
+  ] = await Promise.all([
+    withRetry(() =>
+      prisma.orderItem.groupBy({
+        by: ['productId'],
+        _sum: { quantity: true },
+        orderBy: { _sum: { quantity: 'desc' } },
+        take: 8,
+      })
+    ),
+    withRetry(() =>
+      prisma.category.findMany({
+        where: { isActive: true },
+        orderBy: { name: 'asc' },
+        take: 8,
+      })
+    ),
+    withRetry(() =>
+      prisma.product.findMany({
+        where: {
+          isActive: true,
+          createdAt: { gte: thirtyDaysAgo },
+        },
+        include: {
+          images: { take: 1, select: { url: true, altText: true } },
+          category: { select: { name: true, slug: true } },
+        },
+        take: 6,
+        orderBy: { createdAt: 'desc' },
+      })
+    ),
+    withRetry(() => prisma.product.count({ where: { isActive: true } })),
+    withRetry(() => prisma.review.count()),
+    withRetry(() =>
+      prisma.review.findMany({
+        where: { isApproved: true },
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          title: true,
+          userName: true,
+          createdAt: true,
+          product: {
+            select: {
+              name: true,
+              images: { take: 1, select: { url: true } },
+            },
+          },
+        },
+        take: 5,
+        orderBy: { createdAt: 'desc' },
+      })
+    ),
+    withRetry(() =>
+      prisma.product.findMany({
+        where: { isActive: true },
+        include: productCardInclude,
+        take: 8,
+        orderBy: { createdAt: 'desc' },
+      })
+    ),
+    // Prefetch recent products as featured fallback (used when no sales yet)
+    withRetry(() =>
+      prisma.product.findMany({
+        where: { isActive: true },
+        include: productCardInclude,
+        take: 6,
+        orderBy: { createdAt: 'desc' },
+      })
+    ),
+  ])
 
   const featuredProductIds = topSellingProducts.map((item) => item.productId)
   const featuredProductIdMap = new Map(
     topSellingProducts.map((item, index) => [item.productId, index])
   )
 
-  // Optimized: Reduced queries and data fetching for better LCP
-  const [categories, featuredProducts, newArrivals, stats, reviewsCount, customerReviews, allProducts] = await Promise.all([
-    withRetry(() => prisma.category.findMany({ 
-      where: { isActive: true }, 
-      orderBy: { name: 'asc' },
-      take: 8 // Limit categories
-    })),
-    // Featured products: Top-selling products (optimized includes)
-    withRetry(() => featuredProductIds.length > 0
-      ? prisma.product.findMany({
-          where: {
-            isActive: true,
-            id: { in: featuredProductIds },
-          },
-          include: {
-            images: { take: 1, select: { url: true, altText: true } },
-            category: { select: { name: true, slug: true } },
-            specifications: {
-              where: { isActive: true },
-              select: { id: true },
-              take: 1, // Just check if has specs
-            },
-          },
-          take: 6, // Reduced from 8
-        })
-      : // Fallback: If no sales yet, show recently created products
-        prisma.product.findMany({
-          where: { isActive: true },
-          include: { 
-            images: { take: 1, select: { url: true, altText: true } }, 
-            category: { select: { name: true, slug: true } },
-            specifications: {
-              where: { isActive: true },
-              select: { id: true },
-              take: 1,
-            },
-          },
-          take: 6,
-          orderBy: { createdAt: 'desc' },
-        })),
-    // New arrivals: Reduced data
-    withRetry(() => prisma.product.findMany({
-      where: {
-        isActive: true,
-        createdAt: {
-          gte: thirtyDaysAgo,
+  let featuredProducts = recentFallback
+  if (featuredProductIds.length > 0) {
+    featuredProducts = await withRetry(() =>
+      prisma.product.findMany({
+        where: {
+          isActive: true,
+          id: { in: featuredProductIds },
         },
-      },
-      include: {
-        images: { take: 1, select: { url: true, altText: true } },
-        category: { select: { name: true, slug: true } },
-      },
-      take: 6, // Reduced from 8
-      orderBy: { createdAt: 'desc' },
-    })),
-    withRetry(() => prisma.product.count({ where: { isActive: true } })),
-    withRetry(() => prisma.review.count()),
-    withRetry(() => prisma.review.findMany({
-      where: { isApproved: true },
-      select: {
-        id: true,
-        rating: true,
-        comment: true,
-        title: true,
-        userName: true,
-        createdAt: true,
-        product: {
-          select: {
-            name: true,
-            images: { take: 1, select: { url: true } },
-          },
-        },
-      },
-      take: 5, // Reduced from 6
-      orderBy: { createdAt: 'desc' },
-    })),
-    // Explore All: Reduced significantly
-    withRetry(() => prisma.product.findMany({
-      where: { isActive: true },
-      include: {
-        images: { take: 1, select: { url: true, altText: true } },
-        category: { select: { name: true, slug: true } },
-        specifications: {
-          where: { isActive: true },
-          select: { id: true },
-          take: 1,
-        },
-      },
-      take: 8, // Reduced from 12
-      orderBy: { createdAt: 'desc' },
-    })),
-  ])
-
-  // Sort featured products by their sales order (top sellers first)
-  const sortedFeaturedProducts = featuredProductIds.length > 0
-    ? [...featuredProducts].sort((a, b) => {
-        const aIndex = featuredProductIdMap.get(a.id) ?? Infinity
-        const bIndex = featuredProductIdMap.get(b.id) ?? Infinity
-        return aIndex - bIndex
+        include: productCardInclude,
+        take: 6,
       })
-    : featuredProducts
+    )
+    featuredProducts = [...featuredProducts].sort((a, b) => {
+      const aIndex = featuredProductIdMap.get(a.id) ?? Infinity
+      const bIndex = featuredProductIdMap.get(b.id) ?? Infinity
+      return aIndex - bIndex
+    })
+  }
 
   return {
     categories,
-    featuredProducts: sortedFeaturedProducts,
+    featuredProducts,
     newArrivals,
     stats,
     reviews: reviewsCount,
@@ -188,43 +182,67 @@ async function getActiveFlashSales() {
       endDate: { gte: now },
     },
     orderBy: { endDate: 'asc' },
+    take: 3,
   })
 
   if (flashSales.length === 0) return []
 
-  const flashSalesWithProducts = await Promise.all(
-    flashSales.map(async (sale) => {
-      const productIds = JSON.parse(sale.productIds) as string[]
-      const products = await prisma.product.findMany({
-        where: { id: { in: productIds }, isActive: true },
-        include: {
-          images: { take: 1 },
-          category: true,
-        },
+  // Single product query for all flash sales instead of N queries
+  const allProductIds = [
+    ...new Set(
+      flashSales.flatMap((sale) => {
+        try {
+          return JSON.parse(sale.productIds) as string[]
+        } catch {
+          return []
+        }
       })
+    ),
+  ]
 
-      return {
-        id: sale.id,
-        title: sale.title,
-        description: sale.description,
-        discountPercent: Number(sale.discountPercent),
-        startDate: sale.startDate,
-        endDate: sale.endDate,
-        products: products.map((p) => ({
-          id: p.id,
-          name: p.name,
-          price: Number(p.price),
-          compareAtPrice: p.compareAtPrice ? Number(p.compareAtPrice) : null,
-          images: p.images,
-          category: p.category,
-          stock: p.stock,
-          isSoldOut: p.isSoldOut,
+  const products =
+    allProductIds.length > 0
+      ? await prisma.product.findMany({
+          where: { id: { in: allProductIds }, isActive: true },
+          include: {
+            images: { take: 1, select: { url: true, altText: true } },
+            category: { select: { id: true, name: true, slug: true } },
+          },
+        })
+      : []
+
+  const productMap = new Map(products.map((p) => [p.id, p]))
+
+  return flashSales.map((sale) => {
+    let productIds: string[] = []
+    try {
+      productIds = JSON.parse(sale.productIds) as string[]
+    } catch {
+      productIds = []
+    }
+
+    return {
+      id: sale.id,
+      title: sale.title,
+      description: sale.description,
+      discountPercent: Number(sale.discountPercent),
+      startDate: sale.startDate,
+      endDate: sale.endDate,
+      products: productIds
+        .map((id) => productMap.get(id))
+        .filter(Boolean)
+        .map((p) => ({
+          id: p!.id,
+          name: p!.name,
+          price: Number(p!.price),
+          compareAtPrice: p!.compareAtPrice ? Number(p!.compareAtPrice) : null,
+          images: p!.images,
+          category: p!.category,
+          stock: p!.stock,
+          isSoldOut: p!.isSoldOut,
         })),
-      }
-    })
-  )
-
-  return flashSalesWithProducts
+    }
+  })
 }
 
 async function getActiveBundles() {
@@ -239,9 +257,22 @@ async function getActiveBundles() {
                 images: {
                   where: { isPrimary: true },
                   take: 1,
+                  select: { url: true },
                 },
-                colors: { where: { isActive: true } },
-                specifications: { where: { isActive: true } },
+                colors: {
+                  where: { isActive: true },
+                  select: { id: true, name: true, value: true },
+                },
+                specifications: {
+                  where: { isActive: true },
+                  select: {
+                    id: true,
+                    type: true,
+                    name: true,
+                    value: true,
+                    price: true,
+                  },
+                },
               },
             },
             color: true,
@@ -298,7 +329,16 @@ async function getActiveBundles() {
 }
 
 export default async function HomePage() {
-  const { categories, featuredProducts, newArrivals, stats, reviews, customerReviews, allProducts } = await getFeaturedData()
+  // Parallelize the three independent data loads (was a waterfall before)
+  const [featuredData, activeFlashSales, activeBundles] = await Promise.all([
+    getFeaturedData(),
+    getActiveFlashSales(),
+    getActiveBundles(),
+  ])
+
+  const { categories, featuredProducts, newArrivals, stats, reviews, customerReviews, allProducts } =
+    featuredData
+
   // Compute rating meta for homepage cards (keep heavy review UI in product pages)
   const mapWithRating = (products: any[]) =>
     products.map((p) => {
@@ -318,9 +358,7 @@ export default async function HomePage() {
   const serializedFeatured = serializeProducts(mapWithRating(featuredProducts))
   const serializedNewArrivals = serializeProducts(mapWithRating(newArrivals))
   const serializedAllProducts = serializeProducts(mapWithRating(allProducts))
-  const activeFlashSales = await getActiveFlashSales()
   const primaryFlashSale = activeFlashSales[0]
-  const activeBundles = await getActiveBundles()
 
   return (
     <>
