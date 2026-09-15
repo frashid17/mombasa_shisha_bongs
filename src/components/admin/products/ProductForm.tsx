@@ -185,16 +185,26 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
       return
     }
 
+    const isSoldOut = formData.get('isSoldOut') === 'on'
+    let stock = parseInt(formData.get('stock') as string)
+    if (Number.isNaN(stock)) stock = 0
+    // Keep catalog availability consistent with stock
+    if (isSoldOut) {
+      stock = 0
+    } else if (stock <= 0) {
+      stock = 100
+    }
+
     const data = {
       name: formData.get('name'),
       description: formData.get('description'),
       price: parseFloat(formData.get('price') as string),
-      stock: parseInt(formData.get('stock') as string),
+      stock,
       sku: formData.get('sku'),
       categoryId: formData.get('categoryId'),
       brand: formData.get('brand') || null,
       isActive: formData.get('isActive') === 'on',
-      isSoldOut: formData.get('isSoldOut') === 'on',
+      isSoldOut,
       images: imageUrls.map((url, index) => {
         // Find the original image index to get altText and isPrimary
         const originalIndex = images.findIndex(img => img.url.trim() === url)
@@ -389,7 +399,8 @@ export default function ProductForm({ categories, product }: ProductFormProps) {
         </div>
       </div>
       <p className="text-sm text-gray-500 -mt-2">
-        Sold-out products stay visible in the catalog but customers cannot add them to the cart or checkout.
+        Sold-out products stay visible but cannot be purchased. Marking sold out sets stock to 0;
+        unchecking it sets stock to 100 if stock was empty.
       </p>
       <div>
         <label htmlFor="product-description" className="block text-sm font-semibold text-gray-900 mb-2">Description</label>
